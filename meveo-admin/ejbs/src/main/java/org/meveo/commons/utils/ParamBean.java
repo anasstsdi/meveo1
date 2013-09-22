@@ -19,7 +19,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.util.Properties;
+
+import javax.inject.Named;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +30,13 @@ import org.slf4j.LoggerFactory;
 /**
  * @author anasseh
  */
-public class ParamBean {
+@Named
+public class ParamBean implements Serializable{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	private static final Logger log = LoggerFactory.getLogger(ParamBean.class);
 
@@ -51,7 +60,7 @@ public class ParamBean {
 	private static boolean reload = false;
 
 	public ParamBean(){
-	    
+		getInstance("meveo-admin.properties");
 	}
 	
 	/**
@@ -75,6 +84,7 @@ public class ParamBean {
 		}
 		setValid(initialize());
 	}
+	
 
 	/**
 	 * Retourne une instance de ParamBean.

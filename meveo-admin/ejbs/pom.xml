@@ -64,6 +64,53 @@
 					</execution>
 				</executions>
 			</plugin>
+			 <plugin>
+			      <artifactId>maven-war-plugin</artifactId>
+			      <version>2.1.1</version>
+			      <configuration>
+			        <!-- Java EE 6 doesn't require web.xml, Maven needs to catch up! -->
+			        <failOnMissingWebXml>false</failOnMissingWebXml>
+			        <archive>
+			          <manifestEntries>
+			            <Dependencies>org.infinispan export</Dependencies>
+			          </manifestEntries>
+			        </archive>
+			      </configuration>
+			    </plugin>
+			    <plugin>
+		            <groupId>org.apache.maven.plugins</groupId>
+		            <artifactId>maven-dependency-plugin</artifactId>
+		            <executions>
+		               <execution>
+		                  <goals>
+		                     <goal>copy</goal>
+		                  </goals>
+		                  <configuration>
+		                     <!-- Configure the plugin to copy the jar containing javax.annotation.*
+		                        to a folder named "endorsed" within the project's build directory -->
+		                     <artifactItems>
+		                        <artifactItem>
+		                           <groupId>org.jboss.spec.javax.annotation</groupId>
+		                           <artifactId>jboss-annotations-api_1.1_spec</artifactId>
+		                        </artifactItem>
+		                     </artifactItems>
+		                     <outputDirectory>${project.build.directory}/endorsed</outputDirectory>
+		                  </configuration>
+		               </execution>
+		            </executions>
+		         </plugin>
+		         <plugin>
+		            <groupId>org.apache.maven.plugins</groupId>
+		            <artifactId>maven-compiler-plugin</artifactId>
+		            <configuration>
+		               <source>1.6</source>
+		               <target>1.6</target>
+		               <!-- Setup the compiler plugin to use the endorsed directory containing
+		               the jar for javax.annotation.* classes. Remember that we setup this folder
+		               via the maven-dependency-plugin configuration, above. -->
+		               <compilerArgument>-Djava.endorsed.dirs=${project.build.directory}/endorsed</compilerArgument>
+		            </configuration>
+		         </plugin>
 		</plugins>
 	</build>
 
@@ -72,7 +119,18 @@
 			<groupId>org.manaty</groupId>
 			<artifactId>meveo-model</artifactId>
 		</dependency>
-
+		<dependency>
+			<groupId>org.infinispan</groupId>
+			<artifactId>infinispan-core</artifactId>
+			<version>5.1.8.Final</version><!-- use version used in jboss 7.1.3 -->
+			<scope>compile</scope>
+			<exclusions>
+				<exclusion>
+					<artifactId>jboss-logging</artifactId>
+					<groupId>org.jboss.logging</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 
 		<dependency>
 			<groupId>org.jboss.weld</groupId>
@@ -250,18 +308,6 @@
 		<!-- <dependency> <groupId>org.slf4j</groupId> <artifactId>slf4j-log4j12</artifactId> 
 			<version>1.7.2</version> </dependency> -->
 
-		<dependency>
-			<groupId>org.infinispan</groupId>
-			<artifactId>infinispan-core</artifactId>
-			<version>5.1.8.Final</version><!-- use version used in jboss 7.1.3 -->
-			<scope>compile</scope>
-			<exclusions>
-				<exclusion>
-					<artifactId>jboss-logging</artifactId>
-					<groupId>org.jboss.logging</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
 
 		<!-- For testing -->
 		<dependency>

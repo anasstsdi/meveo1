@@ -14,6 +14,7 @@ import org.meveo.commons.utils.ParamBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Named
 public class ComponentResources implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -34,7 +35,7 @@ public class ComponentResources implements Serializable {
 
 	@Produces
 	@ApplicationScoped
-	@Named
+	@Named("meveoParam")
 	public ParamBean getParamBean() {
 		return ParamBean.getInstance("meveo-admin.properties");
 	}

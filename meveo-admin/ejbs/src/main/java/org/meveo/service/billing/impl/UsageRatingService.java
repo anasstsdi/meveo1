@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+import javax.annotation.Resources;
 import javax.ejb.EJB;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
@@ -17,6 +19,7 @@ import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
+import org.infinispan.Cache;
 import org.meveo.model.billing.CounterInstance;
 import org.meveo.model.billing.CounterPeriod;
 import org.meveo.model.billing.InstanceStatusEnum;
@@ -50,16 +53,16 @@ public class UsageRatingService {
 
 	@Inject
 	protected Logger log;
+	
+	@Inject
+	private Cache<String, UsageChargeTemplateCache> chargeTemplateCache;
+	
+	@Inject
+	private Cache<Long, List<UsageChargeInstanceCache>> chargeCache;
+	
+	@Inject
+	private Cache<Long, CounterInstanceCache> counterCache;
 
-	// @Resource(lookup="java:jboss/infinispan/container/meveo")
-	// private CacheContainer meveoContainer;
-
-	// private org.infinispan.Cache<Long, List<UsageChargeInstanceCache>>
-	// chargeCache;
-	// private org.infinispan.Cache<Long, CounterInstanceCache> counterCache;
-	private static HashMap<String, UsageChargeTemplateCache> chargeTemplateCache;
-	private static HashMap<Long, List<UsageChargeInstanceCache>> chargeCache;
-	private static HashMap<Long, CounterInstanceCache> counterCache;
 
 	private static boolean cacheLoaded = false;
 
@@ -81,11 +84,6 @@ public class UsageRatingService {
 	@PostConstruct
 	public synchronized void updateCacheFromDB() {
 		if (!cacheLoaded) {
-			chargeTemplateCache = new HashMap<String, UsageChargeTemplateCache>();
-			// this.chargeCache = this.meveoContainer.getCache("usageCharge");
-			chargeCache = new HashMap<Long, List<UsageChargeInstanceCache>>();
-			// this.counterCache = this.meveoContainer.getCache("counter");
-			counterCache = new HashMap<Long, CounterInstanceCache>();
 			log.info("loading usage charge cache");
 			@SuppressWarnings("unchecked")
 			List<UsageChargeInstance> usageChargeInstances = em.createQuery(

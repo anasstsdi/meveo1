@@ -1,14 +1,9 @@
 package org.meveo.model.cache;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.logging.Logger;
 
-import org.infinispan.Cache;
-import org.meveo.model.billing.UsageChargeInstance;
-import org.meveo.model.catalog.UsageChargeTemplate;
 import org.meveo.model.crm.Provider;
 
 public class UsageChargeInstanceCache implements Comparable<UsageChargeInstanceCache>{
