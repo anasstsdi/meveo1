@@ -20,6 +20,7 @@ import org.meveo.api.exception.MissingParameterException;
 import org.meveo.asg.api.OfferPricePlanServiceApi;
 import org.meveo.asg.api.model.EntityCodeEnum;
 import org.meveo.commons.utils.ParamBean;
+import org.slf4j.Logger;
 
 /**
  * @author Edward P. Legaspi
@@ -32,6 +33,9 @@ import org.meveo.commons.utils.ParamBean;
 public class OfferPricePlanWS {
 
 	@Inject
+	private Logger log;
+
+	@Inject
 	private ParamBean paramBean;
 
 	@Inject
@@ -40,6 +44,8 @@ public class OfferPricePlanWS {
 	@POST
 	@Path("/")
 	public ActionStatus create(OfferPricePlanDto offerPricePlanDto) {
+		log.debug("create={}", offerPricePlanDto);
+
 		ActionStatus result = new ActionStatus(ActionStatusEnum.SUCCESS, "");
 
 		String offerPricePlanId = offerPricePlanDto.getOfferId();
@@ -71,8 +77,11 @@ public class OfferPricePlanWS {
 	@Path("/{offerId}/{organizationId}")
 	public ActionStatus remove(@PathParam("offerId") String offerId,
 			@PathParam("organizationId") String organizationId) {
+		log.debug("remove offerId={}, organizationId={}", offerId,
+				organizationId);
+
 		ActionStatus result = new ActionStatus(ActionStatusEnum.SUCCESS, "");
-		
+
 		try {
 			offerPricePlanServiceApi.remove(offerId, organizationId, Long
 					.valueOf(paramBean.getProperty("asp.api.userId", "1")),
@@ -94,6 +103,8 @@ public class OfferPricePlanWS {
 	@PUT
 	@Path("/")
 	public ActionStatus update(OfferPricePlanDto offerPricePlanDto) {
+		log.debug("update={}", offerPricePlanDto);
+		
 		ActionStatus result = new ActionStatus(ActionStatusEnum.SUCCESS, "");
 
 		try {

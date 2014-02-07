@@ -50,6 +50,8 @@ public class CustomerSubscriptionWithCreditLimitWS {
 	@Path("/")
 	public SubscriptionWithCreditLimitResponse create(
 			SubscriptionWithCreditLimitDto subscriptionDto) {
+		log.debug("create={}", subscriptionDto);
+		
 		SubscriptionWithCreditLimitResponse result = new SubscriptionWithCreditLimitResponse();
 
 		subscriptionDto.setCurrentUserId(Long.valueOf(paramBean.getProperty(
@@ -93,6 +95,8 @@ public class CustomerSubscriptionWithCreditLimitWS {
 	@Path("/")
 	public SubscriptionWithCreditLimitResponse update(
 			SubscriptionWithCreditLimitUpdateDto subscriptionUpdateDto) {
+		log.debug("update={}", subscriptionUpdateDto);
+		
 		SubscriptionWithCreditLimitResponse result = new SubscriptionWithCreditLimitResponse();
 
 		subscriptionUpdateDto.setCurrentUserId(Long.valueOf(paramBean

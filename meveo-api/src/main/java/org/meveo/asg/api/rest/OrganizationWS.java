@@ -27,6 +27,7 @@ import org.meveo.asg.api.OrganizationServiceApi;
 import org.meveo.asg.api.model.EntityCodeEnum;
 import org.meveo.commons.utils.ParamBean;
 import org.meveo.util.MeveoParamBean;
+import org.slf4j.Logger;
 
 /**
  * @author Edward P. Legaspi
@@ -39,6 +40,9 @@ import org.meveo.util.MeveoParamBean;
 public class OrganizationWS {
 
 	@Inject
+	private Logger log;
+
+	@Inject
 	@MeveoParamBean
 	protected ParamBean paramBean;
 
@@ -48,6 +52,8 @@ public class OrganizationWS {
 	@POST
 	@Path("/")
 	public ActionStatus create(OrganizationDto orgDto) {
+		log.debug("create={}", orgDto);
+
 		ActionStatus result = new ActionStatus(ActionStatusEnum.SUCCESS, "");
 
 		String organizationId = orgDto.getOrganizationId();
@@ -97,6 +103,8 @@ public class OrganizationWS {
 	@PUT
 	@Path("/")
 	public ActionStatus update(OrganizationDto orgDto) {
+		log.debug("update={}", orgDto);
+
 		ActionStatus result = new ActionStatus(ActionStatusEnum.SUCCESS, "");
 
 		try {
@@ -130,6 +138,8 @@ public class OrganizationWS {
 	@Path("/{organizationId}")
 	public ActionStatus remove(
 			@PathParam("organizationId") String organizationId) {
+		log.debug("organizationId={}", organizationId);
+
 		ActionStatus result = new ActionStatus(ActionStatusEnum.SUCCESS, "");
 
 		try {

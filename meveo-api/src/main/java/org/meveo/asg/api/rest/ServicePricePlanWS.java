@@ -21,6 +21,7 @@ import org.meveo.asg.api.ServicePricePlanServiceApi;
 import org.meveo.asg.api.model.EntityCodeEnum;
 import org.meveo.commons.utils.ParamBean;
 import org.meveo.util.MeveoParamBean;
+import org.slf4j.Logger;
 
 /**
  * @author Edward P. Legaspi
@@ -33,6 +34,9 @@ import org.meveo.util.MeveoParamBean;
 public class ServicePricePlanWS {
 
 	@Inject
+	private Logger log;
+
+	@Inject
 	private ServicePricePlanServiceApi servicePricePlanServiceApi;
 
 	@Inject
@@ -42,6 +46,8 @@ public class ServicePricePlanWS {
 	@POST
 	@Path("/")
 	public ActionStatus create(ServicePricePlanDto servicePricePlanDto) {
+		log.debug("create={}", servicePricePlanDto);
+
 		ActionStatus result = new ActionStatus(ActionStatusEnum.SUCCESS, "");
 
 		String servicePricePlanId = servicePricePlanDto.getServiceId();
@@ -73,6 +79,9 @@ public class ServicePricePlanWS {
 	@Path("/{serviceId}/{organizationId}")
 	public ActionStatus remove(@PathParam("serviceId") String serviceId,
 			@PathParam("organizationId") String organizationId) {
+		log.debug("remove serviceId={}, organizationId={}", serviceId,
+				organizationId);
+
 		ActionStatus result = new ActionStatus(ActionStatusEnum.SUCCESS, "");
 
 		try {
@@ -96,6 +105,8 @@ public class ServicePricePlanWS {
 	@PUT
 	@Path("/")
 	public ActionStatus update(ServicePricePlanDto servicePricePlanDto) {
+		log.debug("update={}", servicePricePlanDto);
+
 		ActionStatus result = new ActionStatus(ActionStatusEnum.SUCCESS, "");
 
 		try {

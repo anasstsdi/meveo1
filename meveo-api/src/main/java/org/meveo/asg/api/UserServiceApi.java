@@ -114,7 +114,8 @@ public class UserServiceApi extends BaseAsgApi {
 
 	public void update(UserDto userDto) throws MeveoApiException {
 		if (!StringUtils.isBlank(userDto.getUserId())
-				&& !StringUtils.isBlank(userDto.getName())) {
+				&& !StringUtils.isBlank(userDto.getName())
+				&& !StringUtils.isBlank(userDto.getOrganizationId())) {
 
 			Provider provider = providerService.findById(userDto
 					.getProviderId());
@@ -123,6 +124,9 @@ public class UserServiceApi extends BaseAsgApi {
 			try {
 				userDto.setUserId(asgIdMappingService.getMeveoCode(em,
 						userDto.getUserId(), EntityCodeEnum.U));
+
+				userDto.setOrganizationId(asgIdMappingService.getMeveoCode(em,
+						userDto.getOrganizationId(), EntityCodeEnum.ORG));
 			} catch (BusinessException e) {
 				throw new MeveoApiException(e.getMessage());
 			}
@@ -147,6 +151,9 @@ public class UserServiceApi extends BaseAsgApi {
 			}
 			if (StringUtils.isBlank(userDto.getName())) {
 				missingFields.add("Name");
+			}
+			if (StringUtils.isBlank(userDto.getOrganizationId())) {
+				missingFields.add("organizationId");
 			}
 
 			if (missingFields.size() > 1) {

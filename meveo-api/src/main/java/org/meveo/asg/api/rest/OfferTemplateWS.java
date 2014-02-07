@@ -23,6 +23,7 @@ import org.meveo.asg.api.OfferTemplateServiceApi;
 import org.meveo.asg.api.model.EntityCodeEnum;
 import org.meveo.commons.utils.ParamBean;
 import org.meveo.util.MeveoParamBean;
+import org.slf4j.Logger;
 
 /**
  * @author Edward P. Legaspi
@@ -35,6 +36,9 @@ import org.meveo.util.MeveoParamBean;
 public class OfferTemplateWS {
 
 	@Inject
+	private Logger log;
+
+	@Inject
 	@MeveoParamBean
 	private ParamBean paramBean;
 
@@ -44,6 +48,8 @@ public class OfferTemplateWS {
 	@POST
 	@Path("/")
 	public ActionStatus create(OfferDto offerDto) {
+		log.debug("create={}", offerDto);
+
 		ActionStatus result = new ActionStatus(ActionStatusEnum.SUCCESS, "");
 
 		String offerId = offerDto.getOfferId();
@@ -77,6 +83,8 @@ public class OfferTemplateWS {
 	@PUT
 	@Path("/")
 	public ActionStatus update(OfferDto offerDto) {
+		log.debug("update={}", offerDto);
+
 		ActionStatus result = new ActionStatus(ActionStatusEnum.SUCCESS, "");
 
 		try {
@@ -97,7 +105,10 @@ public class OfferTemplateWS {
 	@DELETE
 	@Path("/{offerId}")
 	public ActionStatus remove(@PathParam("offerId") String offerId) {
+		log.debug("remove offerId={}", offerId);
+
 		ActionStatus result = new ActionStatus(ActionStatusEnum.SUCCESS, "");
+
 		try {
 			offerTemplateServiceApi.remove(Long.valueOf(paramBean.getProperty(
 					"asp.api.providerId", "1")), Long.valueOf(paramBean

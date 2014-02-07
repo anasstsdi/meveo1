@@ -15,6 +15,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class OfferDto extends BaseDto {
 
 	private static final long serialVersionUID = -137632696663739285L;
+
 	private String offerId;
 	private List<DescriptionDto> descriptions;
 	private List<String> services;
@@ -41,6 +42,12 @@ public class OfferDto extends BaseDto {
 
 	public void setServices(List<String> services) {
 		this.services = services;
+	}
+
+	@Override
+	public String toString() {
+		return "OfferDto [offerId=" + offerId + ", descriptions="
+				+ descriptions + ", services=" + services + "]";
 	}
 
 }

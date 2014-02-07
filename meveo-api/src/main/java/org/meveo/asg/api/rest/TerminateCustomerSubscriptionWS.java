@@ -40,6 +40,8 @@ public class TerminateCustomerSubscriptionWS {
 	@Path("/")
 	public TerminateCustomerSubscriptionResponse terminate(
 			TerminateCustomerSubscriptionDto terminateCustomerSubscriptionDto) {
+		log.debug("terminate={}", terminateCustomerSubscriptionDto);
+
 		TerminateCustomerSubscriptionResponse response = new TerminateCustomerSubscriptionResponse();
 
 		terminateCustomerSubscriptionDto.setCurrentUserId(Long

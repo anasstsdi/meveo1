@@ -21,6 +21,7 @@ import org.meveo.api.exception.MissingParameterException;
 import org.meveo.asg.api.TaxServiceApi;
 import org.meveo.commons.utils.ParamBean;
 import org.meveo.util.MeveoParamBean;
+import org.slf4j.Logger;
 
 /**
  * @author Edward P. Legaspi
@@ -31,6 +32,9 @@ import org.meveo.util.MeveoParamBean;
 @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 public class TaxWS {
+
+	@Inject
+	private Logger log;
 
 	@Inject
 	@MeveoParamBean
@@ -51,6 +55,8 @@ public class TaxWS {
 	@POST
 	@Path("/")
 	public ActionStatus create(TaxDto taxDto) {
+		log.debug("create={}", taxDto);
+
 		ActionStatus result = new ActionStatus(ActionStatusEnum.SUCCESS, "");
 
 		try {
@@ -75,6 +81,8 @@ public class TaxWS {
 	@PUT
 	@Path("/")
 	public ActionStatus update(TaxDto taxDto) {
+		log.debug("update={}", taxDto);
+
 		ActionStatus result = new ActionStatus(ActionStatusEnum.SUCCESS, "");
 
 		try {
@@ -99,6 +107,8 @@ public class TaxWS {
 	@DELETE
 	@Path("/{taxId}")
 	public ActionStatus remove(@PathParam("taxId") String taxId) {
+		log.debug("remove taxId={}", taxId);
+
 		ActionStatus result = new ActionStatus(ActionStatusEnum.SUCCESS, "");
 
 		try {

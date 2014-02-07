@@ -52,4 +52,10 @@ public class TaxDto extends BaseDto {
 	public void setCountryTaxes(List<CountryTaxDto> countryTaxes) {
 		this.countryTaxes = countryTaxes;
 	}
+
+	@Override
+	public String toString() {
+		return "TaxDto [taxId=" + taxId + ", name=" + name + ", countryTaxes="
+				+ countryTaxes + "]";
+	}
 }

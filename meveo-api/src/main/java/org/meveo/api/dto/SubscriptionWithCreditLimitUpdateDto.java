@@ -28,4 +28,10 @@ public class SubscriptionWithCreditLimitUpdateDto extends
 		this.servicesToTerminate = servicesToTerminate;
 	}
 
+	@Override
+	public String toString() {
+		return "SubscriptionWithCreditLimitUpdateDto [" + super.toString()
+				+ "servicesToTerminate=" + servicesToTerminate + "]";
+	}
+
 }

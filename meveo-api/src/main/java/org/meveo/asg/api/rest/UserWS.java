@@ -21,6 +21,7 @@ import org.meveo.asg.api.UserServiceApi;
 import org.meveo.asg.api.model.EntityCodeEnum;
 import org.meveo.commons.utils.ParamBean;
 import org.meveo.util.MeveoParamBean;
+import org.slf4j.Logger;
 
 /**
  * @author Edward P. Legaspi
@@ -33,6 +34,9 @@ import org.meveo.util.MeveoParamBean;
 public class UserWS {
 
 	@Inject
+	private Logger log;
+
+	@Inject
 	@MeveoParamBean
 	private ParamBean paramBean;
 
@@ -42,6 +46,8 @@ public class UserWS {
 	@POST
 	@Path("/")
 	public ActionStatus create(UserDto userDto) {
+		log.debug("create={}", userDto);
+
 		ActionStatus result = new ActionStatus(ActionStatusEnum.SUCCESS, "");
 
 		String userId = userDto.getUserId();
@@ -71,6 +77,8 @@ public class UserWS {
 	@PUT
 	@Path("/")
 	public ActionStatus update(UserDto userDto) {
+		log.debug("update={}", userDto);
+
 		ActionStatus result = new ActionStatus(ActionStatusEnum.SUCCESS, "");
 
 		try {
@@ -95,6 +103,8 @@ public class UserWS {
 	@DELETE
 	@Path("/{userId}")
 	public ActionStatus remove(@PathParam("userId") String userId) {
+		log.debug("remove userId={}", userId);
+
 		ActionStatus result = new ActionStatus(ActionStatusEnum.SUCCESS, "");
 
 		try {

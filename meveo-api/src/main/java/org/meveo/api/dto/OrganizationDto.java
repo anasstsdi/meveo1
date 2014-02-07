@@ -13,6 +13,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class OrganizationDto extends BaseDto {
 
 	private static final long serialVersionUID = -1477234763625399418L;
+
 	private String organizationId;
 	private String name;
 	private String parentId;
@@ -66,6 +67,14 @@ public class OrganizationDto extends BaseDto {
 
 	public void setLanguageCode(String languageCode) {
 		this.languageCode = languageCode;
+	}
+
+	@Override
+	public String toString() {
+		return "OrganizationDto [organizationId=" + organizationId + ", name="
+				+ name + ", parentId=" + parentId + ", countryCode="
+				+ countryCode + ", defaultCurrencyCode=" + defaultCurrencyCode
+				+ ", languageCode=" + languageCode + "]";
 	}
 
 }

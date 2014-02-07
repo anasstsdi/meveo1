@@ -152,4 +152,19 @@ public class OfferPricePlanDto extends BaseDto {
 		this.terminationFees = terminationFees;
 	}
 
+	@Override
+	public String toString() {
+		return "OfferPricePlanDto [offerId=" + offerId + ", organizationId="
+				+ organizationId + ", taxId=" + taxId
+				+ ", subscriptionProrata=" + subscriptionProrata
+				+ ", terminationProrata=" + terminationProrata
+				+ ", applyInAdvance=" + applyInAdvance + ", param1=" + param1
+				+ ", param2=" + param2 + ", param3=" + param3
+				+ ", billingPeriod=" + billingPeriod + ", recurringCharges="
+				+ recurringCharges + ", usageUnit=" + usageUnit
+				+ ", usageCharges=" + usageCharges + ", subscriptionFees="
+				+ subscriptionFees + ", terminationFees=" + terminationFees
+				+ "]";
+	}
+
 }

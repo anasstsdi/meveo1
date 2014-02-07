@@ -22,6 +22,7 @@ import org.meveo.asg.api.ServiceTemplateServiceApi;
 import org.meveo.asg.api.model.EntityCodeEnum;
 import org.meveo.commons.utils.ParamBean;
 import org.meveo.util.MeveoParamBean;
+import org.slf4j.Logger;
 
 /**
  * @author Edward P. Legaspi
@@ -34,6 +35,9 @@ import org.meveo.util.MeveoParamBean;
 public class ServiceTemplateWS {
 
 	@Inject
+	private Logger log;
+
+	@Inject
 	@MeveoParamBean
 	private ParamBean paramBean;
 
@@ -43,6 +47,8 @@ public class ServiceTemplateWS {
 	@POST
 	@Path("/")
 	public ActionStatus create(ServiceDto serviceDto) {
+		log.debug("create={}", serviceDto);
+
 		ActionStatus result = new ActionStatus(ActionStatusEnum.SUCCESS, "");
 
 		String serviceId = serviceDto.getServiceId();
@@ -77,6 +83,8 @@ public class ServiceTemplateWS {
 	@PUT
 	@Path("/")
 	public ActionStatus update(ServiceDto serviceDto) {
+		log.debug("update={}", serviceDto);
+
 		ActionStatus result = new ActionStatus(ActionStatusEnum.SUCCESS, "");
 
 		try {
@@ -101,6 +109,8 @@ public class ServiceTemplateWS {
 	@DELETE
 	@Path("/{serviceId}")
 	public ActionStatus remove(@PathParam("serviceId") String serviceId) {
+		log.debug("remove serviceId={}", serviceId);
+
 		ActionStatus result = new ActionStatus(ActionStatusEnum.SUCCESS, "");
 
 		try {

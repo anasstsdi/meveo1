@@ -72,4 +72,12 @@ public class SubscriptionWithCreditLimitDto extends BaseDto {
 		this.subscriptionDate = subscriptionDate;
 	}
 
+	@Override
+	public String toString() {
+		return "SubscriptionWithCreditLimitDto [userId=" + userId
+				+ ", organizationId=" + organizationId + ", offerId=" + offerId
+				+ ", servicesToAdd=" + servicesToAdd + ", creditLimits="
+				+ creditLimits + ", subscriptionDate=" + subscriptionDate + "]";
+	}
+
 }

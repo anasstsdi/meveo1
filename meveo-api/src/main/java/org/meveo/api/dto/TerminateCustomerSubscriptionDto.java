@@ -52,4 +52,11 @@ public class TerminateCustomerSubscriptionDto extends BaseDto {
 		this.terminationDate = terminationDate;
 	}
 
+	@Override
+	public String toString() {
+		return "TerminateCustomerSubscriptionDto [userId=" + userId
+				+ ", organizationId=" + organizationId + ", subscriptionId="
+				+ subscriptionId + ", terminationDate=" + terminationDate + "]";
+	}
+
 }
