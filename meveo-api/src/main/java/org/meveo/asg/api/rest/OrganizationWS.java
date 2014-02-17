@@ -92,7 +92,8 @@ public class OrganizationWS {
 			result.setMessage(e.getMessage());
 		}
 
-		if (result.getStatus() == ActionStatusEnum.FAIL) {
+		if (result.getStatus() == ActionStatusEnum.FAIL
+				&& result.getErrorCode() != MeveoApiErrorCode.SELLER_ALREADY_EXISTS) {
 			organizationServiceApi.removeAsgMapping(organizationId,
 					EntityCodeEnum.ORG);
 		}

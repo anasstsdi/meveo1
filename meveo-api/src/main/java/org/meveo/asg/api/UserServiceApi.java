@@ -11,8 +11,10 @@ import javax.inject.Inject;
 
 import org.meveo.admin.exception.BusinessException;
 import org.meveo.api.dto.UserDto;
+import org.meveo.api.exception.EntityAlreadyExistsException;
 import org.meveo.api.exception.MeveoApiException;
 import org.meveo.api.exception.MissingParameterException;
+import org.meveo.api.exception.UserAlreadyExistsException;
 import org.meveo.asg.api.model.EntityCodeEnum;
 import org.meveo.commons.utils.ParamBean;
 import org.meveo.commons.utils.StringUtils;
@@ -57,6 +59,8 @@ public class UserServiceApi extends BaseAsgApi {
 						userDto.getOrganizationId(), EntityCodeEnum.ORG));
 			} catch (BusinessException e) {
 				throw new MeveoApiException(e.getMessage());
+			} catch (EntityAlreadyExistsException e) {
+				throw new UserAlreadyExistsException(userDto.getUserId());
 			}
 
 			String billingAccountPrefix = paramBean.getProperty(

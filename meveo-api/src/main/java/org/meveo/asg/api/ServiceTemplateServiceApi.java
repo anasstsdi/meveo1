@@ -10,6 +10,7 @@ import javax.inject.Inject;
 
 import org.meveo.admin.exception.BusinessException;
 import org.meveo.api.dto.ServiceDto;
+import org.meveo.api.exception.EntityAlreadyExistsException;
 import org.meveo.api.exception.MeveoApiException;
 import org.meveo.api.exception.MissingParameterException;
 import org.meveo.api.exception.ServiceTemplateAlreadyExistsException;
@@ -67,8 +68,9 @@ public class ServiceTemplateServiceApi extends BaseAsgApi {
 			try {
 				serviceDto.setServiceId(asgIdMappingService.getNewCode(em,
 						serviceDto.getServiceId(), EntityCodeEnum.S));
-			} catch (BusinessException e) {
-				throw new MeveoApiException(e.getMessage());
+			} catch (EntityAlreadyExistsException e) {
+				throw new ServiceTemplateAlreadyExistsException(
+						serviceDto.getServiceId());
 			}
 
 			String serviceTemplateCode = paramBean.getProperty(

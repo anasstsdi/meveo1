@@ -72,7 +72,8 @@ public class ServiceTemplateWS {
 			result.setMessage(e.getMessage());
 		}
 
-		if (result.getStatus() == ActionStatusEnum.FAIL) {
+		if (result.getStatus() == ActionStatusEnum.FAIL
+				&& result.getErrorCode() != MeveoApiErrorCode.SERVICE_TEMPLATE_ALREADY_EXISTS) {
 			serviceTemplateServiceApi.removeAsgMapping(serviceId,
 					EntityCodeEnum.S);
 		}

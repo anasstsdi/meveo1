@@ -17,6 +17,7 @@ import org.meveo.api.MeveoApiErrorCode;
 import org.meveo.api.dto.UserDto;
 import org.meveo.api.exception.MeveoApiException;
 import org.meveo.api.exception.MissingParameterException;
+import org.meveo.api.exception.UserAlreadyExistsException;
 import org.meveo.asg.api.UserServiceApi;
 import org.meveo.asg.api.model.EntityCodeEnum;
 import org.meveo.commons.utils.ParamBean;
@@ -62,12 +63,17 @@ public class UserWS {
 			result.setErrorCode(MeveoApiErrorCode.MISSING_PARAMETER);
 			result.setStatus(ActionStatusEnum.FAIL);
 			result.setMessage(e.getMessage());
+		} catch (UserAlreadyExistsException e) {
+			result.setErrorCode(MeveoApiErrorCode.USER_ALREADY_EXISTS);
+			result.setStatus(ActionStatusEnum.FAIL);
+			result.setMessage(e.getMessage());
 		} catch (MeveoApiException e) {
 			result.setStatus(ActionStatusEnum.FAIL);
 			result.setMessage(e.getMessage());
 		}
 
-		if (result.getStatus() == ActionStatusEnum.FAIL) {
+		if (result.getStatus() == ActionStatusEnum.FAIL
+				&& result.getErrorCode() == MeveoApiErrorCode.USER_ALREADY_EXISTS) {
 			userServiceApi.removeAsgMapping(userId, EntityCodeEnum.U);
 		}
 

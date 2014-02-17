@@ -7,6 +7,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 
 import org.meveo.admin.exception.BusinessException;
+import org.meveo.api.exception.EntityAlreadyExistsException;
 import org.meveo.asg.api.model.AsgIdMapping;
 import org.meveo.asg.api.model.EntityCodeEnum;
 import org.meveo.commons.utils.QueryBuilder;
@@ -16,12 +17,12 @@ import org.meveo.service.base.PersistenceService;
 public class AsgIdMappingService extends PersistenceService<AsgIdMapping> {
 
 	public String getNewCode(String asgId, EntityCodeEnum entityType)
-			throws BusinessException {
+			throws EntityAlreadyExistsException {
 		return getNewCode(getEntityManager(), asgId, entityType);
 	}
 
 	public String getNewCode(EntityManager em, String asgId,
-			EntityCodeEnum entityType) throws BusinessException {
+			EntityCodeEnum entityType) throws EntityAlreadyExistsException {
 		@SuppressWarnings("unchecked")
 		List<AsgIdMapping> ids = getEntityManager()
 				.createQuery(
@@ -29,8 +30,8 @@ public class AsgIdMappingService extends PersistenceService<AsgIdMapping> {
 								+ " where asgId=:asgId")
 				.setParameter("asgId", asgId).getResultList();
 		if (ids != null && ids.size() > 0) {
-			throw new BusinessException("Entity with ASG code " + asgId
-					+ " already exists");
+			throw new EntityAlreadyExistsException("Entity with ASG code "
+					+ asgId + " already exists");
 		}
 
 		AsgIdMapping idMapping = new AsgIdMapping();

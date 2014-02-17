@@ -10,9 +10,11 @@ import javax.inject.Inject;
 
 import org.meveo.admin.exception.BusinessException;
 import org.meveo.api.dto.OfferDto;
+import org.meveo.api.exception.EntityAlreadyExistsException;
 import org.meveo.api.exception.MeveoApiException;
 import org.meveo.api.exception.MissingParameterException;
 import org.meveo.api.exception.OfferTemplateAlreadyExistsException;
+import org.meveo.api.exception.ServiceTemplateAlreadyExistsException;
 import org.meveo.asg.api.model.EntityCodeEnum;
 import org.meveo.commons.utils.ParamBean;
 import org.meveo.commons.utils.StringUtils;
@@ -66,17 +68,25 @@ public class OfferTemplateServiceApi extends BaseAsgApi {
 			try {
 				offerDto.setOfferId(asgIdMappingService.getNewCode(em,
 						offerDto.getOfferId(), EntityCodeEnum.O));
+			} catch (EntityAlreadyExistsException e) {
+				throw new OfferTemplateAlreadyExistsException(
+						offerDto.getOfferId());
+			}
 
-				if (offerDto.getServices() != null) {
+			if (offerDto.getServices() != null) {
+				String currentServiceId = "";
+				try {
 					List<String> services = new ArrayList<String>();
 					for (String serviceId : offerDto.getServices()) {
+						currentServiceId = serviceId;
 						services.add(asgIdMappingService.getNewCode(em,
 								serviceId, EntityCodeEnum.S));
 					}
 					offerDto.setServices(services);
+				} catch (EntityAlreadyExistsException e) {
+					throw new ServiceTemplateAlreadyExistsException(
+							currentServiceId);
 				}
-			} catch (BusinessException e) {
-				throw new MeveoApiException(e.getMessage());
 			}
 
 			String offerTemplateCode = paramBean.getProperty(

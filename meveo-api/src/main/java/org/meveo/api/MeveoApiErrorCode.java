@@ -19,6 +19,8 @@ public class MeveoApiErrorCode {
 	public static int COUNTRY_ALREADY_EXISTS = 1009;
 	public static int LANGUAGE_DOES_NOT_EXISTS = 1010;
 	public static int LANGUAGE_ALREADY_EXISTS = 1011;
+	public static int USER_ALREADY_EXISTS = 1012;
+	public static int USER_DOES_NOT_EXISTS = 1013;
 
 	// Validation Errors 2xxx
 	/**

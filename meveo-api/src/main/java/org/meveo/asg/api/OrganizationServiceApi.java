@@ -12,6 +12,7 @@ import javax.inject.Inject;
 import org.meveo.admin.exception.AccountAlreadyExistsException;
 import org.meveo.admin.exception.BusinessException;
 import org.meveo.api.dto.OrganizationDto;
+import org.meveo.api.exception.EntityAlreadyExistsException;
 import org.meveo.api.exception.MeveoApiException;
 import org.meveo.api.exception.MissingParameterException;
 import org.meveo.api.exception.SellerAlreadyExistsException;
@@ -110,6 +111,9 @@ public class OrganizationServiceApi extends BaseAsgApi {
 					orgDto.setParentId(asgIdMappingService.getMeveoCode(em,
 							orgDto.getParentId(), EntityCodeEnum.ORG));
 				}
+			} catch (EntityAlreadyExistsException e) {
+				throw new SellerAlreadyExistsException(
+						orgDto.getOrganizationId());
 			} catch (BusinessException e) {
 				throw new MeveoApiException(e.getMessage());
 			}
