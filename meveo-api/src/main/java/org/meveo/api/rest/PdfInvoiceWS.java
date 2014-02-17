@@ -11,25 +11,25 @@ import javax.ws.rs.core.MediaType;
 
 import org.meveo.api.ActionStatus;
 import org.meveo.api.ActionStatusEnum;
-import org.meveo.api.CustomerAccountApi;
-import org.meveo.api.rest.response.CustomerAccountResponse;
-import org.slf4j.Logger;
+import org.meveo.api.PdfInvoiceApi;
+import org.meveo.api.rest.response.PdfInvoiceResponse;
+ 
+
 
 /**
  * @author R.AITYAAZZA
- * 
+ *
  */
-@Path("/customerAccount")
+
+
+@Path("/PdfInvoice")
 @RequestScoped
 @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-public class CustomerAccountWS {
+public class PdfInvoiceWS {
 
 	@Inject
-	private Logger log;
-
-	@Inject
-	private CustomerAccountApi customerAccountapi;
+	private PdfInvoiceApi pdfInvoiceApi;
 
 	@GET
 	@Path("/index")
@@ -42,19 +42,18 @@ public class CustomerAccountWS {
 
 	@GET
 	@Path("/")
-	public CustomerAccountResponse getCustomerAccount(
-			@QueryParam("customerAccountCode") String customerAccountCode,
+	public PdfInvoiceResponse getPDFInvoice(
+			@QueryParam("invoiceNumber") String invoiceNumber,
+			@QueryParam("customerAccountCode") String customerAccountCode, 
 			@QueryParam("providerCode") String providerCode) throws Exception {
-		log.debug(
-				"customerAccount.getCustomer customerAccountCode={}, providerCode={}",
-				customerAccountCode, providerCode);
 
-		CustomerAccountResponse result = new CustomerAccountResponse();
+		
+		
+		PdfInvoiceResponse result = new PdfInvoiceResponse();
 		result.getActionStatus().setStatus(ActionStatusEnum.SUCCESS);
 
 		try {
-			result.setCustomerAccountDto(customerAccountapi.getCustomerAccount(
-					customerAccountCode, providerCode));
+			result.setPdfInvoice(pdfInvoiceApi.getPDFInvoice(invoiceNumber,customerAccountCode,providerCode));
 		} catch (Exception e) {
 			result.getActionStatus().setStatus(ActionStatusEnum.FAIL);
 			result.getActionStatus().setMessage(e.getMessage());
@@ -62,5 +61,7 @@ public class CustomerAccountWS {
 
 		return result;
 	}
+
 	
+
 }
