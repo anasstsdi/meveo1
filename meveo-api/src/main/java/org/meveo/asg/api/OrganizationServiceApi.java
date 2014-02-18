@@ -390,6 +390,11 @@ public class OrganizationServiceApi extends BaseAsgApi {
 				sellerService.update(em, seller, currentUser);
 			}
 
+			if (!StringUtils.isBlank(orgDto.getName())) {
+				seller.setDescription(orgDto.getName());
+				sellerService.update(em, seller, currentUser);
+			}
+
 		} else {
 			StringBuilder sb = new StringBuilder(
 					"The following parameters are required ");
