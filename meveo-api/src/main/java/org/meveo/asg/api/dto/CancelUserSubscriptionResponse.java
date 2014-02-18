@@ -15,14 +15,14 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for CreateUserSubscriptionWithCreditLimitRequest complex type.
+ * <p>Java class for CancelUserSubscriptionResponse complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="CreateUserSubscriptionWithCreditLimitRequest">
+ * &lt;complexType name="CancelUserSubscriptionResponse">
  *   &lt;complexContent>
- *     &lt;extension base="{}CreateSubscriptionWithCreditLimitRequestBase">
+ *     &lt;extension base="{}CancelSubscriptionResponseBase">
  *       &lt;sequence>
  *         &lt;element name="UserId" type="{http://microsoft.com/wsdl/types/}guid"/>
  *       &lt;/sequence>
@@ -34,11 +34,11 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "CreateUserSubscriptionWithCreditLimitRequest", propOrder = {
+@XmlType(name = "CancelUserSubscriptionResponse", propOrder = {
     "userId"
 })
-public class CreateUserSubscriptionWithCreditLimitRequest
-    extends CreateSubscriptionWithCreditLimitRequestBase
+public class CancelUserSubscriptionResponse
+    extends CancelSubscriptionResponseBase
 {
 
     @XmlElement(name = "UserId", required = true)

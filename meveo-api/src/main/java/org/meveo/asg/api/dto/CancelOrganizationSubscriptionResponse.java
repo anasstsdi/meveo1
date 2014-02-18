@@ -14,14 +14,14 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for CreateOrganizationSubscriptionWithCreditLimitRequest complex type.
+ * <p>Java class for CancelOrganizationSubscriptionResponse complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="CreateOrganizationSubscriptionWithCreditLimitRequest">
+ * &lt;complexType name="CancelOrganizationSubscriptionResponse">
  *   &lt;complexContent>
- *     &lt;extension base="{}CreateSubscriptionWithCreditLimitRequestBase">
+ *     &lt;extension base="{}CancelSubscriptionResponseBase">
  *     &lt;/extension>
  *   &lt;/complexContent>
  * &lt;/complexType>
@@ -30,9 +30,9 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "CreateOrganizationSubscriptionWithCreditLimitRequest")
-public class CreateOrganizationSubscriptionWithCreditLimitRequest
-    extends CreateSubscriptionWithCreditLimitRequestBase
+@XmlType(name = "CancelOrganizationSubscriptionResponse")
+public class CancelOrganizationSubscriptionResponse
+    extends CancelSubscriptionResponseBase
 {
 
 

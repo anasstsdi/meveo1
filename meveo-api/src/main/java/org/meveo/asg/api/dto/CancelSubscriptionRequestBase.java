@@ -11,25 +11,26 @@ package org.meveo.asg.api.dto;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.datatype.XMLGregorianCalendar;
 
 
 /**
- * <p>Java class for TerminateSubscriptionResponseBase complex type.
+ * <p>Java class for CancelSubscriptionRequestBase complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="TerminateSubscriptionResponseBase">
+ * &lt;complexType name="CancelSubscriptionRequestBase">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
  *         &lt;element name="OrganizationId" type="{http://microsoft.com/wsdl/types/}guid"/>
  *         &lt;element name="RequestId" type="{http://microsoft.com/wsdl/types/}guid"/>
  *         &lt;element name="SubscriptionId" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
- *         &lt;element name="Accepted" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
- *         &lt;element name="Status" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
+ *         &lt;element name="TerminationDate" type="{http://www.w3.org/2001/XMLSchema}dateTime"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -39,18 +40,17 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "TerminateSubscriptionResponseBase", propOrder = {
+@XmlType(name = "CancelSubscriptionRequestBase", propOrder = {
     "organizationId",
     "requestId",
     "subscriptionId",
-    "accepted",
-    "status"
+    "terminationDate"
 })
 @XmlSeeAlso({
-    TerminateOrganizationSubscriptionResponse.class,
-    TerminateUserSubscriptionResponse.class
+    CancelUserSubscriptionRequest.class,
+    CancelOrganizationSubscriptionRequest.class
 })
-public abstract class TerminateSubscriptionResponseBase {
+public abstract class CancelSubscriptionRequestBase {
 
     @XmlElement(name = "OrganizationId", required = true)
     protected String organizationId;
@@ -58,10 +58,9 @@ public abstract class TerminateSubscriptionResponseBase {
     protected String requestId;
     @XmlElement(name = "SubscriptionId")
     protected String subscriptionId;
-    @XmlElement(name = "Accepted")
-    protected boolean accepted;
-    @XmlElement(name = "Status")
-    protected String status;
+    @XmlElement(name = "TerminationDate", required = true)
+    @XmlSchemaType(name = "dateTime")
+    protected XMLGregorianCalendar terminationDate;
 
     /**
      * Gets the value of the organizationId property.
@@ -136,43 +135,27 @@ public abstract class TerminateSubscriptionResponseBase {
     }
 
     /**
-     * Gets the value of the accepted property.
-     * 
-     */
-    public boolean isAccepted() {
-        return accepted;
-    }
-
-    /**
-     * Sets the value of the accepted property.
-     * 
-     */
-    public void setAccepted(boolean value) {
-        this.accepted = value;
-    }
-
-    /**
-     * Gets the value of the status property.
+     * Gets the value of the terminationDate property.
      * 
      * @return
      *     possible object is
-     *     {@link String }
+     *     {@link XMLGregorianCalendar }
      *     
      */
-    public String getStatus() {
-        return status;
+    public XMLGregorianCalendar getTerminationDate() {
+        return terminationDate;
     }
 
     /**
-     * Sets the value of the status property.
+     * Sets the value of the terminationDate property.
      * 
      * @param value
      *     allowed object is
-     *     {@link String }
+     *     {@link XMLGregorianCalendar }
      *     
      */
-    public void setStatus(String value) {
-        this.status = value;
+    public void setTerminationDate(XMLGregorianCalendar value) {
+        this.terminationDate = value;
     }
 
 }

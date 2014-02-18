@@ -16,12 +16,12 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for TerminateSubscriptionResponseBase complex type.
+ * <p>Java class for CancelSubscriptionResponseBase complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="TerminateSubscriptionResponseBase">
+ * &lt;complexType name="CancelSubscriptionResponseBase">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
@@ -39,7 +39,7 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "TerminateSubscriptionResponseBase", propOrder = {
+@XmlType(name = "CancelSubscriptionResponseBase", propOrder = {
     "organizationId",
     "requestId",
     "subscriptionId",
@@ -47,10 +47,10 @@ import javax.xml.bind.annotation.XmlType;
     "status"
 })
 @XmlSeeAlso({
-    TerminateOrganizationSubscriptionResponse.class,
-    TerminateUserSubscriptionResponse.class
+    CancelOrganizationSubscriptionResponse.class,
+    CancelUserSubscriptionResponse.class
 })
-public abstract class TerminateSubscriptionResponseBase {
+public abstract class CancelSubscriptionResponseBase {
 
     @XmlElement(name = "OrganizationId", required = true)
     protected String organizationId;

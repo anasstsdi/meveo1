@@ -12,25 +12,25 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSchemaType;
-import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 
 /**
- * <p>Java class for TerminateSubscriptionRequestBase complex type.
+ * <p>Java class for PlaceOrderRequest complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="TerminateSubscriptionRequestBase">
+ * &lt;complexType name="PlaceOrderRequest">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
+ *         &lt;element name="UserId" type="{http://microsoft.com/wsdl/types/}guid"/>
  *         &lt;element name="OrganizationId" type="{http://microsoft.com/wsdl/types/}guid"/>
- *         &lt;element name="RequestId" type="{http://microsoft.com/wsdl/types/}guid"/>
- *         &lt;element name="SubscriptionId" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
- *         &lt;element name="TerminationDate" type="{http://www.w3.org/2001/XMLSchema}dateTime"/>
+ *         &lt;element name="ParentOrganizationId" type="{http://microsoft.com/wsdl/types/}guid"/>
+ *         &lt;element name="DistinguishedName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
+ *         &lt;element name="DateTime" type="{http://www.w3.org/2001/XMLSchema}dateTime"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -40,27 +40,50 @@ import javax.xml.datatype.XMLGregorianCalendar;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "TerminateSubscriptionRequestBase", propOrder = {
+@XmlType(name = "PlaceOrderRequest", propOrder = {
+    "userId",
     "organizationId",
-    "requestId",
-    "subscriptionId",
-    "terminationDate"
+    "parentOrganizationId",
+    "distinguishedName",
+    "dateTime"
 })
-@XmlSeeAlso({
-    TerminateOrganizationSubscriptionRequest.class,
-    TerminateUserSubscriptionRequest.class
-})
-public abstract class TerminateSubscriptionRequestBase {
+public class PlaceOrderRequest {
 
+    @XmlElement(name = "UserId", required = true)
+    protected String userId;
     @XmlElement(name = "OrganizationId", required = true)
     protected String organizationId;
-    @XmlElement(name = "RequestId", required = true)
-    protected String requestId;
-    @XmlElement(name = "SubscriptionId")
-    protected String subscriptionId;
-    @XmlElement(name = "TerminationDate", required = true)
+    @XmlElement(name = "ParentOrganizationId", required = true)
+    protected String parentOrganizationId;
+    @XmlElement(name = "DistinguishedName")
+    protected String distinguishedName;
+    @XmlElement(name = "DateTime", required = true)
     @XmlSchemaType(name = "dateTime")
-    protected XMLGregorianCalendar terminationDate;
+    protected XMLGregorianCalendar dateTime;
+
+    /**
+     * Gets the value of the userId property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getUserId() {
+        return userId;
+    }
+
+    /**
+     * Sets the value of the userId property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setUserId(String value) {
+        this.userId = value;
+    }
 
     /**
      * Gets the value of the organizationId property.
@@ -87,75 +110,75 @@ public abstract class TerminateSubscriptionRequestBase {
     }
 
     /**
-     * Gets the value of the requestId property.
+     * Gets the value of the parentOrganizationId property.
      * 
      * @return
      *     possible object is
      *     {@link String }
      *     
      */
-    public String getRequestId() {
-        return requestId;
+    public String getParentOrganizationId() {
+        return parentOrganizationId;
     }
 
     /**
-     * Sets the value of the requestId property.
+     * Sets the value of the parentOrganizationId property.
      * 
      * @param value
      *     allowed object is
      *     {@link String }
      *     
      */
-    public void setRequestId(String value) {
-        this.requestId = value;
+    public void setParentOrganizationId(String value) {
+        this.parentOrganizationId = value;
     }
 
     /**
-     * Gets the value of the subscriptionId property.
+     * Gets the value of the distinguishedName property.
      * 
      * @return
      *     possible object is
      *     {@link String }
      *     
      */
-    public String getSubscriptionId() {
-        return subscriptionId;
+    public String getDistinguishedName() {
+        return distinguishedName;
     }
 
     /**
-     * Sets the value of the subscriptionId property.
+     * Sets the value of the distinguishedName property.
      * 
      * @param value
      *     allowed object is
      *     {@link String }
      *     
      */
-    public void setSubscriptionId(String value) {
-        this.subscriptionId = value;
+    public void setDistinguishedName(String value) {
+        this.distinguishedName = value;
     }
 
     /**
-     * Gets the value of the terminationDate property.
+     * Gets the value of the dateTime property.
      * 
      * @return
      *     possible object is
      *     {@link XMLGregorianCalendar }
      *     
      */
-    public XMLGregorianCalendar getTerminationDate() {
-        return terminationDate;
+    public XMLGregorianCalendar getDateTime() {
+        return dateTime;
     }
 
     /**
-     * Sets the value of the terminationDate property.
+     * Sets the value of the dateTime property.
      * 
      * @param value
      *     allowed object is
      *     {@link XMLGregorianCalendar }
      *     
      */
-    public void setTerminationDate(XMLGregorianCalendar value) {
-        this.terminationDate = value;
+    public void setDateTime(XMLGregorianCalendar value) {
+        this.dateTime = value;
     }
 
 }
