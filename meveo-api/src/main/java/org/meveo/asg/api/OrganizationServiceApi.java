@@ -12,22 +12,28 @@ import javax.inject.Inject;
 import org.meveo.admin.exception.AccountAlreadyExistsException;
 import org.meveo.admin.exception.BusinessException;
 import org.meveo.api.dto.OrganizationDto;
+import org.meveo.api.exception.CountryDoesNotExistsException;
+import org.meveo.api.exception.CurrencyDoesNotExistsException;
 import org.meveo.api.exception.EntityAlreadyExistsException;
+import org.meveo.api.exception.LanguageDoesNotExistsException;
 import org.meveo.api.exception.MeveoApiException;
 import org.meveo.api.exception.MissingParameterException;
 import org.meveo.api.exception.SellerAlreadyExistsException;
 import org.meveo.api.exception.SellerDoesNotExistsException;
 import org.meveo.api.exception.TradingCountryDoesNotExistsException;
 import org.meveo.api.exception.TradingCurrencyDoesNotExistsException;
-import org.meveo.api.exception.TradingLanguageAlreadyExistsException;
+import org.meveo.api.exception.TradingLanguageDoesNotExistsException;
 import org.meveo.asg.api.model.EntityCodeEnum;
 import org.meveo.commons.utils.ParamBean;
 import org.meveo.commons.utils.StringUtils;
 import org.meveo.model.Auditable;
+import org.meveo.model.admin.Currency;
 import org.meveo.model.admin.Seller;
 import org.meveo.model.admin.User;
 import org.meveo.model.billing.AccountStatusEnum;
 import org.meveo.model.billing.BillingAccount;
+import org.meveo.model.billing.Country;
+import org.meveo.model.billing.Language;
 import org.meveo.model.billing.TradingCountry;
 import org.meveo.model.billing.TradingCurrency;
 import org.meveo.model.billing.TradingLanguage;
@@ -40,6 +46,9 @@ import org.meveo.model.payments.CreditCategoryEnum;
 import org.meveo.model.payments.CustomerAccount;
 import org.meveo.model.payments.CustomerAccountStatusEnum;
 import org.meveo.model.payments.PaymentMethodEnum;
+import org.meveo.service.admin.impl.CountryService;
+import org.meveo.service.admin.impl.CurrencyService;
+import org.meveo.service.admin.impl.LanguageService;
 import org.meveo.service.admin.impl.SellerService;
 import org.meveo.service.admin.impl.TradingCurrencyService;
 import org.meveo.service.billing.impl.BillingAccountService;
@@ -92,6 +101,15 @@ public class OrganizationServiceApi extends BaseAsgApi {
 	@Inject
 	private TradingLanguageService tradingLanguageService;
 
+	@Inject
+	private CountryService countryService;
+
+	@Inject
+	private CurrencyService currencyService;
+
+	@Inject
+	private LanguageService languageService;
+
 	public void create(OrganizationDto orgDto) throws MeveoApiException,
 			AccountAlreadyExistsException {
 		if (!StringUtils.isBlank(orgDto.getOrganizationId())
@@ -125,27 +143,82 @@ public class OrganizationServiceApi extends BaseAsgApi {
 						orgDto.getOrganizationId());
 			}
 
+			Auditable auditableTrading = new Auditable();
+			auditableTrading.setCreated(new Date());
+			auditableTrading.setCreator(currentUser);
+
 			TradingCountry tradingCountry = tradingCountryService
 					.findByTradingCountryCode(orgDto.getCountryCode(), provider);
+
 			if (tradingCountry == null) {
-				throw new TradingCountryDoesNotExistsException(
-						orgDto.getCountryCode());
+				Country country = countryService.findByCode(orgDto
+						.getCountryCode());
+
+				if (country == null) {
+					throw new CountryDoesNotExistsException(
+							orgDto.getCountryCode());
+				} else {
+					// create tradingCountry
+					tradingCountry = new TradingCountry();
+					tradingCountry.setCountry(country);
+					tradingCountry.setProvider(provider);
+					tradingCountry.setActive(true);
+					tradingCountry.setPrDescription(orgDto.getName());
+					tradingCountry.setAuditable(auditableTrading);
+					tradingCountryService.create(em, tradingCountry,
+							currentUser, provider);
+				}
 			}
 
 			TradingCurrency tradingCurrency = tradingCurrencyService
 					.findByTradingCurrencyCode(orgDto.getDefaultCurrencyCode(),
 							provider);
+
 			if (tradingCurrency == null) {
-				throw new TradingCurrencyDoesNotExistsException(
-						orgDto.getDefaultCurrencyCode());
+				Currency currency = currencyService.findByCode(orgDto
+						.getDefaultCurrencyCode());
+
+				if (currency == null) {
+					throw new CurrencyDoesNotExistsException(
+							orgDto.getDefaultCurrencyCode());
+				} else {
+					// create tradingCountry
+					tradingCurrency = new TradingCurrency();
+					tradingCurrency.setCurrencyCode(orgDto
+							.getDefaultCurrencyCode());
+					tradingCurrency.setCurrency(currency);
+					tradingCurrency.setProvider(provider);
+					tradingCurrency.setActive(true);
+					tradingCurrency.setPrDescription(orgDto.getName());
+					tradingCurrency.setAuditable(auditableTrading);
+					tradingCurrencyService.create(em, tradingCurrency,
+							currentUser, provider);
+				}
 			}
 
 			TradingLanguage tradingLanguage = tradingLanguageService
 					.findByTradingLanguageCode(orgDto.getLanguageCode(),
 							provider);
+
 			if (tradingLanguage == null) {
-				throw new TradingLanguageAlreadyExistsException(
-						orgDto.getLanguageCode());
+				Language language = languageService.findByCode(orgDto
+						.getLanguageCode());
+
+				if (language == null) {
+					throw new LanguageDoesNotExistsException(
+							orgDto.getLanguageCode());
+				} else {
+					// create tradingCountry
+					tradingLanguage = new TradingLanguage();
+					tradingLanguage.setLanguageCode(orgDto.getLanguageCode());
+					tradingLanguage.setLanguage(language);
+					tradingLanguage.setProvider(provider);
+					tradingLanguage.setActive(true);
+					tradingLanguage.setPrDescription(orgDto.getName());
+					tradingLanguage.setAuditable(auditableTrading);
+					tradingLanguageService.create(em, tradingLanguage,
+							currentUser, provider);
+				}
 			}
 
 			Seller parentSeller = null;
@@ -362,17 +435,6 @@ public class OrganizationServiceApi extends BaseAsgApi {
 				throw new MeveoApiException(e.getMessage());
 			}
 
-			TradingCountry tr = tradingCountryService.findByTradingCountryCode(
-					orgDto.getCountryCode(), provider);
-
-			TradingCurrency tc = tradingCurrencyService
-					.findByTradingCurrencyCode(orgDto.getDefaultCurrencyCode(),
-							provider);
-			if (tc == null) {
-				throw new TradingCurrencyDoesNotExistsException(
-						orgDto.getDefaultCurrencyCode());
-			}
-
 			Seller seller = sellerService.findByCode(em,
 					orgDto.getOrganizationId(), provider);
 
@@ -381,20 +443,48 @@ public class OrganizationServiceApi extends BaseAsgApi {
 						orgDto.getOrganizationId());
 			}
 
+			TradingCountry tradingCountry = tradingCountryService
+					.findByTradingCountryCode(orgDto.getCountryCode(), provider);
+			if (tradingCountry == null) {
+				throw new TradingCountryDoesNotExistsException(
+						orgDto.getCountryCode());
+			}
+
+			TradingCurrency tradingCurrency = tradingCurrencyService
+					.findByTradingCurrencyCode(orgDto.getDefaultCurrencyCode(),
+							provider);
+			if (tradingCurrency == null) {
+				throw new TradingCurrencyDoesNotExistsException(
+						orgDto.getDefaultCurrencyCode());
+			}
+
+			TradingLanguage tradingLanguage = tradingLanguageService
+					.findByTradingLanguageCode(orgDto.getLanguageCode(),
+							provider);
+			if (tradingLanguage == null) {
+				throw new TradingLanguageDoesNotExistsException(
+						orgDto.getLanguageCode());
+			}
+
 			if (!sellerService.hasChildren(em, seller, provider)) {
-				if (tr == null) {
-					seller.setTradingCountry(tr);
+				if (tradingCountry != null) {
+					seller.setTradingCountry(tradingCountry);
 				}
 
-				seller.setTradingCurrency(tc);
-				sellerService.update(em, seller, currentUser);
+				if (tradingCurrency != null) {
+					seller.setTradingCurrency(tradingCurrency);
+				}
+
+				if (tradingLanguage != null) {
+					seller.setTradingLanguage(tradingLanguage);
+				}
 			}
 
 			if (!StringUtils.isBlank(orgDto.getName())) {
 				seller.setDescription(orgDto.getName());
-				sellerService.update(em, seller, currentUser);
 			}
 
+			sellerService.update(em, seller, currentUser);
 		} else {
 			StringBuilder sb = new StringBuilder(
 					"The following parameters are required ");
