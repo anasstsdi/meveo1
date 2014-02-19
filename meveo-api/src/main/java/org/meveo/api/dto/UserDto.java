@@ -17,6 +17,8 @@ public class UserDto extends BaseDto {
 	private String userId;
 	private String name;
 	private String organizationId;
+	private String firstName;
+	private String lastName;
 
 	public String getName() {
 		return name;
@@ -46,6 +48,22 @@ public class UserDto extends BaseDto {
 	public String toString() {
 		return "UserDto [userId=" + userId + ", name=" + name
 				+ ", organizationId=" + organizationId + "]";
+	}
+
+	public String getFirstName() {
+		return firstName;
+	}
+
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+
+	public String getLastName() {
+		return lastName;
+	}
+
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
 	}
 
 }

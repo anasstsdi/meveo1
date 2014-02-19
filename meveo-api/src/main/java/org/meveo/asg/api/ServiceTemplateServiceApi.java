@@ -144,25 +144,11 @@ public class ServiceTemplateServiceApi extends BaseAsgApi {
 				throw new MeveoApiException(e.getMessage());
 			}
 
-			String offerTemplateCode = paramBean.getProperty(
-					"asg.api.service.offer.prefix", "_SE_")
-					+ serviceDto.getServiceId();
-			OfferTemplate offerTemplate = offerTemplateService.findByCode(em,
-					offerTemplateCode, provider);
-			if (offerTemplateCode != null) {
-				if (serviceDto.getDescriptions() != null
-						&& serviceDto.getDescriptions().size() > 0) {
-					offerTemplate.setDescription(serviceDto.getDescriptions()
-							.get(0).getDescription());
-					offerTemplateService.update(em, offerTemplate, currentUser);
-				}
-			}
-
 			String serviceTemplateCode = paramBean.getProperty(
 					"asg.api.service.notcharged.prefix", "_NC_SE_")
 					+ serviceDto.getServiceId();
 			ServiceTemplate serviceTemplate = serviceTemplateService
-					.findByCode(serviceTemplateCode, provider);
+					.findByCode(em, serviceTemplateCode, provider);
 			if (serviceTemplate != null) {
 				if (serviceDto.getDescriptions() != null
 						&& serviceDto.getDescriptions().size() > 0) {
@@ -177,7 +163,7 @@ public class ServiceTemplateServiceApi extends BaseAsgApi {
 					"asg.api.service.charged.prefix", "_CH_SE_")
 					+ serviceDto.getServiceId();
 			ServiceTemplate chargedServiceTemplate = serviceTemplateService
-					.findByCode(chargedServiceTemplateCode, provider);
+					.findByCode(em, chargedServiceTemplateCode, provider);
 			if (chargedServiceTemplate != null) {
 				if (serviceDto.getDescriptions() != null
 						&& serviceDto.getDescriptions().size() > 0) {
@@ -185,6 +171,20 @@ public class ServiceTemplateServiceApi extends BaseAsgApi {
 							.getDescriptions().get(0).getDescription());
 					serviceTemplateService.update(em, chargedServiceTemplate,
 							currentUser);
+				}
+			}
+
+			String offerTemplateCode = paramBean.getProperty(
+					"asg.api.service.offer.prefix", "_SE_")
+					+ serviceDto.getServiceId();
+			OfferTemplate offerTemplate = offerTemplateService.findByCode(em,
+					offerTemplateCode, provider);
+			if (offerTemplateCode != null) {
+				if (serviceDto.getDescriptions() != null
+						&& serviceDto.getDescriptions().size() > 0) {
+					offerTemplate.setDescription(serviceDto.getDescriptions()
+							.get(0).getDescription());
+					offerTemplateService.update(em, offerTemplate, currentUser);
 				}
 			}
 		} else {

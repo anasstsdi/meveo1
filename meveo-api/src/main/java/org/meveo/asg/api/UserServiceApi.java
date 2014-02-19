@@ -23,6 +23,7 @@ import org.meveo.model.admin.User;
 import org.meveo.model.billing.BillingAccount;
 import org.meveo.model.billing.UserAccount;
 import org.meveo.model.crm.Provider;
+import org.meveo.model.shared.Name;
 import org.meveo.service.billing.impl.BillingAccountService;
 import org.meveo.service.billing.impl.UserAccountService;
 
@@ -85,6 +86,10 @@ public class UserServiceApi extends BaseAsgApi {
 				userAccount.setCode(userDto.getUserId());
 				userAccount.setDescription(userDto.getName());
 				userAccount.setProvider(provider);
+				Name name = new Name();
+				name.setFirstName(userDto.getName());
+				name.setLastName(userDto.getLastName());
+				userAccount.setName(name);
 				userAccountService.create(em, userAccount, currentUser,
 						provider);
 			}
@@ -142,6 +147,10 @@ public class UserServiceApi extends BaseAsgApi {
 						+ userDto.getUserId() + " does not exists.");
 			} else {
 				userAccount.setDescription(userDto.getName());
+				Name name = new Name();
+				name.setFirstName(userDto.getName());
+				name.setLastName(userDto.getLastName());
+				userAccount.setName(name);
 				userAccountService.update(em, userAccount, currentUser);
 			}
 

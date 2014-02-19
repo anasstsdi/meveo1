@@ -125,6 +125,10 @@ public class UserWS {
 			result.setMessage(e.getMessage());
 		}
 
+		if (result.getStatus() == ActionStatusEnum.SUCCESS) {
+			userServiceApi.removeAsgMapping(userId, EntityCodeEnum.U);
+		}
+
 		return result;
 	}
 
