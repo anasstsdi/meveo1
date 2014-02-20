@@ -600,6 +600,26 @@ public class OrganizationServiceApi extends BaseAsgApi {
 						seller.getCode());
 			}
 
+			String userAccountPrefix = paramBean.getProperty(
+					"asg.api.default.organization.userAccount", "USER_");
+			UserAccount userAccount = userAccountService.findByCode(em,
+					userAccountPrefix + organizationId, provider);
+			if (userAccount != null) {
+				// set billingAccount to null first
+				userAccount.setBillingAccount(null);
+				userAccountService.update(em, userAccount);
+				// remove
+				userAccountService.remove(em, userAccount);
+			}
+
+			String userAccountPrefix2 = paramBean.getProperty(
+					"asp.api.default.userAccount.prefix", "UA_");
+			UserAccount userAccount2 = userAccountService.findByCode(em,
+					userAccountPrefix2 + organizationId, provider);
+			if (userAccount2 != null) {
+				userAccountService.remove(em, userAccount2);
+			}
+
 			BillingAccount billingAccount = billingAccountService.findByCode(
 					em, billingAccountPrefix + organizationId, provider);
 			if (billingAccount != null) {
@@ -623,22 +643,6 @@ public class OrganizationServiceApi extends BaseAsgApi {
 					}
 				}
 				customerService.remove(em, customer);
-			}
-
-			String userAccountPrefix = paramBean.getProperty(
-					"asg.api.default.organization.userAccount", "USER_");
-			UserAccount userAccount = userAccountService.findByCode(em,
-					userAccountPrefix + organizationId, provider);
-			if (userAccount != null) {
-				userAccountService.remove(em, userAccount);
-			}
-
-			String userAccountPrefix2 = paramBean.getProperty(
-					"asp.api.default.userAccount.prefix", "UA_");
-			UserAccount userAccount2 = userAccountService.findByCode(em,
-					userAccountPrefix2 + organizationId, provider);
-			if (userAccount2 != null) {
-				userAccountService.remove(em, userAccount2);
 			}
 
 			sellerService.remove(em, seller);

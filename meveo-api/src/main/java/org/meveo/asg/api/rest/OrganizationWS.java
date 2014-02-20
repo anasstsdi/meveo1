@@ -139,7 +139,7 @@ public class OrganizationWS {
 	@Path("/{organizationId}")
 	public ActionStatus remove(
 			@PathParam("organizationId") String organizationId) {
-		log.debug("organizationId={}", organizationId);
+		log.debug("remove organizationId={}", organizationId);
 
 		ActionStatus result = new ActionStatus(ActionStatusEnum.SUCCESS, "");
 
