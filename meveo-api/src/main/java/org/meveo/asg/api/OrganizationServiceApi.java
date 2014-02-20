@@ -20,9 +20,6 @@ import org.meveo.api.exception.MeveoApiException;
 import org.meveo.api.exception.MissingParameterException;
 import org.meveo.api.exception.SellerAlreadyExistsException;
 import org.meveo.api.exception.SellerDoesNotExistsException;
-import org.meveo.api.exception.TradingCountryDoesNotExistsException;
-import org.meveo.api.exception.TradingCurrencyDoesNotExistsException;
-import org.meveo.api.exception.TradingLanguageDoesNotExistsException;
 import org.meveo.asg.api.model.EntityCodeEnum;
 import org.meveo.commons.utils.ParamBean;
 import org.meveo.commons.utils.StringUtils;
@@ -445,27 +442,84 @@ public class OrganizationServiceApi extends BaseAsgApi {
 						orgDto.getOrganizationId());
 			}
 
+			Auditable auditableTrading = new Auditable();
+			auditableTrading.setCreated(new Date());
+			auditableTrading.setCreator(currentUser);
+
 			TradingCountry tradingCountry = tradingCountryService
 					.findByTradingCountryCode(orgDto.getCountryCode(), provider);
+
 			if (tradingCountry == null) {
-				throw new TradingCountryDoesNotExistsException(
-						orgDto.getCountryCode());
+				Country country = countryService.findByCode(orgDto
+						.getCountryCode());
+
+				if (country == null) {
+					throw new CountryDoesNotExistsException(
+							orgDto.getCountryCode());
+				} else {
+					// create tradingCountry
+					tradingCountry = new TradingCountry();
+					tradingCountry.setCountry(country);
+					tradingCountry.setProvider(provider);
+					tradingCountry.setActive(true);
+					tradingCountry.setPrDescription(country.getDescriptionEn());
+					tradingCountry.setAuditable(auditableTrading);
+					tradingCountryService.create(em, tradingCountry,
+							currentUser, provider);
+				}
 			}
 
 			TradingCurrency tradingCurrency = tradingCurrencyService
 					.findByTradingCurrencyCode(orgDto.getDefaultCurrencyCode(),
 							provider);
+
 			if (tradingCurrency == null) {
-				throw new TradingCurrencyDoesNotExistsException(
-						orgDto.getDefaultCurrencyCode());
+				Currency currency = currencyService.findByCode(orgDto
+						.getDefaultCurrencyCode());
+
+				if (currency == null) {
+					throw new CurrencyDoesNotExistsException(
+							orgDto.getDefaultCurrencyCode());
+				} else {
+					// create tradingCountry
+					tradingCurrency = new TradingCurrency();
+					tradingCurrency.setCurrencyCode(orgDto
+							.getDefaultCurrencyCode());
+					tradingCurrency.setCurrency(currency);
+					tradingCurrency.setProvider(provider);
+					tradingCurrency.setActive(true);
+					tradingCurrency.setPrDescription(currency
+							.getDescriptionEn());
+					tradingCurrency.setAuditable(auditableTrading);
+					tradingCurrencyService.create(em, tradingCurrency,
+							currentUser, provider);
+				}
 			}
 
 			TradingLanguage tradingLanguage = tradingLanguageService
 					.findByTradingLanguageCode(orgDto.getLanguageCode(),
 							provider);
+
 			if (tradingLanguage == null) {
-				throw new TradingLanguageDoesNotExistsException(
-						orgDto.getLanguageCode());
+				Language language = languageService.findByCode(orgDto
+						.getLanguageCode());
+
+				if (language == null) {
+					throw new LanguageDoesNotExistsException(
+							orgDto.getLanguageCode());
+				} else {
+					// create tradingCountry
+					tradingLanguage = new TradingLanguage();
+					tradingLanguage.setLanguageCode(orgDto.getLanguageCode());
+					tradingLanguage.setLanguage(language);
+					tradingLanguage.setProvider(provider);
+					tradingLanguage.setActive(true);
+					tradingLanguage.setPrDescription(language
+							.getDescriptionEn());
+					tradingLanguage.setAuditable(auditableTrading);
+					tradingLanguageService.create(em, tradingLanguage,
+							currentUser, provider);
+				}
 			}
 
 			if (!sellerService.hasChildren(em, seller, provider)) {
