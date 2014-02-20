@@ -24,7 +24,6 @@ import org.meveo.model.admin.Seller;
 import org.meveo.model.admin.User;
 import org.meveo.model.billing.InvoiceSubCategory;
 import org.meveo.model.billing.OperationTypeEnum;
-import org.meveo.model.billing.Tax;
 import org.meveo.model.billing.TradingCurrency;
 import org.meveo.model.catalog.Calendar;
 import org.meveo.model.catalog.CounterTemplate;
@@ -42,16 +41,15 @@ import org.meveo.model.catalog.UsageChgTemplateEnum;
 import org.meveo.model.crm.Provider;
 import org.meveo.service.admin.impl.SellerService;
 import org.meveo.service.admin.impl.TradingCurrencyService;
-import org.meveo.service.billing.impl.InvoiceSubCategoryCountryService;
 import org.meveo.service.catalog.impl.CalendarService;
 import org.meveo.service.catalog.impl.CounterTemplateService;
+import org.meveo.service.catalog.impl.InvoiceSubCategoryService;
 import org.meveo.service.catalog.impl.OfferTemplateService;
 import org.meveo.service.catalog.impl.OneShotChargeTemplateService;
 import org.meveo.service.catalog.impl.PricePlanMatrixService;
 import org.meveo.service.catalog.impl.RecurringChargeTemplateService;
 import org.meveo.service.catalog.impl.ServiceTemplateService;
 import org.meveo.service.catalog.impl.ServiceUsageChargeTemplateService;
-import org.meveo.service.catalog.impl.TaxService;
 import org.meveo.service.catalog.impl.UsageChargeTemplateService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,9 +81,6 @@ public class OfferPricePlanServiceApi extends BaseAsgApi {
 	private TradingCurrencyService tradingCurrencyService;
 
 	@Inject
-	private TaxService taxService;
-
-	@Inject
 	private SellerService sellerService;
 
 	@Inject
@@ -104,7 +99,7 @@ public class OfferPricePlanServiceApi extends BaseAsgApi {
 	private ServiceUsageChargeTemplateService serviceUsageChargeTemplateService;
 
 	@Inject
-	private InvoiceSubCategoryCountryService invoiceSubCategoryCountryService;
+	private InvoiceSubCategoryService invoiceSubCategoryService;
 
 	private static Logger log = LoggerFactory
 			.getLogger(OfferPricePlanServiceApi.class);
@@ -145,9 +140,13 @@ public class OfferPricePlanServiceApi extends BaseAsgApi {
 					offerPricePlanDto.getOrganizationId(), provider);
 
 			// get invoice sub category
-			Tax tax = taxService.findByCode(em, offerPricePlanDto.getTaxId());
-			InvoiceSubCategory invoiceSubCategory = invoiceSubCategoryCountryService
-					.findByTaxId(em, tax).getInvoiceSubCategory();
+			// Tax tax = taxService.findByCode(em,
+			// offerPricePlanDto.getTaxId());
+			// InvoiceSubCategory invoiceSubCategory =
+			// invoiceSubCategoryCountryService
+			// .findByTaxId(em, tax).getInvoiceSubCategory();
+			InvoiceSubCategory invoiceSubCategory = invoiceSubCategoryService
+					.findByCode(em, offerPricePlanDto.getTaxId());
 
 			ServiceTemplate serviceTemplate = createServiceTemplate(false,
 					offerPricePlanDto, currentUser, provider);
