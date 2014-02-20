@@ -163,7 +163,7 @@ public class OrganizationServiceApi extends BaseAsgApi {
 					tradingCountry.setCountry(country);
 					tradingCountry.setProvider(provider);
 					tradingCountry.setActive(true);
-					tradingCountry.setPrDescription(orgDto.getName());
+					tradingCountry.setPrDescription(country.getDescriptionEn());
 					tradingCountry.setAuditable(auditableTrading);
 					tradingCountryService.create(em, tradingCountry,
 							currentUser, provider);
@@ -189,7 +189,8 @@ public class OrganizationServiceApi extends BaseAsgApi {
 					tradingCurrency.setCurrency(currency);
 					tradingCurrency.setProvider(provider);
 					tradingCurrency.setActive(true);
-					tradingCurrency.setPrDescription(orgDto.getName());
+					tradingCurrency.setPrDescription(currency
+							.getDescriptionEn());
 					tradingCurrency.setAuditable(auditableTrading);
 					tradingCurrencyService.create(em, tradingCurrency,
 							currentUser, provider);
@@ -214,7 +215,8 @@ public class OrganizationServiceApi extends BaseAsgApi {
 					tradingLanguage.setLanguage(language);
 					tradingLanguage.setProvider(provider);
 					tradingLanguage.setActive(true);
-					tradingLanguage.setPrDescription(orgDto.getName());
+					tradingLanguage.setPrDescription(language
+							.getDescriptionEn());
 					tradingLanguage.setAuditable(auditableTrading);
 					tradingLanguageService.create(em, tradingLanguage,
 							currentUser, provider);
