@@ -20,6 +20,7 @@ import org.meveo.api.exception.MeveoApiException;
 import org.meveo.api.exception.MissingParameterException;
 import org.meveo.api.exception.SellerAlreadyExistsException;
 import org.meveo.api.exception.SellerDoesNotExistsException;
+import org.meveo.api.exception.SellerWithChildCannotBeDeletedException;
 import org.meveo.asg.api.model.EntityCodeEnum;
 import org.meveo.commons.utils.ParamBean;
 import org.meveo.commons.utils.StringUtils;
@@ -587,6 +588,18 @@ public class OrganizationServiceApi extends BaseAsgApi {
 			String billingAccountPrefix = paramBean.getProperty(
 					"asp.api.default.billingAccount.prefix", "BA_");
 
+			Seller seller = sellerService.findByCode(em, organizationId,
+					provider);
+
+			if (seller == null) {
+				throw new SellerDoesNotExistsException(organizationId);
+			}
+
+			if (sellerService.hasChildren(em, seller, provider)) {
+				throw new SellerWithChildCannotBeDeletedException(
+						seller.getCode());
+			}
+
 			BillingAccount billingAccount = billingAccountService.findByCode(
 					em, billingAccountPrefix + organizationId, provider);
 			if (billingAccount != null) {
@@ -603,6 +616,12 @@ public class OrganizationServiceApi extends BaseAsgApi {
 			Customer customer = customerService.findByCode(em, customerPrefix
 					+ organizationId, provider);
 			if (customer != null) {
+				if (customer.getCustomerAccounts() != null) {
+					for (CustomerAccount _customerAccount : customer
+							.getCustomerAccounts()) {
+						customerAccountService.remove(em, _customerAccount);
+					}
+				}
 				customerService.remove(em, customer);
 			}
 
@@ -622,14 +641,7 @@ public class OrganizationServiceApi extends BaseAsgApi {
 				userAccountService.remove(em, userAccount2);
 			}
 
-			Seller seller = sellerService.findByCode(em, organizationId,
-					provider);
-			if (seller == null) {
-				throw new SellerDoesNotExistsException(organizationId);
-			} else {
-				sellerService.remove(em, seller);
-			}
-
+			sellerService.remove(em, seller);
 		} else {
 			StringBuilder sb = new StringBuilder(
 					"The following parameters are required ");
