@@ -1,6 +1,7 @@
 package org.meveo.asg.api;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.ejb.Stateless;
@@ -18,6 +19,7 @@ import org.meveo.api.exception.ServiceTemplateAlreadyExistsException;
 import org.meveo.asg.api.model.EntityCodeEnum;
 import org.meveo.commons.utils.ParamBean;
 import org.meveo.commons.utils.StringUtils;
+import org.meveo.model.Auditable;
 import org.meveo.model.admin.User;
 import org.meveo.model.billing.InstanceStatusEnum;
 import org.meveo.model.billing.ServiceInstance;
@@ -30,6 +32,7 @@ import org.meveo.service.billing.impl.SubscriptionService;
 import org.meveo.service.catalog.impl.OfferTemplateService;
 import org.meveo.service.catalog.impl.ServiceTemplateService;
 import org.meveo.util.MeveoParamBean;
+import org.slf4j.Logger;
 
 /**
  * @author Edward P. Legaspi
@@ -42,6 +45,9 @@ public class OfferTemplateServiceApi extends BaseAsgApi {
 	@Inject
 	@MeveoParamBean
 	private ParamBean paramBean;
+
+	@Inject
+	private Logger log;
 
 	@Inject
 	private OfferTemplateService offerTemplateService;
@@ -101,11 +107,19 @@ public class OfferTemplateServiceApi extends BaseAsgApi {
 			offerTemplate.setActive(true);
 			offerTemplate.setCode(offerTemplateCode);
 
+			String description = "";
 			if (offerDto.getDescriptions() != null
 					&& offerDto.getDescriptions().size() > 0) {
-				offerTemplate.setDescription(offerDto.getDescriptions().get(0)
-						.getDescription());
+				description = offerDto.getDescriptions().get(0)
+						.getDescription();
 			}
+
+			offerTemplate.setDescription(description);
+
+			Auditable auditable = new Auditable();
+			auditable.setCreated(new Date());
+			auditable.setCreator(currentUser);
+			auditable.setUpdated(offerDto.getTimeStamp());
 
 			String chargedServiceTemplateCode = paramBean.getProperty(
 					"asg.api.offer.notcharged.prefix", "_NC_OF_")
@@ -116,6 +130,8 @@ public class OfferTemplateServiceApi extends BaseAsgApi {
 						+ chargedServiceTemplateCode + " already exists.");
 			}
 			ServiceTemplate serviceTemplate = new ServiceTemplate();
+			serviceTemplate.setDescription(description);
+			serviceTemplate.setAuditable(auditable);
 			serviceTemplate.setActive(true);
 			serviceTemplate.setCode(chargedServiceTemplateCode);
 			serviceTemplateService.create(em, serviceTemplate, currentUser,
@@ -150,6 +166,7 @@ public class OfferTemplateServiceApi extends BaseAsgApi {
 				offerTemplate.setServiceTemplates(serviceTemplates);
 			}
 
+			offerTemplate.setAuditable(auditable);
 			offerTemplateService.create(em, offerTemplate, currentUser,
 					provider);
 
@@ -194,10 +211,23 @@ public class OfferTemplateServiceApi extends BaseAsgApi {
 
 		OfferTemplate offerTemplate = offerTemplateService.findByCode(em,
 				offerTemplateCode, provider);
+
 		if (offerTemplate == null) {
 			throw new MeveoApiException("Offer template code="
 					+ offerTemplateCode + " does not exists.");
 		}
+
+		// check if timestamp is greater than in db
+		if (!isUpdateable(offerDto.getTimeStamp(), offerTemplate.getAuditable())) {
+			log.warn("Message already outdated={}", offerDto.toString());
+			return;
+		}
+
+		Auditable auditable = (offerTemplate.getAuditable() != null) ? offerTemplate
+				.getAuditable() : new Auditable();
+		auditable.setUpdater(currentUser);
+		auditable.setUpdated(offerDto.getTimeStamp());
+		offerTemplate.setAuditable(auditable);
 
 		String offerDescription = "";
 		if (offerDto.getDescriptions() != null
@@ -218,6 +248,15 @@ public class OfferTemplateServiceApi extends BaseAsgApi {
 			}
 
 			for (String serviceId : offerDto.getServices()) {
+
+				try {
+					serviceId = asgIdMappingService.getMeveoCode(serviceId,
+							EntityCodeEnum.S);
+				} catch (BusinessException e) {
+					log.warn("ServiceId={} not found." + serviceId);
+					continue;
+				}
+
 				String unchargedServiceTemplateCode = paramBean.getProperty(
 						"asg.api.service.notcharged.prefix", "_NC_SE_")
 						+ serviceId;
@@ -287,6 +326,7 @@ public class OfferTemplateServiceApi extends BaseAsgApi {
 		ServiceTemplate notChargedServiceTemplate = serviceTemplateService
 				.findByCode(em, serviceTemplateCode, provider);
 		if (notChargedServiceTemplate != null) {
+			notChargedServiceTemplate.setAuditable(auditable);
 			notChargedServiceTemplate.setDescription(offerDescription);
 			serviceTemplateService.update(em, notChargedServiceTemplate,
 					currentUser);

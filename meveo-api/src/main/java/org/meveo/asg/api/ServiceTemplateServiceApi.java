@@ -173,6 +173,7 @@ public class ServiceTemplateServiceApi extends BaseAsgApi {
 					Auditable auditable = (serviceTemplate.getAuditable() != null) ? serviceTemplate
 							.getAuditable() : new Auditable();
 					auditable.setUpdated(serviceDto.getTimeStamp());
+					auditable.setUpdater(currentUser);
 					serviceTemplate.setAuditable(auditable);
 
 					serviceTemplate.setDescription(serviceDto.getDescriptions()
@@ -193,6 +194,7 @@ public class ServiceTemplateServiceApi extends BaseAsgApi {
 					Auditable auditable = (chargedServiceTemplate
 							.getAuditable() != null) ? chargedServiceTemplate
 							.getAuditable() : new Auditable();
+					auditable.setUpdater(currentUser);
 					auditable.setUpdated(serviceDto.getTimeStamp());
 					chargedServiceTemplate.setAuditable(auditable);
 
@@ -213,6 +215,7 @@ public class ServiceTemplateServiceApi extends BaseAsgApi {
 						&& serviceDto.getDescriptions().size() > 0) {
 					Auditable auditable = (offerTemplate.getAuditable() != null) ? offerTemplate
 							.getAuditable() : new Auditable();
+					auditable.setUpdater(currentUser);
 					auditable.setUpdated(serviceDto.getTimeStamp());
 					offerTemplate.setAuditable(auditable);
 

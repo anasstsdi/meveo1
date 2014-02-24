@@ -552,6 +552,7 @@ public class OrganizationServiceApi extends BaseAsgApi {
 
 			Auditable auditable = (seller.getAuditable() != null) ? seller
 					.getAuditable() : new Auditable();
+			auditable.setUpdater(currentUser);
 			auditable.setUpdated(orgDto.getTimeStamp());
 			seller.setAuditable(auditable);
 
