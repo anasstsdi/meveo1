@@ -1,6 +1,7 @@
 package org.meveo.asg.api;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.ejb.Stateless;
@@ -17,6 +18,7 @@ import org.meveo.api.exception.ServiceTemplateAlreadyExistsException;
 import org.meveo.asg.api.model.EntityCodeEnum;
 import org.meveo.commons.utils.ParamBean;
 import org.meveo.commons.utils.StringUtils;
+import org.meveo.model.Auditable;
 import org.meveo.model.admin.User;
 import org.meveo.model.billing.ServiceInstance;
 import org.meveo.model.billing.Subscription;
@@ -83,10 +85,16 @@ public class ServiceTemplateServiceApi extends BaseAsgApi {
 						serviceTemplateCode);
 			}
 
+			Auditable auditable = new Auditable();
+			auditable.setCreated(new Date());
+			auditable.setCreator(currentUser);
+			auditable.setUpdated(serviceDto.getTimeStamp());
+
 			ServiceTemplate serviceTemplate = new ServiceTemplate();
 			serviceTemplate.setActive(true);
 			serviceTemplate.setCode(serviceTemplateCode);
 			serviceTemplate.setProvider(provider);
+			serviceTemplate.setAuditable(auditable);
 			try {
 				serviceTemplate.setDescription(serviceDto.getDescriptions()
 						.get(0).getDescription());
@@ -107,6 +115,7 @@ public class ServiceTemplateServiceApi extends BaseAsgApi {
 			offerTemplate.setCode(offerTemplateCode);
 			offerTemplate.setActive(true);
 			offerTemplate.setServiceTemplates(serviceTemplates);
+			offerTemplate.setAuditable(auditable);
 			offerTemplateService.create(em, offerTemplate, currentUser,
 					provider);
 		} else {
@@ -152,6 +161,20 @@ public class ServiceTemplateServiceApi extends BaseAsgApi {
 			if (serviceTemplate != null) {
 				if (serviceDto.getDescriptions() != null
 						&& serviceDto.getDescriptions().size() > 0) {
+
+					// check if timestamp is greater than in db
+					if (!isUpdateable(serviceDto.getTimeStamp(),
+							serviceTemplate.getAuditable())) {
+						log.warn("Message already outdated={}",
+								serviceDto.toString());
+						return;
+					}
+
+					Auditable auditable = (serviceTemplate.getAuditable() != null) ? serviceTemplate
+							.getAuditable() : new Auditable();
+					auditable.setUpdated(serviceDto.getTimeStamp());
+					serviceTemplate.setAuditable(auditable);
+
 					serviceTemplate.setDescription(serviceDto.getDescriptions()
 							.get(0).getDescription());
 					serviceTemplateService.update(em, serviceTemplate,
@@ -167,6 +190,12 @@ public class ServiceTemplateServiceApi extends BaseAsgApi {
 			if (chargedServiceTemplate != null) {
 				if (serviceDto.getDescriptions() != null
 						&& serviceDto.getDescriptions().size() > 0) {
+					Auditable auditable = (chargedServiceTemplate
+							.getAuditable() != null) ? chargedServiceTemplate
+							.getAuditable() : new Auditable();
+					auditable.setUpdated(serviceDto.getTimeStamp());
+					chargedServiceTemplate.setAuditable(auditable);
+
 					chargedServiceTemplate.setDescription(serviceDto
 							.getDescriptions().get(0).getDescription());
 					serviceTemplateService.update(em, chargedServiceTemplate,
@@ -182,6 +211,11 @@ public class ServiceTemplateServiceApi extends BaseAsgApi {
 			if (offerTemplateCode != null) {
 				if (serviceDto.getDescriptions() != null
 						&& serviceDto.getDescriptions().size() > 0) {
+					Auditable auditable = (offerTemplate.getAuditable() != null) ? offerTemplate
+							.getAuditable() : new Auditable();
+					auditable.setUpdated(serviceDto.getTimeStamp());
+					offerTemplate.setAuditable(auditable);
+
 					offerTemplate.setDescription(serviceDto.getDescriptions()
 							.get(0).getDescription());
 					offerTemplateService.update(em, offerTemplate, currentUser);

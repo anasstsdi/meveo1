@@ -148,6 +148,7 @@ public class OrganizationServiceApi extends BaseAsgApi {
 			Auditable auditableTrading = new Auditable();
 			auditableTrading.setCreated(new Date());
 			auditableTrading.setCreator(currentUser);
+			auditableTrading.setUpdated(orgDto.getTimeStamp());
 
 			TradingCountry tradingCountry = tradingCountryService
 					.findByTradingCountryCode(orgDto.getCountryCode(), provider);
@@ -453,6 +454,7 @@ public class OrganizationServiceApi extends BaseAsgApi {
 			Auditable auditableTrading = new Auditable();
 			auditableTrading.setCreated(new Date());
 			auditableTrading.setCreator(currentUser);
+			auditableTrading.setUpdated(orgDto.getTimeStamp());
 
 			TradingCountry tradingCountry = tradingCountryService
 					.findByTradingCountryCode(orgDto.getCountryCode(), provider);
@@ -547,6 +549,11 @@ public class OrganizationServiceApi extends BaseAsgApi {
 			if (!StringUtils.isBlank(orgDto.getName())) {
 				seller.setDescription(orgDto.getName());
 			}
+
+			Auditable auditable = (seller.getAuditable() != null) ? seller
+					.getAuditable() : new Auditable();
+			auditable.setUpdated(orgDto.getTimeStamp());
+			seller.setAuditable(auditable);
 
 			sellerService.update(em, seller, currentUser);
 		} else {

@@ -38,7 +38,7 @@ public class ServiceDto extends BaseDto {
 	@Override
 	public String toString() {
 		return "ServiceDto [serviceId=" + serviceId + ", descriptions="
-				+ descriptions + "]";
+				+ descriptions + ", innerString()=" + innerString() + "]";
 	}
 
 }

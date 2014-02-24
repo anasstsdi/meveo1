@@ -50,7 +50,8 @@ public abstract class BaseDto implements Serializable {
 
 	protected String innerString() {
 		return StringUtils.concat("providerId=", providerId,
-				", currentUserId=", currentUserId, ", requestId=", requestId);
+				", currentUserId=", currentUserId, ", requestId=", requestId,
+				", timeStamp=" + timeStamp);
 	}
 
 	public void validate() throws InvalidDTOException {

@@ -74,7 +74,8 @@ public class OrganizationDto extends BaseDto {
 		return "OrganizationDto [organizationId=" + organizationId + ", name="
 				+ name + ", parentId=" + parentId + ", countryCode="
 				+ countryCode + ", defaultCurrencyCode=" + defaultCurrencyCode
-				+ ", languageCode=" + languageCode + "]";
+				+ ", languageCode=" + languageCode + ", innerString()="
+				+ innerString() + "]";
 	}
 
 }
