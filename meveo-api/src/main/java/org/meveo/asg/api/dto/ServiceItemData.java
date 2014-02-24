@@ -15,16 +15,17 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for OrganizationUpdated complex type.
+ * <p>Java class for ServiceItemData complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="OrganizationUpdated">
+ * &lt;complexType name="ServiceItemData">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="Organization" type="{}OrganizationEventData" minOccurs="0"/>
+ *         &lt;element name="ServiceId" type="{http://microsoft.com/wsdl/types/}guid"/>
+ *         &lt;element name="Optional" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -34,36 +35,55 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "OrganizationUpdated", propOrder = {
-    "organization"
+@XmlType(name = "ServiceItemData", propOrder = {
+    "serviceId",
+    "optional"
 })
-public class OrganizationUpdated {
+public class ServiceItemData {
 
-    @XmlElement(name = "Organization")
-    protected OrganizationEventData organization;
+    @XmlElement(name = "ServiceId", required = true)
+    protected String serviceId;
+    @XmlElement(name = "Optional")
+    protected boolean optional;
 
     /**
-     * Gets the value of the organization property.
+     * Gets the value of the serviceId property.
      * 
      * @return
      *     possible object is
-     *     {@link OrganizationEventData }
+     *     {@link String }
      *     
      */
-    public OrganizationEventData getOrganization() {
-        return organization;
+    public String getServiceId() {
+        return serviceId;
     }
 
     /**
-     * Sets the value of the organization property.
+     * Sets the value of the serviceId property.
      * 
      * @param value
      *     allowed object is
-     *     {@link OrganizationEventData }
+     *     {@link String }
      *     
      */
-    public void setOrganization(OrganizationEventData value) {
-        this.organization = value;
+    public void setServiceId(String value) {
+        this.serviceId = value;
+    }
+
+    /**
+     * Gets the value of the optional property.
+     * 
+     */
+    public boolean isOptional() {
+        return optional;
+    }
+
+    /**
+     * Sets the value of the optional property.
+     * 
+     */
+    public void setOptional(boolean value) {
+        this.optional = value;
     }
 
 }

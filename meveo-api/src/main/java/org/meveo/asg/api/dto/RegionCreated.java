@@ -15,16 +15,16 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for OrganizationUpdated complex type.
+ * <p>Java class for RegionCreated complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="OrganizationUpdated">
+ * &lt;complexType name="RegionCreated">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="Organization" type="{}OrganizationEventData" minOccurs="0"/>
+ *         &lt;element name="Region" type="{}RegionEventData" minOccurs="0"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -34,36 +34,36 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "OrganizationUpdated", propOrder = {
-    "organization"
+@XmlType(name = "RegionCreated", propOrder = {
+    "region"
 })
-public class OrganizationUpdated {
+public class RegionCreated {
 
-    @XmlElement(name = "Organization")
-    protected OrganizationEventData organization;
+    @XmlElement(name = "Region")
+    protected RegionEventData region;
 
     /**
-     * Gets the value of the organization property.
+     * Gets the value of the region property.
      * 
      * @return
      *     possible object is
-     *     {@link OrganizationEventData }
+     *     {@link RegionEventData }
      *     
      */
-    public OrganizationEventData getOrganization() {
-        return organization;
+    public RegionEventData getRegion() {
+        return region;
     }
 
     /**
-     * Sets the value of the organization property.
+     * Sets the value of the region property.
      * 
      * @param value
      *     allowed object is
-     *     {@link OrganizationEventData }
+     *     {@link RegionEventData }
      *     
      */
-    public void setOrganization(OrganizationEventData value) {
-        this.organization = value;
+    public void setRegion(RegionEventData value) {
+        this.region = value;
     }
 
 }

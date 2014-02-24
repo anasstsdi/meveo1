@@ -15,16 +15,16 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for OrganizationUpdated complex type.
+ * <p>Java class for TaxCreated complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="OrganizationUpdated">
+ * &lt;complexType name="TaxCreated">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="Organization" type="{}OrganizationEventData" minOccurs="0"/>
+ *         &lt;element name="Tax" type="{}TaxEventData" minOccurs="0"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -34,36 +34,36 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "OrganizationUpdated", propOrder = {
-    "organization"
+@XmlType(name = "TaxCreated", propOrder = {
+    "tax"
 })
-public class OrganizationUpdated {
+public class TaxCreated {
 
-    @XmlElement(name = "Organization")
-    protected OrganizationEventData organization;
+    @XmlElement(name = "Tax")
+    protected TaxEventData tax;
 
     /**
-     * Gets the value of the organization property.
+     * Gets the value of the tax property.
      * 
      * @return
      *     possible object is
-     *     {@link OrganizationEventData }
+     *     {@link TaxEventData }
      *     
      */
-    public OrganizationEventData getOrganization() {
-        return organization;
+    public TaxEventData getTax() {
+        return tax;
     }
 
     /**
-     * Sets the value of the organization property.
+     * Sets the value of the tax property.
      * 
      * @param value
      *     allowed object is
-     *     {@link OrganizationEventData }
+     *     {@link TaxEventData }
      *     
      */
-    public void setOrganization(OrganizationEventData value) {
-        this.organization = value;
+    public void setTax(TaxEventData value) {
+        this.tax = value;
     }
 
 }

@@ -11,20 +11,23 @@ package org.meveo.asg.api.dto;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlSchemaType;
+import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.datatype.XMLGregorianCalendar;
 
 
 /**
- * <p>Java class for OrganizationUpdated complex type.
+ * <p>Java class for BaseEventData complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="OrganizationUpdated">
+ * &lt;complexType name="BaseEventData">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="Organization" type="{}OrganizationEventData" minOccurs="0"/>
+ *         &lt;element name="Timestamp" type="{http://www.w3.org/2001/XMLSchema}dateTime"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -34,36 +37,46 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "OrganizationUpdated", propOrder = {
-    "organization"
+@XmlType(name = "BaseEventData", propOrder = {
+    "timestamp"
 })
-public class OrganizationUpdated {
+@XmlSeeAlso({
+    OfferEventData.class,
+    PricePlanEventData.class,
+    ServiceEventData.class,
+    UserEventData.class,
+    TaxEventData.class,
+    OrganizationEventData.class,
+    RegionEventData.class
+})
+public class BaseEventData {
 
-    @XmlElement(name = "Organization")
-    protected OrganizationEventData organization;
+    @XmlElement(name = "Timestamp", required = true)
+    @XmlSchemaType(name = "dateTime")
+    protected XMLGregorianCalendar timestamp;
 
     /**
-     * Gets the value of the organization property.
+     * Gets the value of the timestamp property.
      * 
      * @return
      *     possible object is
-     *     {@link OrganizationEventData }
+     *     {@link XMLGregorianCalendar }
      *     
      */
-    public OrganizationEventData getOrganization() {
-        return organization;
+    public XMLGregorianCalendar getTimestamp() {
+        return timestamp;
     }
 
     /**
-     * Sets the value of the organization property.
+     * Sets the value of the timestamp property.
      * 
      * @param value
      *     allowed object is
-     *     {@link OrganizationEventData }
+     *     {@link XMLGregorianCalendar }
      *     
      */
-    public void setOrganization(OrganizationEventData value) {
-        this.organization = value;
+    public void setTimestamp(XMLGregorianCalendar value) {
+        this.timestamp = value;
     }
 
 }

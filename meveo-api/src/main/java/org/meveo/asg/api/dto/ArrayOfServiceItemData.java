@@ -17,16 +17,16 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for ArrayOfQuantityRangeChargeData complex type.
+ * <p>Java class for ArrayOfServiceItemData complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="ArrayOfQuantityRangeChargeData">
+ * &lt;complexType name="ArrayOfServiceItemData">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="QuantityRangeChargeData" type="{}QuantityRangeChargeData" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="ServiceItemData" type="{}ServiceItemData" maxOccurs="unbounded" minOccurs="0"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -36,41 +36,41 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "ArrayOfQuantityRangeChargeData", propOrder = {
-    "quantityRangeChargeData"
+@XmlType(name = "ArrayOfServiceItemData", propOrder = {
+    "serviceItemData"
 })
-public class ArrayOfQuantityRangeChargeData {
+public class ArrayOfServiceItemData {
 
-    @XmlElement(name = "QuantityRangeChargeData", nillable = true)
-    protected List<QuantityRangeChargeData> quantityRangeChargeData;
+    @XmlElement(name = "ServiceItemData", nillable = true)
+    protected List<ServiceItemData> serviceItemData;
 
     /**
-     * Gets the value of the quantityRangeChargeData property.
+     * Gets the value of the serviceItemData property.
      * 
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the quantityRangeChargeData property.
+     * This is why there is not a <CODE>set</CODE> method for the serviceItemData property.
      * 
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
-     *    getQuantityRangeChargeData().add(newItem);
+     *    getServiceItemData().add(newItem);
      * </pre>
      * 
      * 
      * <p>
      * Objects of the following type(s) are allowed in the list
-     * {@link QuantityRangeChargeData }
+     * {@link ServiceItemData }
      * 
      * 
      */
-    public List<QuantityRangeChargeData> getQuantityRangeChargeData() {
-        if (quantityRangeChargeData == null) {
-            quantityRangeChargeData = new ArrayList<QuantityRangeChargeData>();
+    public List<ServiceItemData> getServiceItemData() {
+        if (serviceItemData == null) {
+            serviceItemData = new ArrayList<ServiceItemData>();
         }
-        return this.quantityRangeChargeData;
+        return this.serviceItemData;
     }
 
 }

@@ -57,6 +57,7 @@ import org.meveo.service.crm.impl.CustomerBrandService;
 import org.meveo.service.crm.impl.CustomerCategoryService;
 import org.meveo.service.crm.impl.CustomerService;
 import org.meveo.service.payments.impl.CustomerAccountService;
+import org.slf4j.Logger;
 
 /**
  * @author Edward P. Legaspi
@@ -68,6 +69,9 @@ public class OrganizationServiceApi extends BaseAsgApi {
 
 	@Inject
 	private ParamBean paramBean;
+
+	@Inject
+	private Logger log;
 
 	@Inject
 	private SellerService sellerService;
@@ -252,11 +256,12 @@ public class OrganizationServiceApi extends BaseAsgApi {
 					.findByCode(paramBean.getProperty(
 							"asp.api.default.customer.category", "Business"));
 
-			if (parentSeller != null) {
-				Auditable auditable = new Auditable();
-				auditable.setCreated(new Date());
-				auditable.setCreator(currentUser);
+			Auditable auditable = new Auditable();
+			auditable.setCreated(new Date());
+			auditable.setCreator(currentUser);
+			auditable.setUpdated(orgDto.getTimeStamp());
 
+			if (parentSeller != null) {
 				Seller newSeller = new Seller();
 				newSeller.setSeller(parentSeller);
 				newSeller.setActive(true);
@@ -333,10 +338,6 @@ public class OrganizationServiceApi extends BaseAsgApi {
 							currentUser, provider);
 				}
 			} else {
-				Auditable auditable = new Auditable();
-				auditable.setCreated(new Date());
-				auditable.setCreator(currentUser);
-
 				Seller newSeller = new Seller();
 				newSeller.setActive(true);
 				newSeller.setCode(orgDto.getOrganizationId());
@@ -393,13 +394,13 @@ public class OrganizationServiceApi extends BaseAsgApi {
 				missingFields.add("organizationId");
 			}
 			if (StringUtils.isBlank(orgDto.getCountryCode())) {
-				missingFields.add("countryCode");
+				missingFields.add("countryIsoCode");
 			}
 			if (StringUtils.isBlank(orgDto.getLanguageCode())) {
-				missingFields.add("languageCode");
+				missingFields.add("languageIsoCode");
 			}
 			if (StringUtils.isBlank(orgDto.getDefaultCurrencyCode())) {
-				missingFields.add("defaultCurrencyCode");
+				missingFields.add("defaultCurrencyIsoCode");
 			}
 
 			if (missingFields.size() > 1) {
@@ -441,6 +442,12 @@ public class OrganizationServiceApi extends BaseAsgApi {
 			if (seller == null) {
 				throw new SellerDoesNotExistsException(
 						orgDto.getOrganizationId());
+			}
+
+			// check if timestamp is greater than in db
+			if (!isUpdateable(orgDto.getTimeStamp(), seller.getAuditable())) {
+				log.warn("Message already outdated={}", orgDto.toString());
+				return;
 			}
 
 			Auditable auditableTrading = new Auditable();
@@ -551,10 +558,10 @@ public class OrganizationServiceApi extends BaseAsgApi {
 				missingFields.add("organizationId");
 			}
 			if (StringUtils.isBlank(orgDto.getCountryCode())) {
-				missingFields.add("countryCode");
+				missingFields.add("countryIsoCode");
 			}
 			if (StringUtils.isBlank(orgDto.getDefaultCurrencyCode())) {
-				missingFields.add("defaultCurrencyCode");
+				missingFields.add("defaultCurrencyIsoCode");
 			}
 
 			if (missingFields.size() > 1) {

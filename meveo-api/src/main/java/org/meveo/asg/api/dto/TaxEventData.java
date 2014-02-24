@@ -8,6 +8,7 @@
 
 package org.meveo.asg.api.dto;
 
+import java.math.BigDecimal;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -15,19 +16,20 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for RegionEventData complex type.
+ * <p>Java class for TaxEventData complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="RegionEventData">
+ * &lt;complexType name="TaxEventData">
  *   &lt;complexContent>
  *     &lt;extension base="{}BaseEventData">
  *       &lt;sequence>
- *         &lt;element name="RegionId" type="{http://microsoft.com/wsdl/types/}guid"/>
+ *         &lt;element name="TaxId" type="{http://microsoft.com/wsdl/types/}guid"/>
  *         &lt;element name="RegionCode" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
  *         &lt;element name="CountryIsoCode" type="{http://www.w3.org/2001/XMLSchema}int"/>
- *         &lt;element name="Names" type="{}ArrayOfItemNameData" minOccurs="0"/>
+ *         &lt;element name="Percentage" type="{http://www.w3.org/2001/XMLSchema}decimal"/>
+ *         &lt;element name="Descriptions" type="{}ArrayOfItemDescriptionData" minOccurs="0"/>
  *       &lt;/sequence>
  *     &lt;/extension>
  *   &lt;/complexContent>
@@ -37,47 +39,50 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "RegionEventData", propOrder = {
-    "regionId",
+@XmlType(name = "TaxEventData", propOrder = {
+    "taxId",
     "regionCode",
     "countryIsoCode",
-    "names"
+    "percentage",
+    "descriptions"
 })
-public class RegionEventData
+public class TaxEventData
     extends BaseEventData
 {
 
-    @XmlElement(name = "RegionId", required = true)
-    protected String regionId;
+    @XmlElement(name = "TaxId", required = true)
+    protected String taxId;
     @XmlElement(name = "RegionCode")
     protected String regionCode;
     @XmlElement(name = "CountryIsoCode")
     protected int countryIsoCode;
-    @XmlElement(name = "Names")
-    protected ArrayOfItemNameData names;
+    @XmlElement(name = "Percentage", required = true)
+    protected BigDecimal percentage;
+    @XmlElement(name = "Descriptions")
+    protected ArrayOfItemDescriptionData descriptions;
 
     /**
-     * Gets the value of the regionId property.
+     * Gets the value of the taxId property.
      * 
      * @return
      *     possible object is
      *     {@link String }
      *     
      */
-    public String getRegionId() {
-        return regionId;
+    public String getTaxId() {
+        return taxId;
     }
 
     /**
-     * Sets the value of the regionId property.
+     * Sets the value of the taxId property.
      * 
      * @param value
      *     allowed object is
      *     {@link String }
      *     
      */
-    public void setRegionId(String value) {
-        this.regionId = value;
+    public void setTaxId(String value) {
+        this.taxId = value;
     }
 
     /**
@@ -121,27 +126,51 @@ public class RegionEventData
     }
 
     /**
-     * Gets the value of the names property.
+     * Gets the value of the percentage property.
      * 
      * @return
      *     possible object is
-     *     {@link ArrayOfItemNameData }
+     *     {@link BigDecimal }
      *     
      */
-    public ArrayOfItemNameData getNames() {
-        return names;
+    public BigDecimal getPercentage() {
+        return percentage;
     }
 
     /**
-     * Sets the value of the names property.
+     * Sets the value of the percentage property.
      * 
      * @param value
      *     allowed object is
-     *     {@link ArrayOfItemNameData }
+     *     {@link BigDecimal }
      *     
      */
-    public void setNames(ArrayOfItemNameData value) {
-        this.names = value;
+    public void setPercentage(BigDecimal value) {
+        this.percentage = value;
+    }
+
+    /**
+     * Gets the value of the descriptions property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link ArrayOfItemDescriptionData }
+     *     
+     */
+    public ArrayOfItemDescriptionData getDescriptions() {
+        return descriptions;
+    }
+
+    /**
+     * Sets the value of the descriptions property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link ArrayOfItemDescriptionData }
+     *     
+     */
+    public void setDescriptions(ArrayOfItemDescriptionData value) {
+        this.descriptions = value;
     }
 
 }

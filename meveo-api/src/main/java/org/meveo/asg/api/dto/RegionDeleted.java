@@ -15,16 +15,16 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for OrganizationUpdated complex type.
+ * <p>Java class for RegionDeleted complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="OrganizationUpdated">
+ * &lt;complexType name="RegionDeleted">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="Organization" type="{}OrganizationEventData" minOccurs="0"/>
+ *         &lt;element name="RegionId" type="{http://microsoft.com/wsdl/types/}guid"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -34,36 +34,36 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "OrganizationUpdated", propOrder = {
-    "organization"
+@XmlType(name = "RegionDeleted", propOrder = {
+    "regionId"
 })
-public class OrganizationUpdated {
+public class RegionDeleted {
 
-    @XmlElement(name = "Organization")
-    protected OrganizationEventData organization;
+    @XmlElement(name = "RegionId", required = true)
+    protected String regionId;
 
     /**
-     * Gets the value of the organization property.
+     * Gets the value of the regionId property.
      * 
      * @return
      *     possible object is
-     *     {@link OrganizationEventData }
+     *     {@link String }
      *     
      */
-    public OrganizationEventData getOrganization() {
-        return organization;
+    public String getRegionId() {
+        return regionId;
     }
 
     /**
-     * Sets the value of the organization property.
+     * Sets the value of the regionId property.
      * 
      * @param value
      *     allowed object is
-     *     {@link OrganizationEventData }
+     *     {@link String }
      *     
      */
-    public void setOrganization(OrganizationEventData value) {
-        this.organization = value;
+    public void setRegionId(String value) {
+        this.regionId = value;
     }
 
 }

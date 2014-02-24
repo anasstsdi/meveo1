@@ -15,16 +15,16 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for OrganizationUpdated complex type.
+ * <p>Java class for TaxDeleted complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="OrganizationUpdated">
+ * &lt;complexType name="TaxDeleted">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="Organization" type="{}OrganizationEventData" minOccurs="0"/>
+ *         &lt;element name="TaxId" type="{http://microsoft.com/wsdl/types/}guid"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -34,36 +34,36 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "OrganizationUpdated", propOrder = {
-    "organization"
+@XmlType(name = "TaxDeleted", propOrder = {
+    "taxId"
 })
-public class OrganizationUpdated {
+public class TaxDeleted {
 
-    @XmlElement(name = "Organization")
-    protected OrganizationEventData organization;
+    @XmlElement(name = "TaxId", required = true)
+    protected String taxId;
 
     /**
-     * Gets the value of the organization property.
+     * Gets the value of the taxId property.
      * 
      * @return
      *     possible object is
-     *     {@link OrganizationEventData }
+     *     {@link String }
      *     
      */
-    public OrganizationEventData getOrganization() {
-        return organization;
+    public String getTaxId() {
+        return taxId;
     }
 
     /**
-     * Sets the value of the organization property.
+     * Sets the value of the taxId property.
      * 
      * @param value
      *     allowed object is
-     *     {@link OrganizationEventData }
+     *     {@link String }
      *     
      */
-    public void setOrganization(OrganizationEventData value) {
-        this.organization = value;
+    public void setTaxId(String value) {
+        this.taxId = value;
     }
 
 }

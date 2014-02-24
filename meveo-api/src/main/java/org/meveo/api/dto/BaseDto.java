@@ -1,6 +1,7 @@
 package org.meveo.api.dto;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import org.meveo.api.message.exception.InvalidDTOException;
 import org.meveo.commons.utils.StringUtils;
@@ -15,6 +16,7 @@ public abstract class BaseDto implements Serializable {
 	private Long providerId;
 	private Long currentUserId;
 	private String requestId;
+	private Date timeStamp;
 
 	public Long getProviderId() {
 		return providerId;
@@ -53,6 +55,14 @@ public abstract class BaseDto implements Serializable {
 
 	public void validate() throws InvalidDTOException {
 
+	}
+
+	public Date getTimeStamp() {
+		return timeStamp;
+	}
+
+	public void setTimeStamp(Date timeStamp) {
+		this.timeStamp = timeStamp;
 	}
 
 }
