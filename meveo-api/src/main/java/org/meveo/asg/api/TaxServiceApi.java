@@ -119,7 +119,7 @@ public class TaxServiceApi extends BaseAsgApi {
 			Auditable auditable = new Auditable();
 			auditable.setCreated(new Date());
 			auditable.setCreator(currentUser);
-			auditable.setUpdated(new Date());
+			auditable.setUpdated(taxDto.getTimeStamp());
 			auditable.setUpdater(currentUser);
 
 			InvoiceSubcategoryCountry invoiceSubcategoryCountry = null;
@@ -350,11 +350,12 @@ public class TaxServiceApi extends BaseAsgApi {
 					return;
 				}
 
-				Auditable auditable = new Auditable();
-				auditable.setUpdated(taxDto.getTimeStamp());
+				Auditable auditable = (tax.getAuditable() != null) ? tax
+						.getAuditable() : new Auditable();
 				auditable.setUpdater(currentUser);
-
+				auditable.setUpdated(taxDto.getTimeStamp());
 				tax.setAuditable(auditable);
+
 				tax.setDescription(taxDto.getDescription());
 				tax.setPercent(taxDto.getPercentage());
 				taxService.update(em, tax);

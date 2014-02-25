@@ -78,6 +78,7 @@ public class UserServiceApi extends BaseAsgApi {
 				Auditable auditable = new Auditable();
 				auditable.setCreator(currentUser);
 				auditable.setCreated(new Date());
+				auditable.setUpdated(userDto.getTimeStamp());
 
 				UserAccount userAccount = new UserAccount();
 				userAccount.setActive(true);
@@ -147,13 +148,18 @@ public class UserServiceApi extends BaseAsgApi {
 						+ userDto.getUserId() + " does not exists.");
 			} else {
 				userAccount.setDescription(userDto.getName());
+				Auditable auditable = (userAccount.getAuditable() != null) ? userAccount
+						.getAuditable() : new Auditable();
+				auditable.setUpdated(userDto.getTimeStamp());
+				auditable.setUpdater(currentUser);
+				userAccount.setAuditable(auditable);
+
 				Name name = new Name();
 				name.setFirstName(userDto.getName());
 				name.setLastName(userDto.getLastName());
 				userAccount.setName(name);
 				userAccountService.update(em, userAccount, currentUser);
 			}
-
 		} else {
 			StringBuilder sb = new StringBuilder(
 					"The following parameters are required ");
