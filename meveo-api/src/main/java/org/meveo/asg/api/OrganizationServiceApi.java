@@ -239,8 +239,6 @@ public class OrganizationServiceApi extends BaseAsgApi {
 					"asp.api.default.customerAccount.prefix", "CA_");
 			String billingAccountPrefix = paramBean.getProperty(
 					"asp.api.default.billingAccount.prefix", "BA_");
-			String userAccountPrefix = paramBean.getProperty(
-					"asp.api.default.userAccount.prefix", "UA_");
 
 			int caPaymentMethod = Integer.parseInt(paramBean.getProperty(
 					"asp.api.default.customerAccount.paymentMethod", "1"));
@@ -326,8 +324,6 @@ public class OrganizationServiceApi extends BaseAsgApi {
 						.findByCode(em, parentBillingAccountCode, provider);
 				if (parentBillingAccount != null) {
 					UserAccount parentUserAccount = new UserAccount();
-					parentUserAccount.setCode(userAccountPrefix
-							+ orgDto.getOrganizationId());
 					parentUserAccount.setStatus(AccountStatusEnum.ACTIVE);
 					parentUserAccount.setBillingAccount(parentBillingAccount);
 					parentUserAccount.setCode(paramBean
@@ -614,21 +610,17 @@ public class OrganizationServiceApi extends BaseAsgApi {
 				throw new SellerWithChildCannotBeDeletedException(
 						seller.getCode());
 			}
-
+			
 			String userAccountPrefix = paramBean.getProperty(
 					"asg.api.default.organization.userAccount", "USER_");
 			UserAccount userAccount = userAccountService.findByCode(em,
 					userAccountPrefix + organizationId, provider);
 			if (userAccount != null) {
-				// set billingAccount to null first
-				userAccount.setBillingAccount(null);
-				userAccountService.update(em, userAccount);
-				// remove
 				userAccountService.remove(em, userAccount);
 			}
 
 			String userAccountPrefix2 = paramBean.getProperty(
-					"asp.api.default.userAccount.prefix", "UA_");
+					"asg.api.default", "_DEF_");
 			UserAccount userAccount2 = userAccountService.findByCode(em,
 					userAccountPrefix2 + organizationId, provider);
 			if (userAccount2 != null) {
@@ -658,7 +650,7 @@ public class OrganizationServiceApi extends BaseAsgApi {
 					}
 				}
 				customerService.remove(em, customer);
-			}
+			}			
 
 			sellerService.remove(em, seller);
 		} else {

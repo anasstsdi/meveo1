@@ -1,6 +1,7 @@
 package org.meveo.asg.api;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.ejb.Stateless;
@@ -20,6 +21,7 @@ import org.meveo.api.exception.TaxDoesNotExistsException;
 import org.meveo.asg.api.model.EntityCodeEnum;
 import org.meveo.commons.utils.ParamBean;
 import org.meveo.commons.utils.StringUtils;
+import org.meveo.model.Auditable;
 import org.meveo.model.admin.User;
 import org.meveo.model.billing.Country;
 import org.meveo.model.billing.InvoiceCategory;
@@ -37,6 +39,7 @@ import org.meveo.service.catalog.impl.InvoiceSubCategoryService;
 import org.meveo.service.catalog.impl.TaxService;
 import org.meveo.service.crm.impl.ProviderService;
 import org.meveo.util.MeveoParamBean;
+import org.slf4j.Logger;
 
 /**
  * @author Edward P. Legaspi
@@ -49,6 +52,9 @@ public class TaxServiceApi extends BaseAsgApi {
 	@Inject
 	@MeveoParamBean
 	private ParamBean paramBean;
+
+	@Inject
+	private Logger log;
 
 	@Inject
 	private TaxService taxService;
@@ -110,10 +116,17 @@ public class TaxServiceApi extends BaseAsgApi {
 				}
 			}
 
+			Auditable auditable = new Auditable();
+			auditable.setCreated(new Date());
+			auditable.setCreator(currentUser);
+			auditable.setUpdated(new Date());
+			auditable.setUpdater(currentUser);
+
 			InvoiceSubcategoryCountry invoiceSubcategoryCountry = null;
 
 			Tax tax = taxService.findByCode(em, taxDto.getTaxId());
 			if (tax != null) {
+				tax.setAuditable(auditable);
 				tax.setDescription(taxDto.getDescription());
 				tax.setPercent(taxDto.getPercentage());
 				taxService.update(em, tax);
@@ -122,6 +135,7 @@ public class TaxServiceApi extends BaseAsgApi {
 						.findByTaxId(em, tax);
 			} else {
 				tax = new Tax();
+				tax.setAuditable(auditable);
 				tax.setCode(taxDto.getTaxId());
 				tax.setDescription(taxDto.getDescription());
 				tax.setPercent(taxDto.getPercentage());
@@ -330,6 +344,17 @@ public class TaxServiceApi extends BaseAsgApi {
 
 			Tax tax = taxService.findByCode(em, taxDto.getTaxId());
 			if (tax != null) {
+				// check if timestamp is greater than in db
+				if (!isUpdateable(taxDto.getTimeStamp(), tax.getAuditable())) {
+					log.warn("Message already outdated={}", taxDto.toString());
+					return;
+				}
+
+				Auditable auditable = new Auditable();
+				auditable.setUpdated(taxDto.getTimeStamp());
+				auditable.setUpdater(currentUser);
+
+				tax.setAuditable(auditable);
 				tax.setDescription(taxDto.getDescription());
 				tax.setPercent(taxDto.getPercentage());
 				taxService.update(em, tax);

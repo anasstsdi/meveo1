@@ -73,7 +73,7 @@ public class UserWS {
 		}
 
 		if (result.getStatus() == ActionStatusEnum.FAIL
-				&& result.getErrorCode() == MeveoApiErrorCode.USER_ALREADY_EXISTS) {
+				&& result.getErrorCode() != MeveoApiErrorCode.USER_ALREADY_EXISTS) {
 			userServiceApi.removeAsgMapping(userId, EntityCodeEnum.U);
 		}
 
