@@ -20,6 +20,7 @@ import org.meveo.api.exception.MissingParameterException;
 import org.meveo.api.exception.OfferTemplateAlreadyExistsException;
 import org.meveo.api.exception.OfferTemplateDoesNotExistsException;
 import org.meveo.api.exception.ServiceTemplateAlreadyExistsException;
+import org.meveo.api.exception.ServiceTemplateDoesNotExistsException;
 import org.meveo.asg.api.OfferTemplateServiceApi;
 import org.meveo.asg.api.model.EntityCodeEnum;
 import org.meveo.commons.utils.ParamBean;
@@ -71,6 +72,10 @@ public class OfferTemplateWS {
 			result.setMessage(e.getMessage());
 		} catch (ServiceTemplateAlreadyExistsException e) {
 			result.setErrorCode(MeveoApiErrorCode.SERVICE_TEMPLATE_ALREADY_EXISTS);
+			result.setStatus(ActionStatusEnum.FAIL);
+			result.setMessage(e.getMessage());
+		} catch (ServiceTemplateDoesNotExistsException e) {
+			result.setErrorCode(MeveoApiErrorCode.SERVICE_TEMPLATE_DOES_NOT_EXISTS);
 			result.setStatus(ActionStatusEnum.FAIL);
 			result.setMessage(e.getMessage());
 		} catch (MeveoApiException e) {

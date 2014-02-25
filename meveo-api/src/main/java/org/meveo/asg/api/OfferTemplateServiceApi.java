@@ -16,6 +16,7 @@ import org.meveo.api.exception.MeveoApiException;
 import org.meveo.api.exception.MissingParameterException;
 import org.meveo.api.exception.OfferTemplateAlreadyExistsException;
 import org.meveo.api.exception.ServiceTemplateAlreadyExistsException;
+import org.meveo.api.exception.ServiceTemplateDoesNotExistsException;
 import org.meveo.asg.api.model.EntityCodeEnum;
 import org.meveo.commons.utils.ParamBean;
 import org.meveo.commons.utils.StringUtils;
@@ -62,6 +63,141 @@ public class OfferTemplateServiceApi extends BaseAsgApi {
 	private SubscriptionService subscriptionService;
 
 	public void create(OfferDto offerDto) throws MeveoApiException {
+		if (!StringUtils.isBlank(offerDto.getOfferId())
+				&& offerDto.getServices() != null
+				&& offerDto.getServices().size() > 0) {
+
+			Provider provider = providerService.findById(offerDto
+					.getProviderId());
+			User currentUser = userService
+					.findById(offerDto.getCurrentUserId());
+
+			try {
+				offerDto.setOfferId(asgIdMappingService.getNewCode(em,
+						offerDto.getOfferId(), EntityCodeEnum.O));
+			} catch (EntityAlreadyExistsException e) {
+				throw new OfferTemplateAlreadyExistsException(
+						offerDto.getOfferId());
+			}
+
+			if (offerDto.getServices() != null) {
+				String currentServiceId = "";
+				try {
+					List<String> services = new ArrayList<String>();
+					for (String serviceId : offerDto.getServices()) {
+						currentServiceId = serviceId;
+						services.add(asgIdMappingService.getMeveoCode(em,
+								serviceId, EntityCodeEnum.S));
+					}
+					offerDto.setServices(services);
+				} catch (BusinessException e) {
+					throw new ServiceTemplateDoesNotExistsException(currentServiceId);
+				}
+			}
+
+			String offerTemplateCode = paramBean.getProperty(
+					"asg.api.offer.offer.prefix", "_OF_")
+					+ offerDto.getOfferId();
+
+			if (offerTemplateService.findByCode(offerTemplateCode, provider) != null) {
+				throw new OfferTemplateAlreadyExistsException(offerTemplateCode);
+			}
+
+			OfferTemplate offerTemplate = new OfferTemplate();
+			offerTemplate.setActive(true);
+			offerTemplate.setCode(offerTemplateCode);
+
+			String description = "";
+			if (offerDto.getDescriptions() != null
+					&& offerDto.getDescriptions().size() > 0) {
+				description = offerDto.getDescriptions().get(0)
+						.getDescription();
+			}
+
+			offerTemplate.setDescription(description);
+
+			Auditable auditable = new Auditable();
+			auditable.setCreated(new Date());
+			auditable.setCreator(currentUser);
+			auditable.setUpdated(offerDto.getTimeStamp());
+
+			String chargedServiceTemplateCode = paramBean.getProperty(
+					"asg.api.offer.notcharged.prefix", "_NC_OF_")
+					+ offerDto.getOfferId();
+			if (serviceTemplateService.findByCode(chargedServiceTemplateCode,
+					provider) != null) {
+				throw new MeveoApiException("Service template code="
+						+ chargedServiceTemplateCode + " already exists.");
+			}
+			
+			ServiceTemplate serviceTemplate = new ServiceTemplate();
+			serviceTemplate.setDescription(description);
+			serviceTemplate.setAuditable(auditable);
+			serviceTemplate.setActive(true);
+			serviceTemplate.setCode(chargedServiceTemplateCode);
+			serviceTemplateService.create(em, serviceTemplate, currentUser,
+					provider);
+
+			List<ServiceTemplate> serviceTemplates = new ArrayList<ServiceTemplate>();
+			serviceTemplates.add(serviceTemplate);
+
+			if (offerDto.getServices() != null
+					&& offerDto.getServices().size() > 0) {
+				for (String serviceId : offerDto.getServices()) {
+					// not charged
+					String serviceCode = paramBean.getProperty(
+							"asg.api.service.notcharged.prefix", "_NC_SE_")
+							+ serviceId;
+					serviceTemplate = serviceTemplateService.findByCode(em,
+							serviceCode, provider);
+					if (serviceTemplate != null) {
+						serviceTemplates.add(serviceTemplate);
+					}
+
+					// charged
+					serviceCode = paramBean.getProperty(
+							"asg.api.service.charged.prefix", "_CH_SE_")
+							+ serviceId;
+					serviceTemplate = serviceTemplateService.findByCode(em,
+							serviceCode, provider);
+					if (serviceTemplate != null) {
+						serviceTemplates.add(serviceTemplate);
+					}
+				}
+				
+				offerTemplate.setServiceTemplates(serviceTemplates);
+			}
+
+			offerTemplate.setAuditable(auditable);
+			offerTemplateService.create(em, offerTemplate, currentUser,
+					provider);
+		} else {
+			StringBuilder sb = new StringBuilder(
+					"The following parameters are required ");
+			List<String> missingFields = new ArrayList<String>();
+
+			if (StringUtils.isBlank(offerDto.getOfferId())) {
+				missingFields.add("serviceId");
+			}
+			if (offerDto.getServices() == null
+					|| offerDto.getServices().size() == 0) {
+				missingFields.add("services");
+			}
+
+			if (missingFields.size() > 1) {
+				sb.append(org.apache.commons.lang.StringUtils.join(
+						missingFields.toArray(), ", "));
+			} else {
+				sb.append(missingFields.get(0));
+			}
+			sb.append(".");
+
+			throw new MissingParameterException(sb.toString());
+		}
+	}
+
+	@Deprecated
+	public void createV1(OfferDto offerDto) throws MeveoApiException {
 		if (!StringUtils.isBlank(offerDto.getOfferId())
 				&& offerDto.getServices() != null
 				&& offerDto.getServices().size() > 0) {
