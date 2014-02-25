@@ -1,5 +1,6 @@
 package org.meveo.api.dto;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -24,6 +25,11 @@ public class TaxDto extends BaseDto {
 
 	@XmlElement(required = true)
 	private List<CountryTaxDto> countryTaxes;
+
+	private String description;
+	private String countryCode;
+	private String regionCode;
+	private BigDecimal percentage;
 
 	public TaxDto() {
 
@@ -57,5 +63,37 @@ public class TaxDto extends BaseDto {
 	public String toString() {
 		return "TaxDto [taxId=" + taxId + ", name=" + name + ", countryTaxes="
 				+ countryTaxes + "]";
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public String getCountryCode() {
+		return countryCode;
+	}
+
+	public void setCountryCode(String countryCode) {
+		this.countryCode = countryCode;
+	}
+
+	public String getRegionCode() {
+		return regionCode;
+	}
+
+	public void setRegionCode(String regionCode) {
+		this.regionCode = regionCode;
+	}
+
+	public BigDecimal getPercentage() {
+		return percentage;
+	}
+
+	public void setPercentage(BigDecimal percentage) {
+		this.percentage = percentage;
 	}
 }

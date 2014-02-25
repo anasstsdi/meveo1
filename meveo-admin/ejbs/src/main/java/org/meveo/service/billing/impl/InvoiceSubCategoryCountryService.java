@@ -68,6 +68,11 @@ public class InvoiceSubCategoryCountryService extends
 		Query query = qb.getQuery(em);
 		query.setMaxResults(1);
 
-		return (InvoiceSubcategoryCountry) query.getSingleResult();
+		try {
+			return (InvoiceSubcategoryCountry) query.getSingleResult();
+		} catch (NoResultException e) {
+			log.warn(e.getMessage());
+			return null;
+		}
 	}
 }

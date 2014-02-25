@@ -16,9 +16,13 @@ import org.meveo.api.ActionStatus;
 import org.meveo.api.ActionStatusEnum;
 import org.meveo.api.MeveoApiErrorCode;
 import org.meveo.api.dto.TaxDto;
+import org.meveo.api.exception.CountryDoesNotExistsException;
 import org.meveo.api.exception.MeveoApiException;
 import org.meveo.api.exception.MissingParameterException;
+import org.meveo.api.exception.TaxAlreadyExistsException;
+import org.meveo.api.exception.TaxDoesNotExistsException;
 import org.meveo.asg.api.TaxServiceApi;
+import org.meveo.asg.api.model.EntityCodeEnum;
 import org.meveo.commons.utils.ParamBean;
 import org.meveo.util.MeveoParamBean;
 import org.slf4j.Logger;
@@ -59,6 +63,7 @@ public class TaxWS {
 
 		ActionStatus result = new ActionStatus(ActionStatusEnum.SUCCESS, "");
 
+		String taxId = taxDto.getTaxId();
 		try {
 			taxDto.setCurrentUserId(Long.valueOf(paramBean.getProperty(
 					"asp.api.userId", "1")));
@@ -66,6 +71,14 @@ public class TaxWS {
 					"asp.api.providerId", "1")));
 
 			taxServiceApi.create(taxDto);
+		} catch (CountryDoesNotExistsException e) {
+			result.setErrorCode(MeveoApiErrorCode.COUNTRY_DOES_NOT_EXISTS);
+			result.setStatus(ActionStatusEnum.FAIL);
+			result.setMessage(e.getMessage());
+		} catch (TaxAlreadyExistsException e) {
+			result.setErrorCode(MeveoApiErrorCode.TAX_ALREADY_EXISTS);
+			result.setStatus(ActionStatusEnum.FAIL);
+			result.setMessage(e.getMessage());
 		} catch (MissingParameterException e) {
 			result.setErrorCode(MeveoApiErrorCode.MISSING_PARAMETER);
 			result.setStatus(ActionStatusEnum.FAIL);
@@ -73,6 +86,11 @@ public class TaxWS {
 		} catch (MeveoApiException e) {
 			result.setStatus(ActionStatusEnum.FAIL);
 			result.setMessage(e.getMessage());
+		}
+
+		if (result.getStatus() == ActionStatusEnum.FAIL
+				&& result.getErrorCode() != MeveoApiErrorCode.TAX_ALREADY_EXISTS) {
+			taxServiceApi.removeAsgMapping(taxId, EntityCodeEnum.T);
 		}
 
 		return result;
@@ -92,6 +110,10 @@ public class TaxWS {
 					"asp.api.providerId", "1")));
 
 			taxServiceApi.update(taxDto);
+		} catch (TaxDoesNotExistsException e) {
+			result.setErrorCode(MeveoApiErrorCode.TAX_DOES_NOT_EXISTS);
+			result.setStatus(ActionStatusEnum.FAIL);
+			result.setMessage(e.getMessage());
 		} catch (MissingParameterException e) {
 			result.setErrorCode(MeveoApiErrorCode.MISSING_PARAMETER);
 			result.setStatus(ActionStatusEnum.FAIL);
@@ -113,9 +135,21 @@ public class TaxWS {
 
 		try {
 			taxServiceApi.remove(taxId);
-		} catch (Exception e) {
+		} catch (MissingParameterException e) {
+			result.setErrorCode(MeveoApiErrorCode.MISSING_PARAMETER);
 			result.setStatus(ActionStatusEnum.FAIL);
 			result.setMessage(e.getMessage());
+		} catch (TaxDoesNotExistsException e) {
+			result.setErrorCode(MeveoApiErrorCode.TAX_DOES_NOT_EXISTS);
+			result.setStatus(ActionStatusEnum.FAIL);
+			result.setMessage(e.getMessage());
+		} catch (MeveoApiException e) {
+			result.setStatus(ActionStatusEnum.FAIL);
+			result.setMessage(e.getMessage());
+		}
+
+		if (result.getStatus() == ActionStatusEnum.SUCCESS) {
+			taxServiceApi.removeAsgMapping(taxId, EntityCodeEnum.T);
 		}
 
 		return result;

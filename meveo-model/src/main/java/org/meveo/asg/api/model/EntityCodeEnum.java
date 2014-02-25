@@ -10,5 +10,6 @@ public enum EntityCodeEnum {
 	ORG, // organization
 	S, // service
 	SPF, // service price plan
-	U // user
+	U, // user
+	T, // tax
 }

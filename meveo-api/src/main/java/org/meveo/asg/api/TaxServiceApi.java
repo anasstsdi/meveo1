@@ -8,19 +8,27 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 
+import org.meveo.admin.exception.BusinessException;
 import org.meveo.api.dto.CountryTaxDto;
 import org.meveo.api.dto.TaxDto;
+import org.meveo.api.exception.CountryDoesNotExistsException;
+import org.meveo.api.exception.EntityAlreadyExistsException;
 import org.meveo.api.exception.MeveoApiException;
 import org.meveo.api.exception.MissingParameterException;
+import org.meveo.api.exception.TaxAlreadyExistsException;
+import org.meveo.api.exception.TaxDoesNotExistsException;
+import org.meveo.asg.api.model.EntityCodeEnum;
 import org.meveo.commons.utils.ParamBean;
 import org.meveo.commons.utils.StringUtils;
 import org.meveo.model.admin.User;
+import org.meveo.model.billing.Country;
 import org.meveo.model.billing.InvoiceCategory;
 import org.meveo.model.billing.InvoiceSubCategory;
 import org.meveo.model.billing.InvoiceSubcategoryCountry;
 import org.meveo.model.billing.Tax;
 import org.meveo.model.billing.TradingCountry;
 import org.meveo.model.crm.Provider;
+import org.meveo.service.admin.impl.CountryService;
 import org.meveo.service.admin.impl.UserService;
 import org.meveo.service.billing.impl.InvoiceSubCategoryCountryService;
 import org.meveo.service.billing.impl.TradingCountryService;
@@ -63,7 +71,99 @@ public class TaxServiceApi extends BaseAsgApi {
 	@Inject
 	private TradingCountryService tradingCountryService;
 
+	@Inject
+	private CountryService countryService;
+
 	public void create(TaxDto taxDto) throws MeveoApiException {
+		if (!StringUtils.isBlank(taxDto.getTaxId())
+				&& !StringUtils.isBlank(taxDto.getDescription())) {
+			Provider provider = providerService
+					.findById(taxDto.getProviderId());
+			User currentUser = userService.findById(taxDto.getCurrentUserId());
+
+			try {
+				taxDto.setTaxId(asgIdMappingService.getNewCode(em,
+						taxDto.getTaxId(), EntityCodeEnum.T));
+			} catch (EntityAlreadyExistsException e) {
+				throw new TaxAlreadyExistsException(taxDto.getTaxId());
+			}
+
+			String countryRegionCode = taxDto.getRegionCode() == null ? taxDto
+					.getCountryCode() : taxDto.getCountryCode() + "_"
+					+ taxDto.getRegionCode();
+
+			TradingCountry tradingCountry = tradingCountryService
+					.findByTradingCountryCode(em, countryRegionCode, provider);
+
+			if (tradingCountry == null) {
+				Country country = countryService.findByCode(em,
+						countryRegionCode);
+				if (country == null) {
+					throw new CountryDoesNotExistsException(countryRegionCode);
+				} else {
+					tradingCountry = new TradingCountry();
+					tradingCountry.setCountry(country);
+					tradingCountry.setPrDescription(country.getDescriptionEn());
+
+					tradingCountryService.create(em, tradingCountry,
+							currentUser, provider);
+				}
+			}
+
+			InvoiceSubcategoryCountry invoiceSubcategoryCountry = null;
+
+			Tax tax = taxService.findByCode(em, taxDto.getTaxId());
+			if (tax != null) {
+				tax.setDescription(taxDto.getDescription());
+				tax.setPercent(taxDto.getPercentage());
+				taxService.update(em, tax);
+
+				invoiceSubcategoryCountry = invoiceSubCategoryCountryService
+						.findByTaxId(em, tax);
+			} else {
+				tax = new Tax();
+				tax.setCode(taxDto.getTaxId());
+				tax.setDescription(taxDto.getDescription());
+				tax.setPercent(taxDto.getPercentage());
+				taxService.create(em, tax, currentUser, provider);
+			}
+
+			if (invoiceSubcategoryCountry == null) {
+				invoiceSubcategoryCountry = new InvoiceSubcategoryCountry();
+				invoiceSubcategoryCountry.setTax(tax);
+				invoiceSubCategoryCountryService.create(em,
+						invoiceSubcategoryCountry, currentUser, provider);
+			}
+
+			invoiceSubcategoryCountry.setTradingCountry(tradingCountry);
+			invoiceSubCategoryCountryService.update(em,
+					invoiceSubcategoryCountry);
+		} else {
+			StringBuilder sb = new StringBuilder(
+					"The following parameters are required ");
+			List<String> missingFields = new ArrayList<String>();
+
+			if (StringUtils.isBlank(taxDto.getTaxId())) {
+				missingFields.add("taxId");
+			}
+			if (StringUtils.isBlank(taxDto.getDescription())) {
+				missingFields.add("taxDescription");
+			}
+
+			if (missingFields.size() > 1) {
+				sb.append(org.apache.commons.lang.StringUtils.join(
+						missingFields.toArray(), ", "));
+			} else {
+				sb.append(missingFields.get(0));
+			}
+			sb.append(".");
+
+			throw new MissingParameterException(sb.toString());
+		}
+	}
+
+	@Deprecated
+	public void createV1(TaxDto taxDto) throws MeveoApiException {
 		if (!StringUtils.isBlank(taxDto.getTaxId())
 				&& !StringUtils.isBlank(taxDto.getName())
 				&& taxDto.getCountryTaxes() != null
@@ -91,7 +191,7 @@ public class TaxServiceApi extends BaseAsgApi {
 				String taxCode = taxDto.getTaxId() + "_" + ct.getCountryCode();
 				Tax tax = new Tax();
 				tax.setCode(taxCode);
-				tax.setDescription(taxDto.getName());
+				tax.setDescription(taxDto.getDescription());
 				tax.setPercent(ct.getTaxValue());
 				taxService.create(em, tax, currentUser, provider);
 
@@ -107,7 +207,6 @@ public class TaxServiceApi extends BaseAsgApi {
 				invoiceSubCategoryCountryService.create(em,
 						invoiceSubcategoryCountry, currentUser, provider);
 			}
-
 		} else {
 			StringBuilder sb = new StringBuilder(
 					"The following parameters are required ");
@@ -140,6 +239,50 @@ public class TaxServiceApi extends BaseAsgApi {
 	}
 
 	public void remove(String taxId) throws MeveoApiException {
+		if (!StringUtils.isBlank(taxId)) {
+			try {
+				taxId = asgIdMappingService.getMeveoCode(em, taxId,
+						EntityCodeEnum.T);
+			} catch (BusinessException e) {
+				throw new MeveoApiException(e.getMessage());
+			}
+
+			Tax tax = taxService.findByCode(em, taxId);
+			if (tax == null) {
+				throw new TaxDoesNotExistsException(taxId);
+			}
+
+			InvoiceSubcategoryCountry invoiceSubcategoryCountry = invoiceSubCategoryCountryService
+					.findByTaxId(em, tax);
+			if (invoiceSubcategoryCountry != null) {
+				invoiceSubCategoryCountryService.remove(em,
+						invoiceSubcategoryCountry);
+			}
+
+			taxService.remove(em, tax);
+		} else {
+			StringBuilder sb = new StringBuilder(
+					"The following parameters are required ");
+			List<String> missingFields = new ArrayList<String>();
+
+			if (StringUtils.isBlank(taxId)) {
+				missingFields.add("taxId");
+			}
+
+			if (missingFields.size() > 1) {
+				sb.append(org.apache.commons.lang.StringUtils.join(
+						missingFields.toArray(), ", "));
+			} else {
+				sb.append(missingFields.get(0));
+			}
+			sb.append(".");
+
+			throw new MissingParameterException(sb.toString());
+		}
+	}
+
+	@Deprecated
+	public void removeV1(String taxId) throws MeveoApiException {
 		List<Tax> taxes = taxService.findStartsWithCode(em, taxId + "\\_");
 
 		for (Tax tax : taxes) {
@@ -148,6 +291,91 @@ public class TaxServiceApi extends BaseAsgApi {
 	}
 
 	public void update(TaxDto taxDto) throws MeveoApiException {
+		if (!StringUtils.isBlank(taxDto.getTaxId())
+				&& !StringUtils.isBlank(taxDto.getDescription())) {
+			Provider provider = providerService
+					.findById(taxDto.getProviderId());
+			User currentUser = userService.findById(taxDto.getCurrentUserId());
+
+			try {
+				taxDto.setTaxId(asgIdMappingService.getMeveoCode(em,
+						taxDto.getTaxId(), EntityCodeEnum.T));
+			} catch (BusinessException e) {
+				throw new MeveoApiException(e.getMessage());
+			}
+
+			String countryRegionCode = taxDto.getRegionCode() == null ? taxDto
+					.getCountryCode() : taxDto.getCountryCode() + "_"
+					+ taxDto.getRegionCode();
+
+			TradingCountry tradingCountry = tradingCountryService
+					.findByTradingCountryCode(em, countryRegionCode, provider);
+
+			if (tradingCountry == null) {
+				Country country = countryService.findByCode(em,
+						countryRegionCode);
+				if (country == null) {
+					throw new CountryDoesNotExistsException(countryRegionCode);
+				} else {
+					tradingCountry = new TradingCountry();
+					tradingCountry.setCountry(country);
+					tradingCountry.setPrDescription(country.getDescriptionEn());
+
+					tradingCountryService.create(em, tradingCountry,
+							currentUser, provider);
+				}
+			}
+
+			InvoiceSubcategoryCountry invoiceSubcategoryCountry = null;
+
+			Tax tax = taxService.findByCode(em, taxDto.getTaxId());
+			if (tax != null) {
+				tax.setDescription(taxDto.getDescription());
+				tax.setPercent(taxDto.getPercentage());
+				taxService.update(em, tax);
+
+				invoiceSubcategoryCountry = invoiceSubCategoryCountryService
+						.findByTaxId(em, tax);
+			} else {
+				throw new TaxDoesNotExistsException(taxDto.getTaxId());
+			}
+
+			if (invoiceSubcategoryCountry == null) {
+				invoiceSubcategoryCountry = new InvoiceSubcategoryCountry();
+				invoiceSubcategoryCountry.setTax(tax);
+				invoiceSubCategoryCountryService.create(em,
+						invoiceSubcategoryCountry, currentUser, provider);
+			}
+
+			invoiceSubcategoryCountry.setTradingCountry(tradingCountry);
+			invoiceSubCategoryCountryService.update(em,
+					invoiceSubcategoryCountry);
+		} else {
+			StringBuilder sb = new StringBuilder(
+					"The following parameters are required ");
+			List<String> missingFields = new ArrayList<String>();
+
+			if (StringUtils.isBlank(taxDto.getTaxId())) {
+				missingFields.add("taxId");
+			}
+			if (StringUtils.isBlank(taxDto.getDescription())) {
+				missingFields.add("taxDescription");
+			}
+
+			if (missingFields.size() > 1) {
+				sb.append(org.apache.commons.lang.StringUtils.join(
+						missingFields.toArray(), ", "));
+			} else {
+				sb.append(missingFields.get(0));
+			}
+			sb.append(".");
+
+			throw new MissingParameterException(sb.toString());
+		}
+	}
+
+	@Deprecated
+	public void updateV1(TaxDto taxDto) throws MeveoApiException {
 		if (!StringUtils.isBlank(taxDto.getTaxId())
 				&& !StringUtils.isBlank(taxDto.getName())
 				&& taxDto.getCountryTaxes() != null
@@ -172,9 +400,7 @@ public class TaxServiceApi extends BaseAsgApi {
 					tax.setPercent(ct.getTaxValue());
 					taxService.create(em, tax, currentUser, provider);
 				}
-
 			}
-
 		} else {
 			StringBuilder sb = new StringBuilder(
 					"The following parameters are required ");
