@@ -210,7 +210,7 @@ public class ServiceTemplateServiceApi extends BaseAsgApi {
 					+ serviceDto.getServiceId();
 			OfferTemplate offerTemplate = offerTemplateService.findByCode(em,
 					offerTemplateCode, provider);
-			if (offerTemplateCode != null) {
+			if (offerTemplate != null) {
 				if (serviceDto.getDescriptions() != null
 						&& serviceDto.getDescriptions().size() > 0) {
 					Auditable auditable = (offerTemplate.getAuditable() != null) ? offerTemplate
