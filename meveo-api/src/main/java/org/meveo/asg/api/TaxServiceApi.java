@@ -101,11 +101,41 @@ public class TaxServiceApi extends BaseAsgApi {
 			TradingCountry tradingCountry = tradingCountryService
 					.findByTradingCountryCode(em, countryRegionCode, provider);
 
+			Auditable auditable = new Auditable();
+			auditable.setCreated(new Date());
+			auditable.setCreator(currentUser);
+			auditable.setUpdated(taxDto.getTimeStamp());
+			auditable.setUpdater(currentUser);
+
 			if (tradingCountry == null) {
 				Country country = countryService.findByCode(em,
 						countryRegionCode);
 				if (country == null) {
-					throw new CountryDoesNotExistsException(countryRegionCode);
+					// search for base country
+					Country baseCountry = countryService.findByCode(em,
+							taxDto.getCountryCode());
+					if (baseCountry == null) {
+						throw new CountryDoesNotExistsException(
+								countryRegionCode);
+					} else {
+						// copy baseCountry to extended country
+						country = new Country();
+						country.setCountryCode(countryRegionCode);
+						country.setAuditable(auditable);
+						country.setCurrency(baseCountry.getCurrency());
+						country.setDescriptionEn(baseCountry.getDescriptionEn());
+						country.setLanguage(baseCountry.getLanguage());
+						countryService.create(em, country, currentUser,
+								provider);
+
+						tradingCountry = new TradingCountry();
+						tradingCountry.setCountry(country);
+						tradingCountry.setPrDescription(country
+								.getDescriptionEn());
+
+						tradingCountryService.create(em, tradingCountry,
+								currentUser, provider);
+					}
 				} else {
 					tradingCountry = new TradingCountry();
 					tradingCountry.setCountry(country);
@@ -115,12 +145,6 @@ public class TaxServiceApi extends BaseAsgApi {
 							currentUser, provider);
 				}
 			}
-
-			Auditable auditable = new Auditable();
-			auditable.setCreated(new Date());
-			auditable.setCreator(currentUser);
-			auditable.setUpdated(taxDto.getTimeStamp());
-			auditable.setUpdater(currentUser);
 
 			InvoiceSubcategoryCountry invoiceSubcategoryCountry = null;
 
