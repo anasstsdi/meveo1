@@ -662,8 +662,8 @@ public class ServicePricePlanServiceApi extends BaseAsgApi {
 						"_REC_CH_SE_") : paramBean.getProperty(
 				"asg.api.service.charged.prefix", "_CH_SE_");
 
-		String serviceTemplateCode = serviceOfferCodePrefix + organizationId
-				+ "_" + serviceId;
+		String serviceTemplateCode = serviceOfferCodePrefix + serviceId + "_"
+				+ organizationId;
 
 		try {
 			// remove service template
