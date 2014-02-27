@@ -427,7 +427,7 @@ public class OrganizationServiceApi extends BaseAsgApi {
 
 				if (!StringUtils.isBlank(orgDto.getParentId())) {
 					orgDto.setParentId(asgIdMappingService.getMeveoCode(em,
-							orgDto.getOrganizationId(), EntityCodeEnum.ORG));
+							orgDto.getParentId(), EntityCodeEnum.ORG));
 				}
 			} catch (BusinessException e) {
 				throw new MeveoApiException(e.getMessage());
@@ -610,7 +610,7 @@ public class OrganizationServiceApi extends BaseAsgApi {
 				throw new SellerWithChildCannotBeDeletedException(
 						seller.getCode());
 			}
-			
+
 			String userAccountPrefix = paramBean.getProperty(
 					"asg.api.default.organization.userAccount", "USER_");
 			UserAccount userAccount = userAccountService.findByCode(em,
@@ -650,7 +650,7 @@ public class OrganizationServiceApi extends BaseAsgApi {
 					}
 				}
 				customerService.remove(em, customer);
-			}			
+			}
 
 			sellerService.remove(em, seller);
 		} else {
