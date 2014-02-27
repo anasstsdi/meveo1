@@ -18,7 +18,7 @@ public class ServicePricePlanDto extends BaseDto {
 
 	private String serviceId;
 	private String organizationId;
-	private String taxId;
+	private List<String> taxIds;
 	private Boolean subscriptionProrata;
 	private Boolean terminationProrata;
 	private Boolean applyInAdvance;
@@ -46,14 +46,6 @@ public class ServicePricePlanDto extends BaseDto {
 
 	public void setOrganizationId(String organizationId) {
 		this.organizationId = organizationId;
-	}
-
-	public String getTaxId() {
-		return taxId;
-	}
-
-	public void setTaxId(String taxId) {
-		this.taxId = taxId;
 	}
 
 	public Boolean getSubscriptionProrata() {
@@ -152,10 +144,18 @@ public class ServicePricePlanDto extends BaseDto {
 		this.terminationFees = terminationFees;
 	}
 
+	public List<String> getTaxIds() {
+		return taxIds;
+	}
+
+	public void setTaxIds(List<String> taxIds) {
+		this.taxIds = taxIds;
+	}
+
 	@Override
 	public String toString() {
 		return "ServicePricePlanDto [serviceId=" + serviceId
-				+ ", organizationId=" + organizationId + ", taxId=" + taxId
+				+ ", organizationId=" + organizationId + ", taxIds=" + taxIds
 				+ ", subscriptionProrata=" + subscriptionProrata
 				+ ", terminationProrata=" + terminationProrata
 				+ ", applyInAdvance=" + applyInAdvance + ", param1=" + param1

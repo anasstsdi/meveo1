@@ -15,6 +15,7 @@ import org.meveo.api.dto.RecurringChargeDto;
 import org.meveo.api.dto.SubscriptionFeeDto;
 import org.meveo.api.dto.TerminationFeeDto;
 import org.meveo.api.dto.UsageChargeDto;
+import org.meveo.api.exception.InvoiceSubCategoryCountryNotFoundException;
 import org.meveo.api.exception.MeveoApiException;
 import org.meveo.api.exception.MissingParameterException;
 import org.meveo.asg.api.model.EntityCodeEnum;
@@ -23,6 +24,7 @@ import org.meveo.commons.utils.StringUtils;
 import org.meveo.model.admin.Seller;
 import org.meveo.model.admin.User;
 import org.meveo.model.billing.InvoiceSubCategory;
+import org.meveo.model.billing.InvoiceSubcategoryCountry;
 import org.meveo.model.billing.OperationTypeEnum;
 import org.meveo.model.billing.TradingCurrency;
 import org.meveo.model.catalog.Calendar;
@@ -41,6 +43,7 @@ import org.meveo.model.catalog.UsageChgTemplateEnum;
 import org.meveo.model.crm.Provider;
 import org.meveo.service.admin.impl.SellerService;
 import org.meveo.service.admin.impl.TradingCurrencyService;
+import org.meveo.service.billing.impl.InvoiceSubCategoryCountryService;
 import org.meveo.service.catalog.impl.CalendarService;
 import org.meveo.service.catalog.impl.CounterTemplateService;
 import org.meveo.service.catalog.impl.InvoiceSubCategoryService;
@@ -101,6 +104,9 @@ public class OfferPricePlanServiceApi extends BaseAsgApi {
 	@Inject
 	private InvoiceSubCategoryService invoiceSubCategoryService;
 
+	@Inject
+	InvoiceSubCategoryCountryService invoiceSubCategoryCountryService;
+
 	private static Logger log = LoggerFactory
 			.getLogger(OfferPricePlanServiceApi.class);
 
@@ -108,7 +114,8 @@ public class OfferPricePlanServiceApi extends BaseAsgApi {
 			throws MeveoApiException {
 		if (!StringUtils.isBlank(offerPricePlanDto.getOfferId())
 				&& !StringUtils.isBlank(offerPricePlanDto.getOrganizationId())
-				&& !StringUtils.isBlank(offerPricePlanDto.getTaxId())) {
+				&& offerPricePlanDto.getTaxIds() != null
+				&& offerPricePlanDto.getTaxIds().size() > 0) {
 
 			Provider provider = providerService.findById(offerPricePlanDto
 					.getProviderId());
@@ -125,6 +132,14 @@ public class OfferPricePlanServiceApi extends BaseAsgApi {
 						.getMeveoCode(em,
 								offerPricePlanDto.getOrganizationId(),
 								EntityCodeEnum.ORG));
+
+				// get tax ids
+				List<String> taxIds = new ArrayList<String>();
+				for (String taxId : offerPricePlanDto.getTaxIds()) {
+					taxIds.add(asgIdMappingService.getMeveoCode(em, taxId,
+							EntityCodeEnum.T));
+				}
+				offerPricePlanDto.setTaxIds(taxIds);
 			} catch (BusinessException e) {
 				throw new MeveoApiException(e.getMessage());
 			}
@@ -139,14 +154,20 @@ public class OfferPricePlanServiceApi extends BaseAsgApi {
 			Seller seller = sellerService.findByCode(em,
 					offerPricePlanDto.getOrganizationId(), provider);
 
-			// get invoice sub category
-			// Tax tax = taxService.findByCode(em,
-			// offerPricePlanDto.getTaxId());
-			// InvoiceSubCategory invoiceSubCategory =
-			// invoiceSubCategoryCountryService
-			// .findByTaxId(em, tax).getInvoiceSubCategory();
+			List<InvoiceSubcategoryCountry> invoiceSubcategoryCountries = new ArrayList<InvoiceSubcategoryCountry>();
+			for (String taxId : offerPricePlanDto.getTaxIds()) {
+				InvoiceSubcategoryCountry invoiceSubcategoryCountry = invoiceSubCategoryCountryService
+						.findByTaxId(em, taxId);
+				if (invoiceSubcategoryCountry == null) {
+					throw new InvoiceSubCategoryCountryNotFoundException(taxId);
+				}
+
+				invoiceSubcategoryCountries.add(invoiceSubcategoryCountry);
+			}
+
 			InvoiceSubCategory invoiceSubCategory = invoiceSubCategoryService
-					.findByCode(em, offerPricePlanDto.getTaxId());
+					.findByCode(em, offerPricePlanDto.getOfferId() + "_"
+							+ offerPricePlanDto.getOrganizationId());
 
 			ServiceTemplate serviceTemplate = createServiceTemplate(false,
 					offerPricePlanDto, currentUser, provider);
@@ -239,7 +260,8 @@ public class OfferPricePlanServiceApi extends BaseAsgApi {
 			if (StringUtils.isBlank(offerPricePlanDto.getOrganizationId())) {
 				missingFields.add("organizationId");
 			}
-			if (StringUtils.isBlank(offerPricePlanDto.getTaxId())) {
+			if (offerPricePlanDto.getTaxIds() == null
+					|| offerPricePlanDto.getTaxIds().size() == 0) {
 				missingFields.add("taxId");
 			}
 
@@ -773,7 +795,9 @@ public class OfferPricePlanServiceApi extends BaseAsgApi {
 	public void update(OfferPricePlanDto offerPricePlanDto)
 			throws MeveoApiException {
 		if (!StringUtils.isBlank(offerPricePlanDto.getOfferId())
-				&& !StringUtils.isBlank(offerPricePlanDto.getOrganizationId())) {
+				&& !StringUtils.isBlank(offerPricePlanDto.getOrganizationId())
+				&& offerPricePlanDto.getTaxIds() != null
+				&& offerPricePlanDto.getTaxIds().size() > 0) {
 
 			Provider provider = providerService.findById(offerPricePlanDto
 					.getProviderId());
@@ -790,6 +814,14 @@ public class OfferPricePlanServiceApi extends BaseAsgApi {
 						.getMeveoCode(em,
 								offerPricePlanDto.getOrganizationId(),
 								EntityCodeEnum.ORG));
+
+				// get tax ids
+				List<String> taxIds = new ArrayList<String>();
+				for (String taxId : offerPricePlanDto.getTaxIds()) {
+					taxIds.add(asgIdMappingService.getMeveoCode(em, taxId,
+							EntityCodeEnum.T));
+				}
+				offerPricePlanDto.setTaxIds(taxIds);
 			} catch (BusinessException e) {
 				throw new MeveoApiException(e.getMessage());
 			}
@@ -827,7 +859,8 @@ public class OfferPricePlanServiceApi extends BaseAsgApi {
 			if (StringUtils.isBlank(offerPricePlanDto.getBillingPeriod())) {
 				missingFields.add("billingPeriod");
 			}
-			if (StringUtils.isBlank(offerPricePlanDto.getTaxId())) {
+			if (offerPricePlanDto.getTaxIds() == null
+					|| offerPricePlanDto.getTaxIds().size() == 0) {
 				missingFields.add("taxId");
 			}
 

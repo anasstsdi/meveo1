@@ -46,6 +46,7 @@ public class InvoiceCategoryService extends PersistenceService<InvoiceCategory> 
 		try {
 			return (InvoiceCategory) qb.getQuery(em).getSingleResult();
 		} catch (NoResultException e) {
+			log.warn(e.getMessage());
 			return null;
 		}
 	}

@@ -18,6 +18,7 @@ package org.meveo.service.catalog.impl;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 
 import org.meveo.commons.utils.QueryBuilder;
 import org.meveo.model.billing.InvoiceSubCategory;
@@ -39,14 +40,20 @@ public class InvoiceSubCategoryService extends
 		QueryBuilder qb = new QueryBuilder(InvoiceSubCategory.class, "sc");
 		qb.addCriterion("code", "=", code, false);
 
-		return (InvoiceSubCategory) qb.getQuery(em).getSingleResult();
+		try {
+			return (InvoiceSubCategory) qb.getQuery(em).getSingleResult();
+		} catch (NoResultException e) {
+			log.warn(e.getMessage());
+			return null;
+		}
 	}
-	
+
 	public InvoiceSubCategory findByCode(String code) {
 		QueryBuilder qb = new QueryBuilder(InvoiceSubCategory.class, "sc");
 		qb.addCriterion("code", "=", code, false);
 
-		return (InvoiceSubCategory) qb.getQuery(getEntityManager()).getSingleResult();
+		return (InvoiceSubCategory) qb.getQuery(getEntityManager())
+				.getSingleResult();
 	}
 
 }

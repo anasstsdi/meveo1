@@ -2,14 +2,44 @@ package org.meveo.asg.api.model;
 
 //TODO: move this to asg project
 public enum EntityCodeEnum {
-	TC, // trading country
-	TY, // trading currency
-	TL, // trading language
-	O, // offer
-	OPF, // offer price plan
-	ORG, // organization
-	S, // service
-	SPF, // service price plan
-	U, // user
-	T, // tax
+	/**
+	 * Trading Country
+	 */
+	TC,
+	/**
+	 * Trading Currency
+	 */
+	TY,
+	/**
+	 * Trading Language
+	 */
+	TL,
+	/**
+	 * Offer
+	 */
+	O,
+	/**
+	 * Offer Price Plan
+	 */
+	OPF,
+	/**
+	 * Organization
+	 */
+	ORG,
+	/**
+	 * Service
+	 */
+	S,
+	/**
+	 * Service Price Plan
+	 */
+	SPF,
+	/**
+	 * User
+	 */
+	U,
+	/**
+	 * Tax
+	 */
+	T,
 }

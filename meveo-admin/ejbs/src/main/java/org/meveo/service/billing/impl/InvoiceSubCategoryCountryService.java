@@ -75,4 +75,21 @@ public class InvoiceSubCategoryCountryService extends
 			return null;
 		}
 	}
+
+	public InvoiceSubcategoryCountry findByTaxId(EntityManager em,
+			String taxCode) {
+		QueryBuilder qb = new QueryBuilder(InvoiceSubcategoryCountry.class, "a");
+		qb.addCriterionEntity("tax.code", taxCode);
+
+		Query query = qb.getQuery(em);
+		query.setMaxResults(1);
+
+		try {
+			return (InvoiceSubcategoryCountry) query.getSingleResult();
+		} catch (NoResultException e) {
+			log.warn(e.getMessage());
+			return null;
+		}
+	}
+
 }

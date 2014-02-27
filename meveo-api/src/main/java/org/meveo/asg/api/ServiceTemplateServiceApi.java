@@ -90,14 +90,20 @@ public class ServiceTemplateServiceApi extends BaseAsgApi {
 			auditable.setCreator(currentUser);
 			auditable.setUpdated(serviceDto.getTimeStamp());
 
+			String description = "";
+			if (serviceDto.getDescriptions() != null
+					&& serviceDto.getDescriptions().size() > 0) {
+				description = serviceDto.getDescriptions().get(0)
+						.getDescription();
+			}
+
 			ServiceTemplate serviceTemplate = new ServiceTemplate();
 			serviceTemplate.setActive(true);
 			serviceTemplate.setCode(serviceTemplateCode);
 			serviceTemplate.setProvider(provider);
 			serviceTemplate.setAuditable(auditable);
 			try {
-				serviceTemplate.setDescription(serviceDto.getDescriptions()
-						.get(0).getDescription());
+				serviceTemplate.setDescription(description);
 			} catch (NullPointerException e) {
 				log.warn("Description is null.");
 			} catch (IndexOutOfBoundsException e) {
@@ -116,6 +122,7 @@ public class ServiceTemplateServiceApi extends BaseAsgApi {
 			offerTemplate.setActive(true);
 			offerTemplate.setServiceTemplates(serviceTemplates);
 			offerTemplate.setAuditable(auditable);
+			offerTemplate.setDescription(description);
 			offerTemplateService.create(em, offerTemplate, currentUser,
 					provider);
 		} else {
@@ -153,6 +160,13 @@ public class ServiceTemplateServiceApi extends BaseAsgApi {
 				throw new MeveoApiException(e.getMessage());
 			}
 
+			String description = "";
+			if (serviceDto.getDescriptions() != null
+					&& serviceDto.getDescriptions().size() > 0) {
+				description = serviceDto.getDescriptions().get(0)
+						.getDescription();
+			}
+
 			String serviceTemplateCode = paramBean.getProperty(
 					"asg.api.service.notcharged.prefix", "_NC_SE_")
 					+ serviceDto.getServiceId();
@@ -176,8 +190,7 @@ public class ServiceTemplateServiceApi extends BaseAsgApi {
 					auditable.setUpdater(currentUser);
 					serviceTemplate.setAuditable(auditable);
 
-					serviceTemplate.setDescription(serviceDto.getDescriptions()
-							.get(0).getDescription());
+					serviceTemplate.setDescription(description);
 					serviceTemplateService.update(em, serviceTemplate,
 							currentUser);
 				}
@@ -198,8 +211,7 @@ public class ServiceTemplateServiceApi extends BaseAsgApi {
 					auditable.setUpdated(serviceDto.getTimeStamp());
 					chargedServiceTemplate.setAuditable(auditable);
 
-					chargedServiceTemplate.setDescription(serviceDto
-							.getDescriptions().get(0).getDescription());
+					chargedServiceTemplate.setDescription(description);
 					serviceTemplateService.update(em, chargedServiceTemplate,
 							currentUser);
 				}
@@ -219,8 +231,7 @@ public class ServiceTemplateServiceApi extends BaseAsgApi {
 					auditable.setUpdated(serviceDto.getTimeStamp());
 					offerTemplate.setAuditable(auditable);
 
-					offerTemplate.setDescription(serviceDto.getDescriptions()
-							.get(0).getDescription());
+					offerTemplate.setDescription(description);
 					offerTemplateService.update(em, offerTemplate, currentUser);
 				}
 			}
