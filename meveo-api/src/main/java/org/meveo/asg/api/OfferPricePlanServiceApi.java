@@ -2,6 +2,7 @@ package org.meveo.asg.api;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.ejb.Stateless;
@@ -15,14 +16,17 @@ import org.meveo.api.dto.RecurringChargeDto;
 import org.meveo.api.dto.SubscriptionFeeDto;
 import org.meveo.api.dto.TerminationFeeDto;
 import org.meveo.api.dto.UsageChargeDto;
+import org.meveo.api.exception.InvoiceCategoryDoesNotExistsException;
 import org.meveo.api.exception.InvoiceSubCategoryCountryNotFoundException;
 import org.meveo.api.exception.MeveoApiException;
 import org.meveo.api.exception.MissingParameterException;
 import org.meveo.asg.api.model.EntityCodeEnum;
 import org.meveo.commons.utils.ParamBean;
 import org.meveo.commons.utils.StringUtils;
+import org.meveo.model.Auditable;
 import org.meveo.model.admin.Seller;
 import org.meveo.model.admin.User;
+import org.meveo.model.billing.InvoiceCategory;
 import org.meveo.model.billing.InvoiceSubCategory;
 import org.meveo.model.billing.InvoiceSubcategoryCountry;
 import org.meveo.model.billing.OperationTypeEnum;
@@ -46,6 +50,7 @@ import org.meveo.service.admin.impl.TradingCurrencyService;
 import org.meveo.service.billing.impl.InvoiceSubCategoryCountryService;
 import org.meveo.service.catalog.impl.CalendarService;
 import org.meveo.service.catalog.impl.CounterTemplateService;
+import org.meveo.service.catalog.impl.InvoiceCategoryService;
 import org.meveo.service.catalog.impl.InvoiceSubCategoryService;
 import org.meveo.service.catalog.impl.OfferTemplateService;
 import org.meveo.service.catalog.impl.OneShotChargeTemplateService;
@@ -107,6 +112,9 @@ public class OfferPricePlanServiceApi extends BaseAsgApi {
 	@Inject
 	InvoiceSubCategoryCountryService invoiceSubCategoryCountryService;
 
+	@Inject
+	private InvoiceCategoryService invoiceCategoryService;
+
 	private static Logger log = LoggerFactory
 			.getLogger(OfferPricePlanServiceApi.class);
 
@@ -165,9 +173,35 @@ public class OfferPricePlanServiceApi extends BaseAsgApi {
 				invoiceSubcategoryCountries.add(invoiceSubcategoryCountry);
 			}
 
+			String invoiceSubCategoryCode = offerPricePlanDto.getOfferId()
+					+ "_" + offerPricePlanDto.getOrganizationId();
+
 			InvoiceSubCategory invoiceSubCategory = invoiceSubCategoryService
-					.findByCode(em, offerPricePlanDto.getOfferId() + "_"
-							+ offerPricePlanDto.getOrganizationId());
+					.findByCode(em, invoiceSubCategoryCode);
+
+			if (invoiceSubCategory == null) {
+				String defaultInvoiceCatCode = paramBean.getProperty(
+						"invoiceCategory.code.default", "DEFAULT");
+				InvoiceCategory invoiceCategory = invoiceCategoryService
+						.findByCode(em, defaultInvoiceCatCode);
+				if (invoiceCategory == null) {
+					throw new InvoiceCategoryDoesNotExistsException(
+							defaultInvoiceCatCode);
+				}
+
+				invoiceSubCategory = new InvoiceSubCategory();
+				invoiceSubCategory.setCode(invoiceSubCategoryCode);
+				invoiceSubCategory.setInvoiceCategory(invoiceCategory);
+				invoiceSubCategoryService.create(em, invoiceSubCategory,
+						currentUser, provider);
+			}
+
+			for (InvoiceSubcategoryCountry invoiceSubcategoryCountry : invoiceSubcategoryCountries) {
+				invoiceSubcategoryCountry
+						.setInvoiceSubCategory(invoiceSubCategory);
+				invoiceSubCategoryCountryService.update(em,
+						invoiceSubcategoryCountry);
+			}
 
 			ServiceTemplate serviceTemplate = createServiceTemplate(false,
 					offerPricePlanDto, currentUser, provider);
@@ -299,7 +333,14 @@ public class OfferPricePlanServiceApi extends BaseAsgApi {
 					+ serviceTemplateCode + " already exists.");
 		}
 
+		Auditable auditable = new Auditable();
+		auditable.setCreated(new Date());
+		auditable.setCreator(currentUser);
+		auditable.setUpdater(currentUser);
+		auditable.setUpdated(offerPricePlanDto.getTimeStamp());
+
 		ServiceTemplate serviceTemplate = new ServiceTemplate();
+		serviceTemplate.setAuditable(auditable);
 		serviceTemplate.setCode(serviceTemplateCode);
 		serviceTemplate.setActive(true);
 		serviceTemplateService.create(em, serviceTemplate, currentUser,
@@ -824,6 +865,54 @@ public class OfferPricePlanServiceApi extends BaseAsgApi {
 				offerPricePlanDto.setTaxIds(taxIds);
 			} catch (BusinessException e) {
 				throw new MeveoApiException(e.getMessage());
+			}
+
+			String recommendedOfferTemplatePrefix = paramBean.getProperty(
+					"asg.api.recommended.offer.charged.prefix", "_REC_CH_OF_");
+			String offerTemplatePrefix = paramBean.getProperty(
+					"asg.api.offer.charged.prefix", "_CH_OF_");
+
+			// check if template exists
+			String recommendedServiceTemplateCode = recommendedOfferTemplatePrefix
+					+ offerPricePlanDto.getOfferId()
+					+ "_"
+					+ offerPricePlanDto.getOrganizationId();
+			ServiceTemplate recommendedServiceTemplate = serviceTemplateService
+					.findByCode(em, recommendedServiceTemplateCode, provider);
+			if (recommendedServiceTemplate != null) {
+				// check if timestamp is greater than in db
+				if (!isUpdateable(offerPricePlanDto.getTimeStamp(),
+						recommendedServiceTemplate.getAuditable())) {
+					log.warn("Message already outdated={}",
+							offerPricePlanDto.toString());
+					return;
+				}
+
+				Auditable auditable = (recommendedServiceTemplate
+						.getAuditable() != null) ? recommendedServiceTemplate
+						.getAuditable() : new Auditable();
+				auditable.setUpdated(offerPricePlanDto.getTimeStamp());
+				recommendedServiceTemplate.setAuditable(auditable);
+			}
+
+			String serviceTemplateCode = offerTemplatePrefix
+					+ offerPricePlanDto.getOfferId() + "_"
+					+ offerPricePlanDto.getOrganizationId();
+			ServiceTemplate serviceTemplate = serviceTemplateService
+					.findByCode(em, serviceTemplateCode, provider);
+			if (serviceTemplate != null) {
+				// check if timestamp is greater than in db
+				if (!isUpdateable(offerPricePlanDto.getTimeStamp(),
+						serviceTemplate.getAuditable())) {
+					log.warn("Message already outdated={}",
+							offerPricePlanDto.toString());
+					return;
+				}
+
+				Auditable auditable = (serviceTemplate.getAuditable() != null) ? serviceTemplate
+						.getAuditable() : new Auditable();
+				auditable.setUpdated(offerPricePlanDto.getTimeStamp());
+				serviceTemplate.setAuditable(auditable);
 			}
 
 			updateRecurringChargeTemplate(false, offerPricePlanDto,
