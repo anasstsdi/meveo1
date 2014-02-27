@@ -2,6 +2,7 @@ package org.meveo.asg.api;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.ejb.Stateless;
@@ -24,6 +25,7 @@ import org.meveo.api.exception.ServiceTemplateDoesNotExistsException;
 import org.meveo.asg.api.model.EntityCodeEnum;
 import org.meveo.commons.utils.ParamBean;
 import org.meveo.commons.utils.StringUtils;
+import org.meveo.model.Auditable;
 import org.meveo.model.admin.Seller;
 import org.meveo.model.admin.User;
 import org.meveo.model.billing.InvoiceCategory;
@@ -299,8 +301,15 @@ public class ServicePricePlanServiceApi extends BaseAsgApi {
 			throw new ServiceTemplateAlreadyExistsException(serviceTemplateCode);
 		}
 
+		Auditable auditable = new Auditable();
+		auditable.setCreated(new Date());
+		auditable.setCreator(currentUser);
+		auditable.setUpdater(currentUser);
+		auditable.setUpdated(servicePricePlanDto.getTimeStamp());
+
 		ServiceTemplate serviceTemplate = new ServiceTemplate();
 		serviceTemplate.setCode(serviceTemplateCode);
+		serviceTemplate.setAuditable(auditable);
 
 		serviceTemplate.setActive(true);
 		serviceTemplateService.create(em, serviceTemplate, currentUser,
@@ -844,6 +853,18 @@ public class ServicePricePlanServiceApi extends BaseAsgApi {
 			if (serviceTemplate == null) {
 				throw new ServiceTemplateDoesNotExistsException(
 						serviceTemplateCode);
+			}
+
+			Auditable auditable = (serviceTemplate.getAuditable() != null) ? serviceTemplate
+					.getAuditable() : new Auditable();
+			auditable.setUpdated(servicePricePlanDto.getTimeStamp());
+			serviceTemplate.setAuditable(auditable);
+
+			if (!isUpdateable(servicePricePlanDto.getTimeStamp(),
+					serviceTemplate.getAuditable())) {
+				log.warn("Message already outdated={}",
+						servicePricePlanDto.toString());
+				return;
 			}
 
 			updateRecurringCharge(false, servicePricePlanDto, currentUser,
