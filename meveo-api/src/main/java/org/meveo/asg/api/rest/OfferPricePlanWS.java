@@ -2,6 +2,7 @@ package org.meveo.asg.api.rest;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.interceptor.Interceptors;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.POST;
@@ -18,6 +19,7 @@ import org.meveo.api.dto.OfferPricePlanDto;
 import org.meveo.api.exception.MeveoApiException;
 import org.meveo.api.exception.MissingParameterException;
 import org.meveo.api.exception.ServiceTemplateDoesNotExistsException;
+import org.meveo.api.logging.LoggingInterceptor;
 import org.meveo.asg.api.OfferPricePlanServiceApi;
 import org.meveo.asg.api.model.EntityCodeEnum;
 import org.meveo.commons.utils.ParamBean;
@@ -31,6 +33,7 @@ import org.slf4j.Logger;
 @RequestScoped
 @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+@Interceptors({ LoggingInterceptor.class })
 public class OfferPricePlanWS {
 
 	@Inject
@@ -45,8 +48,6 @@ public class OfferPricePlanWS {
 	@POST
 	@Path("/")
 	public ActionStatus create(OfferPricePlanDto offerPricePlanDto) {
-		log.debug("create={}", offerPricePlanDto);
-
 		ActionStatus result = new ActionStatus(ActionStatusEnum.SUCCESS, "");
 
 		String offerPricePlanId = offerPricePlanDto.getOfferId();
@@ -75,6 +76,10 @@ public class OfferPricePlanWS {
 					EntityCodeEnum.OPF);
 		}
 
+		if (result.getStatus() == ActionStatusEnum.FAIL) {
+			log.error(result.getMessage());
+		}
+
 		return result;
 	}
 
@@ -82,9 +87,6 @@ public class OfferPricePlanWS {
 	@Path("/{offerId}/{organizationId}")
 	public ActionStatus remove(@PathParam("offerId") String offerId,
 			@PathParam("organizationId") String organizationId) {
-		log.debug("remove offerId={}, organizationId={}", offerId,
-				organizationId);
-
 		ActionStatus result = new ActionStatus(ActionStatusEnum.SUCCESS, "");
 
 		try {
@@ -102,14 +104,16 @@ public class OfferPricePlanWS {
 					EntityCodeEnum.OPF);
 		}
 
+		if (result.getStatus() == ActionStatusEnum.FAIL) {
+			log.error(result.getMessage());
+		}
+
 		return result;
 	}
 
 	@PUT
 	@Path("/")
 	public ActionStatus update(OfferPricePlanDto offerPricePlanDto) {
-		log.debug("update={}", offerPricePlanDto);
-
 		ActionStatus result = new ActionStatus(ActionStatusEnum.SUCCESS, "");
 
 		try {
@@ -126,6 +130,10 @@ public class OfferPricePlanWS {
 		} catch (MeveoApiException e) {
 			result.setStatus(ActionStatusEnum.FAIL);
 			result.setMessage(e.getMessage());
+		}
+
+		if (result.getStatus() == ActionStatusEnum.FAIL) {
+			log.error(result.getMessage());
 		}
 
 		return result;

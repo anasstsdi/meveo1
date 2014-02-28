@@ -673,6 +673,32 @@ public class OfferPricePlanServiceApi extends BaseAsgApi {
 			throw new MissingParameterException(sb.toString());
 		}
 
+		try {
+			offerId = asgIdMappingService.getMeveoCode(em, offerId,
+					EntityCodeEnum.OPF);
+
+			organizationId = asgIdMappingService.getMeveoCode(em,
+					organizationId, EntityCodeEnum.ORG);
+		} catch (BusinessException e) {
+			throw new MeveoApiException(e.getMessage());
+		}
+
+		String invoiceSubCategoryCode = offerId + "_" + organizationId;
+
+		InvoiceSubCategory invoiceSubCategory = invoiceSubCategoryService
+				.findByCode(em, invoiceSubCategoryCode);
+
+		if (invoiceSubCategory != null) {
+			List<InvoiceSubcategoryCountry> invoiceSubcategoryCountries = invoiceSubCategoryCountryService
+					.findByInvoiceSubCategory(em, invoiceSubCategory);
+			if (invoiceSubcategoryCountries != null) {
+				for (InvoiceSubcategoryCountry invoiceSubcategoryCountry : invoiceSubcategoryCountries) {
+					invoiceSubCategoryCountryService.remove(em,
+							invoiceSubcategoryCountry);
+				}
+			}
+		}
+
 		removeOffer(true, offerId, organizationId, userId, providerId);
 		removeOffer(false, offerId, organizationId, userId, providerId);
 	}

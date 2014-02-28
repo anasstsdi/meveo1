@@ -645,6 +645,22 @@ public class ServicePricePlanServiceApi extends BaseAsgApi {
 			throw new MissingParameterException(sb.toString());
 		}
 
+		String invoiceSubCategoryCode = serviceId + "_" + organizationId;
+
+		InvoiceSubCategory invoiceSubCategory = invoiceSubCategoryService
+				.findByCode(em, invoiceSubCategoryCode);
+
+		if (invoiceSubCategory != null) {
+			List<InvoiceSubcategoryCountry> invoiceSubcategoryCountries = invoiceSubCategoryCountryService
+					.findByInvoiceSubCategory(em, invoiceSubCategory);
+			if (invoiceSubcategoryCountries != null) {
+				for (InvoiceSubcategoryCountry invoiceSubcategoryCountry : invoiceSubcategoryCountries) {
+					invoiceSubCategoryCountryService.remove(em,
+							invoiceSubcategoryCountry);
+				}
+			}
+		}
+
 		removeService(true, serviceId, organizationId, userId, providerId);
 		removeService(false, serviceId, organizationId, userId, providerId);
 	}

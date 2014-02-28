@@ -2,6 +2,7 @@ package org.meveo.asg.api.rest;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.interceptor.Interceptors;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.POST;
@@ -23,6 +24,7 @@ import org.meveo.api.exception.SellerAlreadyExistsException;
 import org.meveo.api.exception.SellerDoesNotExistsException;
 import org.meveo.api.exception.TradingCountryDoesNotExistsException;
 import org.meveo.api.exception.TradingCurrencyDoesNotExistsException;
+import org.meveo.api.logging.LoggingInterceptor;
 import org.meveo.asg.api.OrganizationServiceApi;
 import org.meveo.asg.api.model.EntityCodeEnum;
 import org.meveo.commons.utils.ParamBean;
@@ -37,6 +39,7 @@ import org.slf4j.Logger;
 @RequestScoped
 @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+@Interceptors({ LoggingInterceptor.class })
 public class OrganizationWS {
 
 	@Inject
@@ -52,8 +55,6 @@ public class OrganizationWS {
 	@POST
 	@Path("/")
 	public ActionStatus create(OrganizationDto orgDto) {
-		log.debug("create={}", orgDto);
-
 		ActionStatus result = new ActionStatus(ActionStatusEnum.SUCCESS, "");
 
 		String organizationId = orgDto.getOrganizationId();
@@ -98,14 +99,16 @@ public class OrganizationWS {
 					EntityCodeEnum.ORG);
 		}
 
+		if (result.getStatus() == ActionStatusEnum.FAIL) {
+			log.error(result.getMessage());
+		}
+
 		return result;
 	}
 
 	@PUT
 	@Path("/")
 	public ActionStatus update(OrganizationDto orgDto) {
-		log.debug("update={}", orgDto);
-
 		ActionStatus result = new ActionStatus(ActionStatusEnum.SUCCESS, "");
 
 		try {
@@ -132,6 +135,10 @@ public class OrganizationWS {
 			result.setMessage(e.getMessage());
 		}
 
+		if (result.getStatus() == ActionStatusEnum.FAIL) {
+			log.error(result.getMessage());
+		}
+
 		return result;
 	}
 
@@ -139,8 +146,6 @@ public class OrganizationWS {
 	@Path("/{organizationId}")
 	public ActionStatus remove(
 			@PathParam("organizationId") String organizationId) {
-		log.debug("remove organizationId={}", organizationId);
-
 		ActionStatus result = new ActionStatus(ActionStatusEnum.SUCCESS, "");
 
 		try {
@@ -162,6 +167,10 @@ public class OrganizationWS {
 		if (result.getStatus() == ActionStatusEnum.SUCCESS) {
 			organizationServiceApi.removeAsgMapping(organizationId,
 					EntityCodeEnum.ORG);
+		}
+
+		if (result.getStatus() == ActionStatusEnum.FAIL) {
+			log.error(result.getMessage());
 		}
 
 		return result;

@@ -2,6 +2,7 @@ package org.meveo.asg.api.rest;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.interceptor.Interceptors;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.POST;
@@ -18,6 +19,7 @@ import org.meveo.api.dto.UserDto;
 import org.meveo.api.exception.MeveoApiException;
 import org.meveo.api.exception.MissingParameterException;
 import org.meveo.api.exception.UserAlreadyExistsException;
+import org.meveo.api.logging.LoggingInterceptor;
 import org.meveo.asg.api.UserServiceApi;
 import org.meveo.asg.api.model.EntityCodeEnum;
 import org.meveo.commons.utils.ParamBean;
@@ -32,6 +34,7 @@ import org.slf4j.Logger;
 @RequestScoped
 @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+@Interceptors({ LoggingInterceptor.class })
 public class UserWS {
 
 	@Inject
@@ -47,8 +50,6 @@ public class UserWS {
 	@POST
 	@Path("/")
 	public ActionStatus create(UserDto userDto) {
-		log.debug("create={}", userDto);
-
 		ActionStatus result = new ActionStatus(ActionStatusEnum.SUCCESS, "");
 
 		String userId = userDto.getUserId();
@@ -76,6 +77,10 @@ public class UserWS {
 				&& result.getErrorCode() != MeveoApiErrorCode.USER_ALREADY_EXISTS) {
 			userServiceApi.removeAsgMapping(userId, EntityCodeEnum.U);
 		}
+		
+		if(result.getStatus() == ActionStatusEnum.FAIL) {
+			log.error(result.getMessage());
+		}
 
 		return result;
 	}
@@ -83,8 +88,6 @@ public class UserWS {
 	@PUT
 	@Path("/")
 	public ActionStatus update(UserDto userDto) {
-		log.debug("update={}", userDto);
-
 		ActionStatus result = new ActionStatus(ActionStatusEnum.SUCCESS, "");
 
 		try {
@@ -102,6 +105,10 @@ public class UserWS {
 			result.setStatus(ActionStatusEnum.FAIL);
 			result.setMessage(e.getMessage());
 		}
+		
+		if(result.getStatus() == ActionStatusEnum.FAIL) {
+			log.error(result.getMessage());
+		}
 
 		return result;
 	}
@@ -109,8 +116,6 @@ public class UserWS {
 	@DELETE
 	@Path("/{userId}")
 	public ActionStatus remove(@PathParam("userId") String userId) {
-		log.debug("remove userId={}", userId);
-
 		ActionStatus result = new ActionStatus(ActionStatusEnum.SUCCESS, "");
 
 		try {
@@ -127,6 +132,10 @@ public class UserWS {
 
 		if (result.getStatus() == ActionStatusEnum.SUCCESS) {
 			userServiceApi.removeAsgMapping(userId, EntityCodeEnum.U);
+		}
+		
+		if(result.getStatus() == ActionStatusEnum.FAIL) {
+			log.error(result.getMessage());
 		}
 
 		return result;

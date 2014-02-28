@@ -2,6 +2,7 @@ package org.meveo.asg.api.rest;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.interceptor.Interceptors;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -21,6 +22,7 @@ import org.meveo.api.exception.MeveoApiException;
 import org.meveo.api.exception.MissingParameterException;
 import org.meveo.api.exception.TaxAlreadyExistsException;
 import org.meveo.api.exception.TaxDoesNotExistsException;
+import org.meveo.api.logging.LoggingInterceptor;
 import org.meveo.asg.api.TaxServiceApi;
 import org.meveo.asg.api.model.EntityCodeEnum;
 import org.meveo.commons.utils.ParamBean;
@@ -35,6 +37,7 @@ import org.slf4j.Logger;
 @RequestScoped
 @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+@Interceptors({ LoggingInterceptor.class })
 public class TaxWS {
 
 	@Inject
@@ -59,8 +62,6 @@ public class TaxWS {
 	@POST
 	@Path("/")
 	public ActionStatus create(TaxDto taxDto) {
-		log.debug("create={}", taxDto);
-
 		ActionStatus result = new ActionStatus(ActionStatusEnum.SUCCESS, "");
 
 		String taxId = taxDto.getTaxId();
@@ -92,6 +93,10 @@ public class TaxWS {
 				&& result.getErrorCode() != MeveoApiErrorCode.TAX_ALREADY_EXISTS) {
 			taxServiceApi.removeAsgMapping(taxId, EntityCodeEnum.T);
 		}
+		
+		if(result.getStatus() == ActionStatusEnum.FAIL) {
+			log.error(result.getMessage());
+		}
 
 		return result;
 	}
@@ -99,8 +104,6 @@ public class TaxWS {
 	@PUT
 	@Path("/")
 	public ActionStatus update(TaxDto taxDto) {
-		log.debug("update={}", taxDto);
-
 		ActionStatus result = new ActionStatus(ActionStatusEnum.SUCCESS, "");
 
 		try {
@@ -122,6 +125,10 @@ public class TaxWS {
 			result.setStatus(ActionStatusEnum.FAIL);
 			result.setMessage(e.getMessage());
 		}
+		
+		if(result.getStatus() == ActionStatusEnum.FAIL) {
+			log.error(result.getMessage());
+		}
 
 		return result;
 	}
@@ -129,8 +136,6 @@ public class TaxWS {
 	@DELETE
 	@Path("/{taxId}")
 	public ActionStatus remove(@PathParam("taxId") String taxId) {
-		log.debug("remove taxId={}", taxId);
-
 		ActionStatus result = new ActionStatus(ActionStatusEnum.SUCCESS, "");
 
 		try {
@@ -150,6 +155,10 @@ public class TaxWS {
 
 		if (result.getStatus() == ActionStatusEnum.SUCCESS) {
 			taxServiceApi.removeAsgMapping(taxId, EntityCodeEnum.T);
+		}
+		
+		if(result.getStatus() == ActionStatusEnum.FAIL) {
+			log.error(result.getMessage());
 		}
 
 		return result;

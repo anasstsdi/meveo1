@@ -2,6 +2,7 @@ package org.meveo.asg.api.rest;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.interceptor.Interceptors;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -11,6 +12,7 @@ import javax.ws.rs.core.MediaType;
 import org.meveo.admin.exception.BusinessException;
 import org.meveo.api.dto.TerminateCustomerSubscriptionDto;
 import org.meveo.api.exception.MeveoApiException;
+import org.meveo.api.logging.LoggingInterceptor;
 import org.meveo.api.rest.response.TerminateCustomerSubscriptionResponse;
 import org.meveo.asg.api.CustomerSubscriptionWithCreditLimitServiceApi;
 import org.meveo.commons.utils.ParamBean;
@@ -24,6 +26,7 @@ import org.slf4j.Logger;
 @RequestScoped
 @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+@Interceptors({ LoggingInterceptor.class })
 public class TerminateCustomerSubscriptionWS {
 
 	@Inject
@@ -40,8 +43,6 @@ public class TerminateCustomerSubscriptionWS {
 	@Path("/")
 	public TerminateCustomerSubscriptionResponse terminate(
 			TerminateCustomerSubscriptionDto terminateCustomerSubscriptionDto) {
-		log.debug("terminate={}", terminateCustomerSubscriptionDto);
-
 		TerminateCustomerSubscriptionResponse response = new TerminateCustomerSubscriptionResponse();
 
 		terminateCustomerSubscriptionDto.setCurrentUserId(Long
@@ -55,7 +56,7 @@ public class TerminateCustomerSubscriptionWS {
 		} catch (MeveoApiException e) {
 			log.error(e.getMessage());
 		} catch (BusinessException e) {
-			e.printStackTrace();
+			log.error(e.getMessage());
 		}
 
 		return response;

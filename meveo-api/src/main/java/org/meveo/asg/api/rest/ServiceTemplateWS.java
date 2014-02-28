@@ -2,6 +2,7 @@ package org.meveo.asg.api.rest;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.interceptor.Interceptors;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.POST;
@@ -18,6 +19,7 @@ import org.meveo.api.dto.ServiceDto;
 import org.meveo.api.exception.MeveoApiException;
 import org.meveo.api.exception.MissingParameterException;
 import org.meveo.api.exception.ServiceTemplateAlreadyExistsException;
+import org.meveo.api.logging.LoggingInterceptor;
 import org.meveo.asg.api.ServiceTemplateServiceApi;
 import org.meveo.asg.api.model.EntityCodeEnum;
 import org.meveo.commons.utils.ParamBean;
@@ -32,6 +34,7 @@ import org.slf4j.Logger;
 @RequestScoped
 @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+@Interceptors({ LoggingInterceptor.class })
 public class ServiceTemplateWS {
 
 	@Inject
@@ -47,8 +50,6 @@ public class ServiceTemplateWS {
 	@POST
 	@Path("/")
 	public ActionStatus create(ServiceDto serviceDto) {
-		log.debug("create={}", serviceDto);
-
 		ActionStatus result = new ActionStatus(ActionStatusEnum.SUCCESS, "");
 
 		String serviceId = serviceDto.getServiceId();
@@ -77,6 +78,10 @@ public class ServiceTemplateWS {
 			serviceTemplateServiceApi.removeAsgMapping(serviceId,
 					EntityCodeEnum.S);
 		}
+		
+		if(result.getStatus() == ActionStatusEnum.FAIL) {
+			log.error(result.getMessage());
+		}
 
 		return result;
 	}
@@ -84,8 +89,6 @@ public class ServiceTemplateWS {
 	@PUT
 	@Path("/")
 	public ActionStatus update(ServiceDto serviceDto) {
-		log.debug("update={}", serviceDto);
-
 		ActionStatus result = new ActionStatus(ActionStatusEnum.SUCCESS, "");
 
 		try {
@@ -103,6 +106,10 @@ public class ServiceTemplateWS {
 			result.setStatus(ActionStatusEnum.FAIL);
 			result.setMessage(e.getMessage());
 		}
+		
+		if(result.getStatus() == ActionStatusEnum.FAIL) {
+			log.error(result.getMessage());
+		}
 
 		return result;
 	}
@@ -110,8 +117,6 @@ public class ServiceTemplateWS {
 	@DELETE
 	@Path("/{serviceId}")
 	public ActionStatus remove(@PathParam("serviceId") String serviceId) {
-		log.debug("remove serviceId={}", serviceId);
-
 		ActionStatus result = new ActionStatus(ActionStatusEnum.SUCCESS, "");
 
 		try {
@@ -129,6 +134,10 @@ public class ServiceTemplateWS {
 		if (result.getStatus() == ActionStatusEnum.SUCCESS) {
 			serviceTemplateServiceApi.removeAsgMapping(serviceId,
 					EntityCodeEnum.S);
+		}
+		
+		if(result.getStatus() == ActionStatusEnum.FAIL) {
+			log.error(result.getMessage());
 		}
 
 		return result;

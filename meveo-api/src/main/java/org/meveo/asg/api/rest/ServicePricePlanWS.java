@@ -2,6 +2,7 @@ package org.meveo.asg.api.rest;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.interceptor.Interceptors;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.POST;
@@ -18,6 +19,7 @@ import org.meveo.api.dto.ServicePricePlanDto;
 import org.meveo.api.exception.MeveoApiException;
 import org.meveo.api.exception.MissingParameterException;
 import org.meveo.api.exception.ServiceTemplateDoesNotExistsException;
+import org.meveo.api.logging.LoggingInterceptor;
 import org.meveo.asg.api.ServicePricePlanServiceApi;
 import org.meveo.asg.api.model.EntityCodeEnum;
 import org.meveo.commons.utils.ParamBean;
@@ -32,6 +34,7 @@ import org.slf4j.Logger;
 @RequestScoped
 @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+@Interceptors({ LoggingInterceptor.class })
 public class ServicePricePlanWS {
 
 	@Inject
@@ -47,8 +50,6 @@ public class ServicePricePlanWS {
 	@POST
 	@Path("/")
 	public ActionStatus create(ServicePricePlanDto servicePricePlanDto) {
-		log.debug("create={}", servicePricePlanDto);
-
 		ActionStatus result = new ActionStatus(ActionStatusEnum.SUCCESS, "");
 
 		String servicePricePlanId = servicePricePlanDto.getServiceId();
@@ -73,6 +74,10 @@ public class ServicePricePlanWS {
 					EntityCodeEnum.SPF);
 		}
 
+		if (result.getStatus() == ActionStatusEnum.FAIL) {
+			log.error(result.getMessage());
+		}
+
 		return result;
 	}
 
@@ -80,9 +85,6 @@ public class ServicePricePlanWS {
 	@Path("/{serviceId}/{organizationId}")
 	public ActionStatus remove(@PathParam("serviceId") String serviceId,
 			@PathParam("organizationId") String organizationId) {
-		log.debug("remove serviceId={}, organizationId={}", serviceId,
-				organizationId);
-
 		ActionStatus result = new ActionStatus(ActionStatusEnum.SUCCESS, "");
 
 		try {
@@ -104,14 +106,16 @@ public class ServicePricePlanWS {
 					EntityCodeEnum.SPF);
 		}
 
+		if (result.getStatus() == ActionStatusEnum.FAIL) {
+			log.error(result.getMessage());
+		}
+
 		return result;
 	}
 
 	@PUT
 	@Path("/")
 	public ActionStatus update(ServicePricePlanDto servicePricePlanDto) {
-		log.debug("update={}", servicePricePlanDto);
-
 		ActionStatus result = new ActionStatus(ActionStatusEnum.SUCCESS, "");
 
 		try {
@@ -128,6 +132,10 @@ public class ServicePricePlanWS {
 		} catch (MeveoApiException e) {
 			result.setStatus(ActionStatusEnum.FAIL);
 			result.setMessage(e.getMessage());
+		}
+
+		if (result.getStatus() == ActionStatusEnum.FAIL) {
+			log.error(result.getMessage());
 		}
 
 		return result;

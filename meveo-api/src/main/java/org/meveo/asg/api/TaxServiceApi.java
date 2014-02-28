@@ -169,13 +169,15 @@ public class TaxServiceApi extends BaseAsgApi {
 			if (invoiceSubcategoryCountry == null) {
 				invoiceSubcategoryCountry = new InvoiceSubcategoryCountry();
 				invoiceSubcategoryCountry.setTax(tax);
+				invoiceSubcategoryCountry.setTradingCountry(tradingCountry);
 				invoiceSubCategoryCountryService.create(em,
 						invoiceSubcategoryCountry, currentUser, provider);
+			} else {
+				invoiceSubcategoryCountry.setTax(tax);
+				invoiceSubcategoryCountry.setTradingCountry(tradingCountry);
+				invoiceSubCategoryCountryService.update(em,
+						invoiceSubcategoryCountry);
 			}
-
-			invoiceSubcategoryCountry.setTradingCountry(tradingCountry);
-			invoiceSubCategoryCountryService.update(em,
-					invoiceSubcategoryCountry);
 		} else {
 			StringBuilder sb = new StringBuilder(
 					"The following parameters are required ");

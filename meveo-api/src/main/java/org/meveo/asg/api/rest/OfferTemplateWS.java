@@ -2,6 +2,7 @@ package org.meveo.asg.api.rest;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.interceptor.Interceptors;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.POST;
@@ -21,6 +22,7 @@ import org.meveo.api.exception.OfferTemplateAlreadyExistsException;
 import org.meveo.api.exception.OfferTemplateDoesNotExistsException;
 import org.meveo.api.exception.ServiceTemplateAlreadyExistsException;
 import org.meveo.api.exception.ServiceTemplateDoesNotExistsException;
+import org.meveo.api.logging.LoggingInterceptor;
 import org.meveo.asg.api.OfferTemplateServiceApi;
 import org.meveo.asg.api.model.EntityCodeEnum;
 import org.meveo.commons.utils.ParamBean;
@@ -35,6 +37,7 @@ import org.slf4j.Logger;
 @RequestScoped
 @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+@Interceptors({ LoggingInterceptor.class })
 public class OfferTemplateWS {
 
 	@Inject
@@ -50,8 +53,6 @@ public class OfferTemplateWS {
 	@POST
 	@Path("/")
 	public ActionStatus create(OfferDto offerDto) {
-		log.debug("create={}", offerDto);
-
 		ActionStatus result = new ActionStatus(ActionStatusEnum.SUCCESS, "");
 
 		String offerId = offerDto.getOfferId();
@@ -88,14 +89,16 @@ public class OfferTemplateWS {
 			offerTemplateServiceApi.removeAsgMapping(offerId, EntityCodeEnum.O);
 		}
 
+		if (result.getStatus() == ActionStatusEnum.FAIL) {
+			log.error(result.getMessage());
+		}
+
 		return result;
 	}
 
 	@PUT
 	@Path("/")
 	public ActionStatus update(OfferDto offerDto) {
-		log.debug("update={}", offerDto);
-
 		ActionStatus result = new ActionStatus(ActionStatusEnum.SUCCESS, "");
 
 		try {
@@ -110,14 +113,16 @@ public class OfferTemplateWS {
 			result.setMessage(e.getMessage());
 		}
 
+		if (result.getStatus() == ActionStatusEnum.FAIL) {
+			log.error(result.getMessage());
+		}
+
 		return result;
 	}
 
 	@DELETE
 	@Path("/{offerId}")
 	public ActionStatus remove(@PathParam("offerId") String offerId) {
-		log.debug("remove offerId={}", offerId);
-
 		ActionStatus result = new ActionStatus(ActionStatusEnum.SUCCESS, "");
 
 		try {
@@ -139,6 +144,10 @@ public class OfferTemplateWS {
 
 		if (result.getStatus() == ActionStatusEnum.SUCCESS) {
 			offerTemplateServiceApi.removeAsgMapping(offerId, EntityCodeEnum.O);
+		}
+
+		if (result.getStatus() == ActionStatusEnum.FAIL) {
+			log.error(result.getMessage());
 		}
 
 		return result;

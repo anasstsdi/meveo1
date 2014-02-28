@@ -25,6 +25,7 @@ import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
 import org.meveo.commons.utils.QueryBuilder;
+import org.meveo.model.billing.InvoiceSubCategory;
 import org.meveo.model.billing.InvoiceSubcategoryCountry;
 import org.meveo.model.billing.Tax;
 import org.meveo.service.base.PersistenceService;
@@ -86,6 +87,22 @@ public class InvoiceSubCategoryCountryService extends
 
 		try {
 			return (InvoiceSubcategoryCountry) query.getSingleResult();
+		} catch (NoResultException e) {
+			log.warn(e.getMessage());
+			return null;
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<InvoiceSubcategoryCountry> findByInvoiceSubCategory(
+			EntityManager em, InvoiceSubCategory invoiceSubCategory) {
+		QueryBuilder qb = new QueryBuilder(InvoiceSubcategoryCountry.class, "a");
+		qb.addCriterionEntity("invoiceSubCategory", invoiceSubCategory);
+
+		Query query = qb.getQuery(em);
+
+		try {
+			return (List<InvoiceSubcategoryCountry>) query.getResultList();
 		} catch (NoResultException e) {
 			log.warn(e.getMessage());
 			return null;
