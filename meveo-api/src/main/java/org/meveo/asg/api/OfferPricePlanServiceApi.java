@@ -20,6 +20,7 @@ import org.meveo.api.exception.InvoiceCategoryDoesNotExistsException;
 import org.meveo.api.exception.InvoiceSubCategoryCountryNotFoundException;
 import org.meveo.api.exception.MeveoApiException;
 import org.meveo.api.exception.MissingParameterException;
+import org.meveo.api.exception.ServiceTemplateDoesNotExistsException;
 import org.meveo.asg.api.model.EntityCodeEnum;
 import org.meveo.commons.utils.ParamBean;
 import org.meveo.commons.utils.StringUtils;
@@ -708,13 +709,18 @@ public class OfferPricePlanServiceApi extends BaseAsgApi {
 			ServiceTemplate serviceTemplate = serviceTemplateService
 					.findByCode(em, serviceTemplateCode, provider);
 
-			if (serviceTemplate != null) {
-				serviceTemplate.setRecurringCharges(null);
-				serviceTemplate.setSubscriptionCharges(null);
-				serviceTemplate.setTerminationCharges(null);
-				serviceTemplate.setServiceUsageCharges(null);
-				serviceTemplateService.update(em, serviceTemplate, currentUser);
+			if (serviceTemplate == null) {
+				log.warn(
+						"Removing servicePricePlan with serviceTemplate.code={} that doesn't exists.",
+						serviceTemplateCode);
+				throw new ServiceTemplateDoesNotExistsException(
+						serviceTemplateCode);
 			}
+			serviceTemplate.setRecurringCharges(null);
+			serviceTemplate.setSubscriptionCharges(null);
+			serviceTemplate.setTerminationCharges(null);
+			serviceTemplate.setServiceUsageCharges(null);
+			serviceTemplateService.update(em, serviceTemplate, currentUser);
 
 			// delete subscription fee
 			String subscriptionPointChargePrefix = isRecommendedPrice ? paramBean
@@ -828,8 +834,8 @@ public class OfferPricePlanServiceApi extends BaseAsgApi {
 			log.error("Error deleting offer price plan with code={}: {}",
 					offerTemplateCode, e.getMessage());
 			throw new MeveoApiException(
-					"Failed deleting offerPricePlan with code="
-							+ offerTemplateCode + ".");
+					"Failed deleting offer price plan with code="
+							+ offerTemplateCode + ". " + e.getMessage());
 		}
 	}
 

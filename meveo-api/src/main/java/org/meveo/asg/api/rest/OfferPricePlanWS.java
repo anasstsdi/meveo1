@@ -17,6 +17,7 @@ import org.meveo.api.MeveoApiErrorCode;
 import org.meveo.api.dto.OfferPricePlanDto;
 import org.meveo.api.exception.MeveoApiException;
 import org.meveo.api.exception.MissingParameterException;
+import org.meveo.api.exception.ServiceTemplateDoesNotExistsException;
 import org.meveo.asg.api.OfferPricePlanServiceApi;
 import org.meveo.asg.api.model.EntityCodeEnum;
 import org.meveo.commons.utils.ParamBean;
@@ -56,6 +57,10 @@ public class OfferPricePlanWS {
 					"asp.api.providerId", "1")));
 
 			offerPricePlanServiceApi.create(offerPricePlanDto);
+		} catch (ServiceTemplateDoesNotExistsException e) {
+			result.setErrorCode(MeveoApiErrorCode.SERVICE_TEMPLATE_DOES_NOT_EXISTS);
+			result.setStatus(ActionStatusEnum.FAIL);
+			result.setMessage(e.getMessage());
 		} catch (MissingParameterException e) {
 			result.setErrorCode(MeveoApiErrorCode.MISSING_PARAMETER);
 			result.setStatus(ActionStatusEnum.FAIL);
@@ -104,7 +109,7 @@ public class OfferPricePlanWS {
 	@Path("/")
 	public ActionStatus update(OfferPricePlanDto offerPricePlanDto) {
 		log.debug("update={}", offerPricePlanDto);
-		
+
 		ActionStatus result = new ActionStatus(ActionStatusEnum.SUCCESS, "");
 
 		try {

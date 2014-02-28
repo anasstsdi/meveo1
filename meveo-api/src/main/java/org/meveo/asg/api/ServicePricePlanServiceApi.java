@@ -679,13 +679,19 @@ public class ServicePricePlanServiceApi extends BaseAsgApi {
 			ServiceTemplate serviceTemplate = serviceTemplateService
 					.findByCode(em, serviceTemplateCode, provider);
 
-			if (serviceTemplate != null) {
-				serviceTemplate.setRecurringCharges(null);
-				serviceTemplate.setSubscriptionCharges(null);
-				serviceTemplate.setTerminationCharges(null);
-				serviceTemplate.setServiceUsageCharges(null);
-				serviceTemplateService.update(em, serviceTemplate, currentUser);
+			if (serviceTemplate == null) {
+				log.warn(
+						"Removing servicePricePlan with serviceTemplate.code={} that doesn't exists.",
+						serviceTemplateCode);
+				throw new ServiceTemplateDoesNotExistsException(
+						serviceTemplateCode);
 			}
+
+			serviceTemplate.setRecurringCharges(null);
+			serviceTemplate.setSubscriptionCharges(null);
+			serviceTemplate.setTerminationCharges(null);
+			serviceTemplate.setServiceUsageCharges(null);
+			serviceTemplateService.update(em, serviceTemplate, currentUser);
 
 			// delete subscription fee
 			String subscriptionPointChargePrefix = isRecommendedPrice ? paramBean
@@ -800,11 +806,11 @@ public class ServicePricePlanServiceApi extends BaseAsgApi {
 				serviceTemplateService.remove(em, serviceTemplate);
 			}
 		} catch (Exception e) {
-			log.error("Error deleting service price plan with code={}: {}",
+			log.error("Failed deleting service price plan with code={}: {}",
 					serviceTemplateCode, e.getMessage());
 			throw new MeveoApiException(
-					"Failed deleting servicePricePlan with code="
-							+ serviceTemplateCode + ".");
+					"Failed deleting service price plan with code="
+							+ serviceTemplateCode + ". " + e.getMessage());
 		}
 	}
 

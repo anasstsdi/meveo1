@@ -17,6 +17,7 @@ import org.meveo.api.MeveoApiErrorCode;
 import org.meveo.api.dto.ServicePricePlanDto;
 import org.meveo.api.exception.MeveoApiException;
 import org.meveo.api.exception.MissingParameterException;
+import org.meveo.api.exception.ServiceTemplateDoesNotExistsException;
 import org.meveo.asg.api.ServicePricePlanServiceApi;
 import org.meveo.asg.api.model.EntityCodeEnum;
 import org.meveo.commons.utils.ParamBean;
@@ -89,7 +90,11 @@ public class ServicePricePlanWS {
 					.valueOf(paramBean.getProperty("asp.api.userId", "1")),
 					Long.valueOf(paramBean.getProperty("asp.api.providerId",
 							"1")));
-		} catch (Exception e) {
+		} catch (ServiceTemplateDoesNotExistsException e) {
+			result.setErrorCode(MeveoApiErrorCode.SERVICE_TEMPLATE_DOES_NOT_EXISTS);
+			result.setStatus(ActionStatusEnum.FAIL);
+			result.setMessage(e.getMessage());
+		} catch (MeveoApiException e) {
 			result.setStatus(ActionStatusEnum.FAIL);
 			result.setMessage(e.getMessage());
 		}
