@@ -177,7 +177,17 @@ public class SubscriptionWithCreditLimitServiceApi extends BaseAsgApi {
 					offerTemplateCode, provider);
 
 			if (offerTemplate == null) {
-				throw new OfferTemplateDoesNotExistsException(offerTemplateCode);
+				log.warn("offerTemplate with code={} does not exists. Searching for automatically created serviceOffer...");
+				offerTemplateCode = paramBean.getProperty(
+						"asg.api.service.offer.prefix", "_SE_")
+						+ subscriptionWithCreditLimitDto.getOfferId();
+				offerTemplate = offerTemplateService.findByCode(em,
+						offerTemplateCode, provider);
+
+				if (offerTemplate == null) {
+					throw new OfferTemplateDoesNotExistsException(
+							offerTemplateCode);
+				}
 			}
 
 			Seller seller = sellerService.findByCode(em,
@@ -747,7 +757,7 @@ public class SubscriptionWithCreditLimitServiceApi extends BaseAsgApi {
 								subscriptionWithCreditLimitUpdateDto
 										.getOrganizationId(),
 								EntityCodeEnum.ORG));
-				
+
 				if (subscriptionWithCreditLimitUpdateDto.getServicesToAdd() != null) {
 					List<ServiceToAddDto> servicesToAdd = new ArrayList<ServiceToAddDto>();
 					for (ServiceToAddDto serviceToAddDto : subscriptionWithCreditLimitUpdateDto
@@ -794,7 +804,7 @@ public class SubscriptionWithCreditLimitServiceApi extends BaseAsgApi {
 			} catch (BusinessException e) {
 				throw new MeveoApiException(e.getMessage());
 			}
-			
+
 			Seller seller = sellerService.findByCode(em,
 					subscriptionWithCreditLimitUpdateDto.getOrganizationId(),
 					provider);
