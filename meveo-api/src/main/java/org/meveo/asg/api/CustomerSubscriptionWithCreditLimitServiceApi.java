@@ -123,6 +123,50 @@ public class CustomerSubscriptionWithCreditLimitServiceApi extends BaseAsgApi {
 					.findById(subscriptionWithCreditLimitDto.getCurrentUserId());
 
 			try {
+				subscriptionWithCreditLimitDto
+						.setOrganizationId(asgIdMappingService.getMeveoCode(em,
+								subscriptionWithCreditLimitDto
+										.getOrganizationId(),
+								EntityCodeEnum.ORG));
+
+				subscriptionWithCreditLimitDto.setOfferId(asgIdMappingService
+						.getMeveoCode(em,
+								subscriptionWithCreditLimitDto.getOfferId(),
+								EntityCodeEnum.O));
+
+				if (subscriptionWithCreditLimitDto.getServicesToAdd() != null) {
+					List<ServiceToAddDto> servicesToAdd = new ArrayList<ServiceToAddDto>();
+					for (ServiceToAddDto serviceToAddDto : subscriptionWithCreditLimitDto
+							.getServicesToAdd()) {
+						serviceToAddDto.setServiceId(asgIdMappingService
+								.getMeveoCode(serviceToAddDto.getServiceId(),
+										EntityCodeEnum.S));
+						servicesToAdd.add(serviceToAddDto);
+					}
+
+					subscriptionWithCreditLimitDto
+							.setServicesToAdd(servicesToAdd);
+				}
+
+				if (subscriptionWithCreditLimitDto.getCreditLimits() != null) {
+					List<CreditLimitDto> creditLimitDtos = new ArrayList<CreditLimitDto>();
+					for (CreditLimitDto creditLimitDto : subscriptionWithCreditLimitDto
+							.getCreditLimits()) {
+						creditLimitDto.setOrganizationId(asgIdMappingService
+								.getMeveoCode(em,
+										creditLimitDto.getOrganizationId(),
+										EntityCodeEnum.ORG));
+						creditLimitDtos.add(creditLimitDto);
+					}
+
+					subscriptionWithCreditLimitDto
+							.setCreditLimits(creditLimitDtos);
+				}
+			} catch (BusinessException e) {
+				throw new MeveoApiException(e.getMessage());
+			}
+
+			try {
 				subscriptionWithCreditLimitDto.setOfferId(asgIdMappingService
 						.getMeveoCode(em,
 								subscriptionWithCreditLimitDto.getOfferId(),
@@ -742,6 +786,65 @@ public class CustomerSubscriptionWithCreditLimitServiceApi extends BaseAsgApi {
 			User currentUser = userService
 					.findById(subscriptionWithCreditLimitUpdateDto
 							.getCurrentUserId());
+
+			try {
+				subscriptionWithCreditLimitUpdateDto
+						.setOrganizationId(asgIdMappingService.getMeveoCode(em,
+								subscriptionWithCreditLimitUpdateDto
+										.getOrganizationId(),
+								EntityCodeEnum.ORG));
+
+				subscriptionWithCreditLimitUpdateDto
+						.setOfferId(asgIdMappingService.getMeveoCode(em,
+								subscriptionWithCreditLimitUpdateDto
+										.getOfferId(), EntityCodeEnum.O));
+
+				if (subscriptionWithCreditLimitUpdateDto.getServicesToAdd() != null) {
+					List<ServiceToAddDto> servicesToAdd = new ArrayList<ServiceToAddDto>();
+					for (ServiceToAddDto serviceToAddDto : subscriptionWithCreditLimitUpdateDto
+							.getServicesToAdd()) {
+						serviceToAddDto.setServiceId(asgIdMappingService
+								.getMeveoCode(serviceToAddDto.getServiceId(),
+										EntityCodeEnum.S));
+						servicesToAdd.add(serviceToAddDto);
+					}
+
+					subscriptionWithCreditLimitUpdateDto
+							.setServicesToAdd(servicesToAdd);
+				}
+
+				if (subscriptionWithCreditLimitUpdateDto
+						.getServicesToTerminate() != null) {
+					List<ServiceToTerminateDto> servicesToTerminate = new ArrayList<ServiceToTerminateDto>();
+					for (ServiceToTerminateDto serviceToAddDto : subscriptionWithCreditLimitUpdateDto
+							.getServicesToTerminate()) {
+						serviceToAddDto.setServiceId(asgIdMappingService
+								.getMeveoCode(serviceToAddDto.getServiceId(),
+										EntityCodeEnum.S));
+						servicesToTerminate.add(serviceToAddDto);
+					}
+
+					subscriptionWithCreditLimitUpdateDto
+							.setServicesToTerminate(servicesToTerminate);
+				}
+
+				if (subscriptionWithCreditLimitUpdateDto.getCreditLimits() != null) {
+					List<CreditLimitDto> creditLimitDtos = new ArrayList<CreditLimitDto>();
+					for (CreditLimitDto creditLimitDto : subscriptionWithCreditLimitUpdateDto
+							.getCreditLimits()) {
+						creditLimitDto.setOrganizationId(asgIdMappingService
+								.getMeveoCode(em,
+										creditLimitDto.getOrganizationId(),
+										EntityCodeEnum.ORG));
+						creditLimitDtos.add(creditLimitDto);
+					}
+
+					subscriptionWithCreditLimitUpdateDto
+							.setCreditLimits(creditLimitDtos);
+				}
+			} catch (BusinessException e) {
+				throw new MeveoApiException(e.getMessage());
+			}
 
 			try {
 				subscriptionWithCreditLimitUpdateDto
