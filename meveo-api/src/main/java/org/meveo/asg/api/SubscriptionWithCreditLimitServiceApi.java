@@ -747,12 +747,7 @@ public class SubscriptionWithCreditLimitServiceApi extends BaseAsgApi {
 								subscriptionWithCreditLimitUpdateDto
 										.getOrganizationId(),
 								EntityCodeEnum.ORG));
-
-				subscriptionWithCreditLimitUpdateDto
-						.setOfferId(asgIdMappingService.getMeveoCode(em,
-								subscriptionWithCreditLimitUpdateDto
-										.getOfferId(), EntityCodeEnum.O));
-
+				
 				if (subscriptionWithCreditLimitUpdateDto.getServicesToAdd() != null) {
 					List<ServiceToAddDto> servicesToAdd = new ArrayList<ServiceToAddDto>();
 					for (ServiceToAddDto serviceToAddDto : subscriptionWithCreditLimitUpdateDto
@@ -799,99 +794,7 @@ public class SubscriptionWithCreditLimitServiceApi extends BaseAsgApi {
 			} catch (BusinessException e) {
 				throw new MeveoApiException(e.getMessage());
 			}
-
-			try {
-				subscriptionWithCreditLimitUpdateDto
-						.setOfferId(asgIdMappingService.getMeveoCode(em,
-								subscriptionWithCreditLimitUpdateDto
-										.getOfferId(), EntityCodeEnum.O));
-
-				subscriptionWithCreditLimitUpdateDto
-						.setOrganizationId(asgIdMappingService.getMeveoCode(em,
-								subscriptionWithCreditLimitUpdateDto
-										.getOrganizationId(),
-								EntityCodeEnum.ORG));
-
-				if (subscriptionWithCreditLimitUpdateDto.getServicesToAdd() != null) {
-					for (ServiceToAddDto serviceToAddDto : subscriptionWithCreditLimitUpdateDto
-							.getServicesToAdd()) {
-						serviceToAddDto.setServiceId(asgIdMappingService
-								.getMeveoCode(em,
-										serviceToAddDto.getServiceId(),
-										EntityCodeEnum.S));
-					}
-				}
-
-				if (subscriptionWithCreditLimitUpdateDto
-						.getServicesToTerminate() != null) {
-					for (ServiceToTerminateDto serviceToTerminateDto : subscriptionWithCreditLimitUpdateDto
-							.getServicesToTerminate()) {
-						serviceToTerminateDto.setServiceId(asgIdMappingService
-								.getMeveoCode(em,
-										serviceToTerminateDto.getServiceId(),
-										EntityCodeEnum.S));
-					}
-				}
-
-				if (subscriptionWithCreditLimitUpdateDto.getCreditLimits() != null) {
-					for (CreditLimitDto creditLimitDto : subscriptionWithCreditLimitUpdateDto
-							.getCreditLimits()) {
-						creditLimitDto.setOrganizationId(asgIdMappingService
-								.getMeveoCode(em,
-										creditLimitDto.getOrganizationId(),
-										EntityCodeEnum.ORG));
-					}
-				}
-			} catch (BusinessException e) {
-				throw new MeveoApiException(e.getMessage());
-			}
-
-			try {
-				subscriptionWithCreditLimitUpdateDto
-						.setOrganizationId(asgIdMappingService.getMeveoCode(em,
-								subscriptionWithCreditLimitUpdateDto
-										.getOrganizationId(),
-								EntityCodeEnum.ORG));
-
-				subscriptionWithCreditLimitUpdateDto
-						.setOfferId(asgIdMappingService.getMeveoCode(em,
-								subscriptionWithCreditLimitUpdateDto
-										.getOfferId(), EntityCodeEnum.O));
-
-				if (subscriptionWithCreditLimitUpdateDto.getServicesToAdd() != null) {
-					for (ServiceToAddDto serviceToAddDto : subscriptionWithCreditLimitUpdateDto
-							.getServicesToAdd()) {
-						serviceToAddDto.setServiceId(asgIdMappingService
-								.getMeveoCode(em,
-										serviceToAddDto.getServiceId(),
-										EntityCodeEnum.S));
-					}
-				}
-
-				if (subscriptionWithCreditLimitUpdateDto
-						.getServicesToTerminate() != null) {
-					for (ServiceToAddDto serviceToTerminateDto : subscriptionWithCreditLimitUpdateDto
-							.getServicesToAdd()) {
-						serviceToTerminateDto.setServiceId(asgIdMappingService
-								.getMeveoCode(em,
-										serviceToTerminateDto.getServiceId(),
-										EntityCodeEnum.S));
-					}
-				}
-
-				if (subscriptionWithCreditLimitUpdateDto.getCreditLimits() != null) {
-					for (CreditLimitDto creditLimitDto : subscriptionWithCreditLimitUpdateDto
-							.getCreditLimits()) {
-						creditLimitDto.setOrganizationId(asgIdMappingService
-								.getMeveoCode(em,
-										creditLimitDto.getOrganizationId(),
-										EntityCodeEnum.ORG));
-					}
-				}
-			} catch (BusinessException e) {
-				throw new MeveoApiException(e.getMessage());
-			}
-
+			
 			Seller seller = sellerService.findByCode(em,
 					subscriptionWithCreditLimitUpdateDto.getOrganizationId(),
 					provider);

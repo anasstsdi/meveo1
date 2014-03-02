@@ -45,6 +45,11 @@ public class PricePlanMatrixService extends PersistenceService<PricePlanMatrix> 
 		RatingService.setPricePlanDirty();
 	}
 
+	public void update(EntityManager em, PricePlanMatrix e, User updater) {
+		super.update(em, e, updater);
+		RatingService.setPricePlanDirty();
+	}
+
 	public void remove(Long id) {
 		super.remove(id);
 		RatingService.setPricePlanDirty();
@@ -77,6 +82,12 @@ public class PricePlanMatrixService extends PersistenceService<PricePlanMatrix> 
 
 	public void create(PricePlanMatrix e, User creator, Provider provider) {
 		super.create(e, creator, provider);
+		RatingService.setPricePlanDirty();
+	}
+
+	public void create(EntityManager em, PricePlanMatrix e, User creator,
+			Provider provider) {
+		super.create(em, e, creator, provider);
 		RatingService.setPricePlanDirty();
 	}
 
