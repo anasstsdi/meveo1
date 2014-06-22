@@ -15,28 +15,29 @@
  */
 package org.meveo.util;
 
-import javax.enterprise.context.ConversationScoped;
+import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Produces;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.PersistenceUnit;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
-import org.jboss.solder.core.ExtensionManaged;
+//import org.jboss.solder.core.ExtensionManaged;
 
 public class Resources {
 
-	@ExtensionManaged
-	@ConversationScoped
+	//@ExtensionManaged
+	@Dependent
 	@Produces
-	@PersistenceUnit(unitName = "MeveoAdmin")
+	@PersistenceContext(unitName = "MeveoAdmin")
 	@MeveoJpa
-	private EntityManagerFactory emf;
+	private EntityManager em;
 
-	@ExtensionManaged
+	//@ExtensionManaged
 	@Produces
-	@PersistenceUnit(unitName = "MeveoAdmin")
+	@PersistenceContext(unitName = "MeveoAdmin")
 	@MeveoJpaForJobs
-	private EntityManagerFactory emfForJobs;
+	private EntityManager emForJobs;
 
+	
 /*	@ExtensionManaged
 	@ConversationScoped
 	@Produces

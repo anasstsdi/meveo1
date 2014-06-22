@@ -96,6 +96,17 @@
 		<dependency>
 			<groupId>org.meveo</groupId>
 			<artifactId>meveo-api</artifactId>
+		</dependency>	
+		<dependency>
+			<groupId>org.picketlink</groupId>
+			<artifactId>picketlink-api</artifactId>
+			<version>2.6.0.CR5</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.picketlink</groupId>
+			<artifactId>picketlink-impl</artifactId>
+			<version>2.6.0.CR5</version>
 		</dependency>
 		<dependency>
 			<groupId>org.omnifaces</groupId>
@@ -131,11 +142,6 @@
 			<artifactId>hibernate-core</artifactId>
 		</dependency>
 
-		<dependency>
-			<groupId>org.jboss.seam.security</groupId>
-			<artifactId>seam-security</artifactId>
-			<scope>compile</scope>
-		</dependency>
 
 	</dependencies>
 

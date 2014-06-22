@@ -27,7 +27,6 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.Query;
 
-import org.jboss.seam.transaction.Transactional;
 import org.meveo.admin.exception.BusinessException;
 import org.meveo.admin.util.ResourceBundle;
 import org.meveo.commons.utils.ParamBean;
@@ -341,7 +340,7 @@ public class CustomerAccountService extends AccountService<CustomerAccount> impl
 		log.info("successfully update customer account with code:"+ code);
 	}
 
-	@Transactional
+	//TODO: replace by ? @Transactional
 	public void closeCustomerAccount(CustomerAccount customerAccount, User user)
 			throws BusinessException, Exception {
 		log.info("closeCustomerAccount customerAccount:"
@@ -398,7 +397,7 @@ public class CustomerAccountService extends AccountService<CustomerAccount> impl
 		closeCustomerAccount(findCustomerAccount(customerAccountId, customerAccountCode), user);
 	}
 
-	@Transactional
+	//TODO: replace by ? @Transactional
 	public void transferAccount(CustomerAccount fromCustomerAccount,
 			CustomerAccount toCustomerAccount, BigDecimal amount, User user)
 			throws BusinessException, Exception {

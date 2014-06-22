@@ -41,9 +41,9 @@ import org.meveo.model.billing.WalletTemplate;
 import org.meveo.model.crm.Provider;
 import org.meveo.model.security.Role;
 import org.meveo.model.shared.Title;
-import org.meveo.security.authorization.UserCreate;
-import org.meveo.security.authorization.UserDelete;
-import org.meveo.security.authorization.UserUpdate;
+//import org.meveo.security.authorization.UserCreate;
+//import org.meveo.security.authorization.UserDelete;
+//import org.meveo.security.authorization.UserUpdate;
 import org.meveo.service.base.PersistenceService;
 
 /**
@@ -60,7 +60,7 @@ public class UserService extends PersistenceService<User> {
     private ParamBean paramBean=ParamBean.getInstance("meveo-admin.properties");
 
 	@Override
-	@UserCreate
+	//@UserCreate
 	public void create(User user) throws UsernameAlreadyExistsException {
 
 		if (isUsernameExists(user.getUserName())) {
@@ -75,7 +75,7 @@ public class UserService extends PersistenceService<User> {
 	}
 
 	@Override
-	@UserUpdate
+	//@UserUpdate
 	public void update(User user) throws UsernameAlreadyExistsException {
 		if (isUsernameExists(user.getUserName(), user.getId())) {
 			getEntityManager().refresh(user);
@@ -92,7 +92,7 @@ public class UserService extends PersistenceService<User> {
 	}
 
 	@Override
-	@UserDelete
+	//@UserDelete
 	public void remove(User user) {
 		super.remove(user);
 	}

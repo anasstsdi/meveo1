@@ -20,8 +20,6 @@ import javax.inject.Inject;
 
 import org.jboss.seam.international.status.Messages;
 import org.jboss.seam.international.status.builder.BundleKey;
-import org.jboss.seam.security.BaseAuthenticator;
-import org.jboss.seam.security.Credentials;
 import org.meveo.admin.exception.InactiveUserException;
 import org.meveo.admin.exception.LoginException;
 import org.meveo.admin.exception.NoRoleException;
@@ -30,10 +28,14 @@ import org.meveo.admin.exception.UnknownUserException;
 import org.meveo.model.admin.User;
 import org.meveo.security.MeveoUser;
 import org.meveo.service.admin.impl.UserService;
-import org.picketlink.idm.impl.api.PasswordCredential;
+import org.picketlink.annotations.PicketLink;
+import org.picketlink.authentication.BaseAuthenticator;
+import org.picketlink.credential.DefaultLoginCredentials;
+import org.picketlink.idm.credential.Credentials;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@PicketLink
 @Model
 public class Authenticator extends BaseAuthenticator {
 
@@ -41,20 +43,12 @@ public class Authenticator extends BaseAuthenticator {
 	private UserService userService;
 
 	@Inject
-	private Credentials credentials;
+	private DefaultLoginCredentials credentials;
 
 	private static final Logger log = LoggerFactory.getLogger(Authenticator.class);
 
-	//
-	// @Produces
-	// @Named("homeMessage")
-	// private String homeMessage;
-
 	@Inject
 	private Messages messages;
-
-	// @Inject
-	// TODO: private LocaleSelector localeSelector;
 
 	/* Authentication errors */
 	private boolean noLoginError;
@@ -62,51 +56,6 @@ public class Authenticator extends BaseAuthenticator {
 	private boolean noRoleError;
 	private boolean passwordExpired;
 
-	// public User internalAuthenticate(Principal principal, List<String> roles)
-	// {
-	//
-	// User user = null;
-	//
-	// try {
-	// user = userService.loginChecks("meveo.admin", null);
-	//
-	// } catch (LoginException e) {
-	// log.info("Login failed for the user #" + user.getId(), e);
-	// if (e instanceof InactiveUserException) {
-	// inactiveUserError = true;
-	//
-	// } else if (e instanceof NoRoleException) {
-	// noRoleError = true;
-	//
-	// } else if (e instanceof PasswordExpiredException) {
-	// passwordExpired = true;
-	//
-	// } else if (e instanceof UnknownUserException) {
-	// noLoginError = true;
-	// }
-	// }
-	//
-	// homeMessage = "application.home.message";
-	//
-	// if (user == null) {
-	// setStatus(AuthenticationStatus.FAILURE);
-	// } else {
-	//
-	// homeMessage = "application.home.message";
-	//
-	// setStatus(AuthenticationStatus.SUCCESS);
-	// setUser(new MeveoUser(user));
-	//
-	// // TODO needed to overcome lazy loading issue. Remove once solved
-	// for (Role role : user.getRoles()) {
-	// for (org.meveo.model.security.Permission permission :
-	// role.getPermissions()) {
-	// permission.getName();
-	// }
-	// }
-	// }
-	// return user;
-	// }
 
 	public String localLogout() {
 		return "loggedOut";
@@ -123,35 +72,35 @@ public class Authenticator extends BaseAuthenticator {
 		try {
 
 			/* Authentication check */
-			user = userService.loginChecks(credentials.getUsername(),
-					((PasswordCredential) credentials.getCredential()).getValue());
+			user = userService.loginChecks(credentials.getUserId(),
+					credentials.getPassword());
 
 		} catch (LoginException e) {
-			log.debug("Login failed for the user {} for reason {} {}", credentials.getUsername(), e
+			log.debug("Login failed for the user {} for reason {} {}", credentials.getUserId(), e
 					.getClass().getName(), e.getMessage());
 			if (e instanceof InactiveUserException) {
 				inactiveUserError = true;
-				log.error("login failed with username=" + credentials.getUsername()
+				log.error("login failed with username=" + credentials.getUserId()
 						+ " and password="
-						+ ((PasswordCredential) credentials.getCredential()).getValue()
+						+ credentials.getPassword()
 						+ " : cause user is not active");
 				messages.info(new BundleKey("messages", "user.error.inactive"));
 
 			} else if (e instanceof NoRoleException) {
 				noRoleError = true;
-				log.error("The password of user " + credentials.getUsername() + " has expired.");
+				log.error("The password of user " + credentials.getUserId() + " has expired.");
 				messages.info(new BundleKey("messages", "user.error.noRole"));
 
 			} else if (e instanceof PasswordExpiredException) {
 				passwordExpired = true;
-				log.error("The password of user " + credentials.getUsername() + " has expired.");
+				log.error("The password of user " + credentials.getUserId() + " has expired.");
 				messages.info(new BundleKey("messages", "user.password.expired"));
 
 			} else if (e instanceof UnknownUserException) {
 				noLoginError = true;
 				log.debug("login failed with username={} and password={}",
-						credentials.getUsername(),
-						((PasswordCredential) credentials.getCredential()).getValue());
+						credentials.getUserId(),
+						credentials.getPassword());
 				messages.info(new BundleKey("messages", "user.error.login"));
 			}
 		}
@@ -163,7 +112,7 @@ public class Authenticator extends BaseAuthenticator {
 			// homeMessage = "application.home.message";
 
 			setStatus(AuthenticationStatus.SUCCESS);
-			setUser(new MeveoUser(user));
+			setAccount(new MeveoUser(user));
 
 			log.debug("End of authenticating");
 		}

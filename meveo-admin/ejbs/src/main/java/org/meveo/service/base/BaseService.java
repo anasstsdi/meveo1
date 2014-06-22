@@ -22,9 +22,9 @@ import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
 
-import org.jboss.seam.security.Identity;
 import org.meveo.model.admin.User;
 import org.meveo.security.MeveoUser;
+import org.picketlink.Identity;
 import org.slf4j.Logger;
 
 public abstract class BaseService {
@@ -44,7 +44,7 @@ public abstract class BaseService {
 	public User getCurrentUser() {
 		if (currentUser == null) {
 			try {
-				currentUser = ((MeveoUser) identity.getUser()).getUser();
+				currentUser = ((MeveoUser) identity.getAccount()).getUser();
 			} catch (Exception e) {
 				log.warn("getCurrentUser cannot retrieve current user from session identity and currentUser has not been set programmatically");
 			}

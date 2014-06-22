@@ -57,12 +57,12 @@
 			<dependency>
 				<groupId>org.jboss.seam.faces</groupId>
 				<artifactId>seam-faces</artifactId>
-				<version>3.2.0.Final</version>
+				<version>3.1.0.Final</version>
 			</dependency>
 			<dependency>
 				<groupId>org.jboss.seam.faces</groupId>
 				<artifactId>seam-faces-api</artifactId>
-				<version>3.2.0.Final</version>
+				<version>3.1.0.Final</version>
 			</dependency>
 			<dependency>
 				<groupId>org.manaty</groupId>

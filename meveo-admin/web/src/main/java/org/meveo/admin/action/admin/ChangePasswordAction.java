@@ -23,20 +23,15 @@ import javax.inject.Inject;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.seam.international.status.Messages;
 import org.jboss.seam.international.status.builder.BundleKey;
-import org.jboss.seam.security.Identity;
 import org.meveo.admin.exception.BusinessException;
 import org.meveo.admin.exception.LoginException;
 import org.meveo.admin.util.security.Sha1Encrypt;
 import org.meveo.model.admin.User;
 import org.meveo.security.MeveoUser;
 import org.meveo.service.admin.impl.UserService;
+import org.picketlink.Identity;
 import org.slf4j.Logger;
 
-/**
- * 
- * @author Gediminas Ubartas
- * @created 2010.12.08
- */
 @Model
 public class ChangePasswordAction implements Serializable {
 
@@ -65,7 +60,7 @@ public class ChangePasswordAction implements Serializable {
 
 		User currentUser = null;
 		if (identity.isLoggedIn()) {
-			currentUser = userService.findById(((MeveoUser) identity.getUser()).getUser().getId());
+			currentUser = userService.findById(((MeveoUser) identity.getAccount()).getUser().getId());
 
 		} else {
 			try {

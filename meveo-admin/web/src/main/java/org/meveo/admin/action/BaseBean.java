@@ -30,7 +30,6 @@ import javax.persistence.EntityExistsException;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.seam.international.status.Messages;
 import org.jboss.seam.international.status.builder.BundleKey;
-import org.jboss.seam.security.Identity;
 import org.jboss.solder.servlet.http.RequestParam;
 import org.meveo.admin.action.admin.CurrentProvider;
 import org.meveo.admin.util.pagination.PaginationConfiguration;
@@ -42,6 +41,7 @@ import org.meveo.model.crm.Provider;
 import org.meveo.security.MeveoUser;
 import org.meveo.service.base.local.IPersistenceService;
 import org.meveo.service.crm.impl.ProviderService;
+import org.picketlink.Identity;
 import org.primefaces.component.datatable.DataTable;
 import org.primefaces.event.SelectEvent;
 import org.primefaces.model.LazyDataModel;
@@ -723,7 +723,7 @@ public abstract class BaseBean<T extends IEntity> implements Serializable {
 	}
 
 	protected User getCurrentUser() {
-		return ((MeveoUser) identity.getUser()).getUser();
+	return ((MeveoUser) identity.getAccount()).getUser();
 	}
 
 	public List<TradingLanguage> getProviderLanguages() {

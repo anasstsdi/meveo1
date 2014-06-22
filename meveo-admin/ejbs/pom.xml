@@ -76,13 +76,17 @@
 			<artifactId>meveo-model</artifactId>
 		</dependency>
 
-
-		<dependency>
-			<groupId>org.jboss.weld</groupId>
-			<artifactId>weld-core</artifactId>
-			<version>1.1.5.AS71.Final</version>
-			<scope>provided</scope>
-		</dependency>
+	<dependency>
+		<groupId>org.picketlink</groupId>
+		<artifactId>picketlink-api</artifactId>
+		<version>2.6.0.CR5</version>
+	</dependency>
+	
+	<dependency>
+		<groupId>org.picketlink</groupId>
+		<artifactId>picketlink-impl</artifactId>
+		<version>2.6.0.CR5</version>
+	</dependency>
 
 		<dependency>
 			<groupId>com.sun.faces</groupId>
@@ -109,12 +113,6 @@
 			<groupId>org.primefaces</groupId>
 			<artifactId>primefaces</artifactId>
 			<version>4.0</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.jboss.seam.security</groupId>
-			<artifactId>seam-security</artifactId>
-			<scope>compile</scope>
 		</dependency>
 
 		<dependency>

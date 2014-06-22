@@ -1,10 +1,9 @@
 package org.meveo.security;
 
-import java.io.Serializable;
 
-import org.picketlink.idm.api.User;
+import org.picketlink.idm.model.basic.User;
 
-public class MeveoUser implements User, Serializable {
+public class MeveoUser extends User {
 
 	private static final long serialVersionUID = 4333140556503076034L;
 

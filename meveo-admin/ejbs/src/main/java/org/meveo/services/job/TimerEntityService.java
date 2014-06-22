@@ -25,7 +25,6 @@ import javax.ejb.Timer;
 import javax.ejb.TimerHandle;
 import javax.inject.Inject;
 
-import org.jboss.seam.security.Identity;
 import org.meveo.admin.exception.BusinessException;
 import org.meveo.admin.util.pagination.PaginationConfiguration;
 import org.meveo.commons.utils.ParamBean;
@@ -36,6 +35,7 @@ import org.meveo.model.jobs.TimerEntity;
 import org.meveo.model.jobs.TimerInfo;
 import org.meveo.service.base.PersistenceService;
 import org.meveo.service.crm.impl.ProviderService;
+import org.picketlink.Identity;
 
 @Stateless
 public class TimerEntityService extends PersistenceService<TimerEntity> {

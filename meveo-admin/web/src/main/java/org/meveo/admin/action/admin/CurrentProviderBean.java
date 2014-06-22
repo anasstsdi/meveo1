@@ -22,9 +22,9 @@ import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.jboss.seam.security.Identity;
 import org.meveo.model.crm.Provider;
 import org.meveo.security.MeveoUser;
+import org.picketlink.Identity;
 
 /**
  * Class used to set current system provider
@@ -54,10 +54,10 @@ public class CurrentProviderBean implements Serializable {
 	@CurrentProvider
 	public Provider getCurrentProvider() {
 		if (currentProvider == null && identity.isLoggedIn()) {
-			if (((MeveoUser) identity.getUser()).getUser().isOnlyOneProvider()) {
-				currentProvider = ((MeveoUser) identity.getUser()).getUser().getProvider();
+			if (((MeveoUser) identity.getAccount()).getUser().isOnlyOneProvider()) {
+				currentProvider = ((MeveoUser) identity.getAccount()).getUser().getProvider();
 			} else {
-				currentProvider = ((MeveoUser) identity.getUser()).getUser().getProviders()
+				currentProvider = ((MeveoUser) identity.getAccount()).getUser().getProviders()
 						.iterator().next();
 			}
 			currentProvider.getLanguage().getLanguageCode(); // Lazy loading

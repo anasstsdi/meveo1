@@ -5,7 +5,7 @@ import javax.enterprise.context.NonexistentConversationException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.jboss.seam.security.AuthorizationException;
+import org.apache.maven.wagon.authorization.AuthorizationException;
 import org.jboss.solder.exception.control.CaughtException;
 import org.jboss.solder.exception.control.Handles;
 import org.jboss.solder.exception.control.HandlesExceptions;

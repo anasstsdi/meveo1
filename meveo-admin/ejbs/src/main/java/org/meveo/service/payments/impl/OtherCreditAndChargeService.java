@@ -22,7 +22,6 @@ import javax.ejb.EJB;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 
-import org.jboss.seam.transaction.Transactional;
 import org.meveo.admin.exception.BusinessException;
 import org.meveo.model.admin.User;
 import org.meveo.model.payments.CustomerAccount;
@@ -48,7 +47,7 @@ public class OtherCreditAndChargeService extends PersistenceService<OtherCreditA
 	@EJB
 	private OCCTemplateService occTemplateService;
 
-	@Transactional
+	//@Transactional
 	public void addOCC(String codeOCCTemplate, String descToAppend,
 			CustomerAccount customerAccount, BigDecimal amount, Date dueDate, User user)
 			throws BusinessException, Exception {
