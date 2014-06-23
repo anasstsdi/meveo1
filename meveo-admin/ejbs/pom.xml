@@ -76,17 +76,17 @@
 			<artifactId>meveo-model</artifactId>
 		</dependency>
 
-	<dependency>
-		<groupId>org.picketlink</groupId>
-		<artifactId>picketlink-api</artifactId>
-		<version>2.6.0.CR5</version>
-	</dependency>
-	
-	<dependency>
-		<groupId>org.picketlink</groupId>
-		<artifactId>picketlink-impl</artifactId>
-		<version>2.6.0.CR5</version>
-	</dependency>
+		<dependency>
+			<groupId>org.picketlink</groupId>
+			<artifactId>picketlink-api</artifactId>
+			<version>2.6.0.CR5</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.picketlink</groupId>
+			<artifactId>picketlink-impl</artifactId>
+			<version>2.6.0.CR5</version>
+		</dependency>
 
 		<dependency>
 			<groupId>com.sun.faces</groupId>
@@ -118,6 +118,12 @@
 		<dependency>
 			<groupId>org.jboss.seam.faces</groupId>
 			<artifactId>seam-faces</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.jboss.seam.international</groupId>
+			<artifactId>seam-international</artifactId>
+			<scope>runtime</scope>
 		</dependency>
 
 		<!-- <dependency> -->
@@ -248,7 +254,7 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		
+
 		<!-- For testing -->
 		<dependency>
 			<groupId>hsqldb</groupId>
