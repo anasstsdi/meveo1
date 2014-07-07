@@ -25,14 +25,14 @@
 					<h:panelGrid columns="3" rowClasses="prop"
 						columnClasses="name,value">
 						<p:outputLabel for="username">#{messages['login.username']}</p:outputLabel>
-						<p:inputText id="username" value="#{credentials.username}"
+						<p:inputText id="username" value="#{loginCredentials.userId}"
 							style="widtp:170px;" />
 						<p:tooltip for="username">#{help['login.username']}</p:tooltip>
 						
 						<p:outputLabel for="password">#{messages['login.password']}</p:outputLabel>
-						<p:password id="password" value="#{credentials.password}"
+						<p:password id="password" value="#{loginCredentials.password}"
 							style="widtp:170px;" />
-						<p:tooltip for="password">#{help['login.password']}</p:tooltip>
+						<p:tooltip for="password">#{help['loginCredentials.password']}</p:tooltip>
 						<!-- <p:outputLabel for="rememberMe">#{messages['login.rememberMe']}</p:outputLabel>
 	                    <p:selectBooleanCheckbox id="rememberMe"
 	                                          value="#{rememberMe.enabled}"/> -->
