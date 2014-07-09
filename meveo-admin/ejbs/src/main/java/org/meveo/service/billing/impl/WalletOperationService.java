@@ -198,6 +198,139 @@ public class WalletOperationService extends BusinessService<WalletOperation> {
 		return result;
 	}
 
+	/**
+	 * Get wallet operation balance.
+	 * 
+	 * @param em
+	 * @param provider
+	 * @param seller
+	 * @param customer
+	 * @param customerAccount
+	 * @param billingAccount
+	 * @param userAccount
+	 * @param startDate
+	 * @param endDate
+	 * @param amountWithTax
+	 * @param mode
+	 *            : 1 - current (OPEN or RESERVED), 2 - reserved (RESERVED), 3 -
+	 *            open (OPEN)
+	 * @return
+	 */
+	public BigDecimal getBalanceAmount(EntityManager em, Provider provider,
+			Seller seller, Customer customer, CustomerAccount customerAccount,
+			BillingAccount billingAccount, UserAccount userAccount,
+			Date startDate, Date endDate, boolean amountWithTax, int mode) {
+
+		BigDecimal result = BigDecimal.ZERO;
+		LevelEnum level = LevelEnum.PROVIDER;
+
+		if (userAccount != null) {
+			level = LevelEnum.USER_ACCOUNT;
+			provider = userAccount.getProvider();
+		} else if (billingAccount != null) {
+			level = LevelEnum.BILLING_ACCOUNT;
+			provider = billingAccount.getProvider();
+		} else if (customerAccount != null) {
+			level = LevelEnum.CUSTOMER_ACCOUNT;
+			provider = customerAccount.getProvider();
+		} else if (customer != null) {
+			level = LevelEnum.CUSTOMER;
+			provider = customer.getProvider();
+		} else if (seller != null) {
+			level = LevelEnum.SELLER;
+			provider = seller.getProvider();
+		}
+
+		try {
+			StringBuilder strQuery = new StringBuilder();
+			strQuery.append("select SUM(r."
+					+ (amountWithTax ? "amountWithTax" : "amountWithoutTax")
+					+ ") from "
+					+ WalletOperation.class.getSimpleName()
+					+ " r "
+					+ "WHERE r.operationDate>=:startDate AND r.operationDate<:endDate ");
+
+			if (mode == 1) {
+				strQuery.append("AND (r.status=:open OR r.status=:reserved) ");
+			} else if (mode == 2) {
+				strQuery.append("AND (r.status=:reserved) ");
+			} else if (mode == 3) {
+				strQuery.append("AND (r.status=:open) ");
+			}
+
+			// + "AND (r.status=:open OR r.status=:treated) "
+			strQuery.append("AND r.provider=:provider ");
+			switch (level) {
+			case BILLING_ACCOUNT:
+				strQuery.append("AND r.wallet.userAccount.billingAccount=:billingAccount ");
+				break;
+			case CUSTOMER:
+				strQuery.append("AND r.wallet.userAccount.billingAccount.customerAccount.customer=:customer ");
+				break;
+			case CUSTOMER_ACCOUNT:
+				strQuery.append("AND r.wallet.userAccount.billingAccount.customerAccount=:customerAccount ");
+				break;
+			case PROVIDER:
+				break;
+			case SELLER:
+				strQuery.append("AND r.wallet.userAccount.billingAccount.customerAccount.customer.seller=:seller ");
+				break;
+			case USER_ACCOUNT:
+				strQuery.append("AND r.wallet.userAccount=:userAccount ");
+				break;
+			default:
+				break;
+			}
+
+			Query query = em.createQuery(strQuery.toString());
+
+			if (mode == 1) {
+				query.setParameter("open", WalletOperationStatusEnum.OPEN);
+				query.setParameter("reserved",
+						WalletOperationStatusEnum.RESERVED);
+			} else if (mode == 2) {
+				query.setParameter("reserved",
+						WalletOperationStatusEnum.RESERVED);
+			} else if (mode == 3) {
+				query.setParameter("open", WalletOperationStatusEnum.OPEN);
+			}
+
+			query.setParameter("startDate", startDate);
+			query.setParameter("endDate", endDate);
+			query.setParameter("provider", provider);
+
+			switch (level) {
+			case BILLING_ACCOUNT:
+				query.setParameter("billingAccount", billingAccount);
+				break;
+			case CUSTOMER:
+				query.setParameter("customer", customer);
+				break;
+			case CUSTOMER_ACCOUNT:
+				query.setParameter("customerAccount", customerAccount);
+				break;
+			case PROVIDER:
+				break;
+			case SELLER:
+				query.setParameter("seller", seller);
+				break;
+			case USER_ACCOUNT:
+				query.setParameter("userAccount", userAccount);
+				break;
+			default:
+				break;
+			}
+
+			result = (BigDecimal) query.getSingleResult();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		if (result == null)
+			result = BigDecimal.ZERO;
+		return result;
+	}
+
 	public void usageWalletOperation(Subscription subscription, Date usageDate,
 			BigDecimal quantity, String param1, String param2, String param3) {
 
@@ -389,7 +522,8 @@ public class WalletOperationService extends BusinessService<WalletOperation> {
 			throw new IncorrectChargeTemplateException(
 					"no invoiceSubcategoryCountry exists for invoiceSubCategory code="
 							+ invoiceSubCategory.getCode()
-							+ " and trading country=" + country.getCountryCode());
+							+ " and trading country="
+							+ country.getCountryCode());
 		}
 		Tax tax = invoiceSubcategoryCountry.getTax();
 		if (tax == null) {
@@ -425,8 +559,6 @@ public class WalletOperationService extends BusinessService<WalletOperation> {
 				nextapplicationDate, "dd/MM/yyyy");
 		return nextapplicationDate;
 	}
-
-
 
 	public WalletOperation prerateSubscription(Date subscriptionDate,
 			RecurringChargeInstance chargeInstance, Date nextapplicationDate)
@@ -536,7 +668,8 @@ public class WalletOperationService extends BusinessService<WalletOperation> {
 			throw new IncorrectChargeTemplateException(
 					"no invoiceSubcategoryCountry exists for invoiceSubCategory code="
 							+ invoiceSubCategory.getCode()
-							+ " and trading country=" + country.getCountryCode());
+							+ " and trading country="
+							+ country.getCountryCode());
 		}
 
 		Tax tax = invoiceSubcategoryCountry.getTax();
@@ -605,7 +738,7 @@ public class WalletOperationService extends BusinessService<WalletOperation> {
 		RecurringChargeTemplate recurringChargeTemplate = chargeInstance
 				.getRecurringChargeTemplate();
 		Date nextapplicationDate = getNextApplicationDate(chargeInstance);
-		
+
 		if (recurringChargeTemplate.getApplyInAdvance()) {
 			WalletOperation chargeApplication = rateSubscription(em,
 					chargeInstance, nextapplicationDate);
@@ -688,7 +821,7 @@ public class WalletOperationService extends BusinessService<WalletOperation> {
 						nextapplicationDate, previousapplicationDate);
 			}
 
-			//FIXME i18n
+			// FIXME i18n
 			String param2 = " "
 					+ str_tooPerceived
 					+ " "
@@ -737,7 +870,8 @@ public class WalletOperationService extends BusinessService<WalletOperation> {
 				throw new IncorrectChargeTemplateException(
 						"no invoiceSubcategoryCountry exists for invoiceSubCategory code="
 								+ invoiceSubCategory.getCode()
-								+ " and trading country=" + country.getCountryCode());
+								+ " and trading country="
+								+ country.getCountryCode());
 			}
 
 			Tax tax = invoiceSubcategoryCountry.getTax();
@@ -819,11 +953,11 @@ public class WalletOperationService extends BusinessService<WalletOperation> {
 		}
 
 		Date nextApplicationDate = reimbursement ? chargeInstance
-					.getNextChargeDate() : recurringChargeTemplate.getCalendar()
-					.nextCalendarDate(applicationDate);
-		
-		log.debug("reimbursement={},applicationDate={}",
-				reimbursement, applicationDate);
+				.getNextChargeDate() : recurringChargeTemplate.getCalendar()
+				.nextCalendarDate(applicationDate);
+
+		log.debug("reimbursement={},applicationDate={}", reimbursement,
+				applicationDate);
 
 		InvoiceSubCategory invoiceSubCategory = recurringChargeTemplate
 				.getInvoiceSubCategory();
@@ -858,7 +992,8 @@ public class WalletOperationService extends BusinessService<WalletOperation> {
 			throw new IncorrectChargeTemplateException(
 					"no invoiceSubcategoryCountry exists for invoiceSubCategory code="
 							+ invoiceSubCategory.getCode()
-							+ " and trading country=" + country.getCountryCode());
+							+ " and trading country="
+							+ country.getCountryCode());
 		}
 
 		Tax tax = invoiceSubcategoryCountry.getTax();
@@ -954,7 +1089,7 @@ public class WalletOperationService extends BusinessService<WalletOperation> {
 
 		Date nextChargeDate = reimbursement ? chargeInstance.getChargeDate()
 				: chargeInstance.getNextChargeDate();
-		
+
 		InvoiceSubCategory invoiceSubCategory = recurringChargeTemplate
 				.getInvoiceSubCategory();
 		if (invoiceSubCategory == null) {
@@ -988,7 +1123,8 @@ public class WalletOperationService extends BusinessService<WalletOperation> {
 			throw new IncorrectChargeTemplateException(
 					"no invoiceSubcategoryCountry exists for invoiceSubCategory code="
 							+ invoiceSubCategory.getCode()
-							+ " and trading country=" + country.getCountryCode());
+							+ " and trading country="
+							+ country.getCountryCode());
 		}
 
 		Tax tax = invoiceSubcategoryCountry.getTax();
@@ -1094,14 +1230,14 @@ public class WalletOperationService extends BusinessService<WalletOperation> {
 					.getServiceInstance().getSubscriptionDate());
 
 			create(em, walletOperation, creator, chargeInstance.getProvider());
-			//em.flush();
-			//em.refresh(chargeInstance);
+			// em.flush();
+			// em.refresh(chargeInstance);
 			chargeInstance.setChargeDate(applicationDate);
 			chargeInstance.getWalletOperations().add(walletOperation);
-			if(!em.contains(walletOperation)){
+			if (!em.contains(walletOperation)) {
 				log.error("wtf wallet operation is already detached");
 			}
-			if(!em.contains(chargeInstance)){
+			if (!em.contains(chargeInstance)) {
 				log.error("wow chargeInstance is detached");
 				em.merge(chargeInstance);
 			}
@@ -1109,10 +1245,9 @@ public class WalletOperationService extends BusinessService<WalletOperation> {
 		}
 
 		Date nextapplicationDate = recurringChargeTemplate.getCalendar()
-					.nextCalendarDate(applicationDate);
+				.nextCalendarDate(applicationDate);
 		chargeInstance.setNextChargeDate(nextapplicationDate);
 		chargeInstance.setChargeDate(applicationDate);
-		
 
 	}
 
@@ -1175,7 +1310,8 @@ public class WalletOperationService extends BusinessService<WalletOperation> {
 			throw new IncorrectChargeTemplateException(
 					"no invoiceSubcategoryCountry exists for invoiceSubCategory code="
 							+ invoiceSubCategory.getCode()
-							+ " and trading country=" + country.getCountryCode());
+							+ " and trading country="
+							+ country.getCountryCode());
 		}
 
 		Tax tax = invoiceSubcategoryCountry.getTax();
@@ -1244,7 +1380,6 @@ public class WalletOperationService extends BusinessService<WalletOperation> {
 		}
 	}
 
-	
 	@SuppressWarnings("unchecked")
 	public List<WalletOperation> findByStatus(WalletOperationStatusEnum status) {
 		List<WalletOperation> walletOperations = null;
