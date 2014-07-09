@@ -35,7 +35,7 @@
 				<executions>
 					<!-- Copy message, authentication and other configuration files from 
 						configuration module for testing -->
-					<execution>
+					<!-- <execution>
 						<id>copy-config-properties-file</id>
 						<phase>process-test-resources</phase>
 						<goals>
@@ -64,7 +64,7 @@
 								</resource>
 							</resources>
 						</configuration>
-					</execution>
+					</execution>-->
 				</executions>
 			</plugin>
 		</plugins>
@@ -79,13 +79,13 @@
 		<dependency>
 			<groupId>org.picketlink</groupId>
 			<artifactId>picketlink-api</artifactId>
-			<version>2.6.0.CR5</version>
+			<version>2.6.0.Final</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.picketlink</groupId>
 			<artifactId>picketlink-impl</artifactId>
-			<version>2.6.0.CR5</version>
+			<version>2.6.0.Final</version>
 		</dependency>
 
 		<dependency>

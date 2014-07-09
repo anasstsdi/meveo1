@@ -65,7 +65,7 @@
 %><span id="errorDetails" class="errorExceptions"><%
 %><pre class="errorExceptionCause"><%
     PrintWriter pw = new PrintWriter(out);
-    rootCause.printStackTrace(pw);
+	    rootCause.printStackTrace(pw);
 %></pre><%
 %></span><%
     }

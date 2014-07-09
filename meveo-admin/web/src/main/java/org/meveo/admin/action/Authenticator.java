@@ -31,7 +31,6 @@ import org.meveo.service.admin.impl.UserService;
 import org.picketlink.annotations.PicketLink;
 import org.picketlink.authentication.BaseAuthenticator;
 import org.picketlink.credential.DefaultLoginCredentials;
-import org.picketlink.idm.credential.Credentials;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -117,7 +116,7 @@ public class Authenticator extends BaseAuthenticator {
 			log.debug("End of authenticating");
 		}
 	}
-
+	
 	public void setLocale(String language) {
 		// TODO: localeSelector.selectLanguage(language);
 

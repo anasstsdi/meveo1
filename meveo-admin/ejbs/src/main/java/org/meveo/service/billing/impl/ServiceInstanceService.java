@@ -676,7 +676,6 @@ public class ServiceInstanceService extends BusinessService<ServiceInstance> {
 	 * updater); }
 	 */
 
-	@SuppressWarnings("deprecation")
 	public void serviceTermination(ServiceInstance serviceInstance,
 			Date terminationDate, User updater)
 			throws IncorrectSusbcriptionException,

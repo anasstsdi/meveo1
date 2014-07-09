@@ -1,8 +1,6 @@
 package org.meveo.admin.job;
 
 import java.util.Collection;
-import java.util.Date;
-import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -16,22 +14,14 @@ import javax.ejb.TimerHandle;
 import javax.ejb.TimerService;
 import javax.inject.Inject;
 
-import org.meveo.admin.exception.IncorrectChargeTemplateException;
-import org.meveo.model.billing.InstanceStatusEnum;
-import org.meveo.model.billing.RecurringChargeInstance;
-import org.meveo.model.catalog.RecurringChargeTemplate;
 import org.meveo.model.crm.Provider;
 import org.meveo.model.jobs.JobExecutionResult;
 import org.meveo.model.jobs.JobExecutionResultImpl;
 import org.meveo.model.jobs.TimerInfo;
-import org.meveo.model.shared.DateUtils;
-import org.meveo.service.billing.impl.RecurringChargeInstanceService;
-import org.meveo.service.billing.impl.WalletOperationService;
 import org.meveo.service.crm.impl.ProviderService;
 import org.meveo.services.job.Job;
 import org.meveo.services.job.JobExecutionService;
 import org.meveo.services.job.TimerEntityService;
-import org.meveo.util.MeveoJpaForJobs;
 import org.slf4j.Logger;
 
 @Startup
