@@ -22,8 +22,6 @@ import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.jboss.seam.international.status.Messages;
-import org.jboss.seam.international.status.builder.BundleKey;
 import org.jboss.solder.servlet.http.RequestParam;
 import org.meveo.admin.action.BaseBean;
 import org.meveo.admin.exception.BusinessException;
@@ -32,6 +30,7 @@ import org.meveo.model.billing.ServiceInstance;
 import org.meveo.service.base.PersistenceService;
 import org.meveo.service.base.local.IPersistenceService;
 import org.meveo.service.billing.impl.ServiceInstanceService;
+import org.omnifaces.util.Messages;
 
 /**
  * Standard backing bean for {@link ServiceInstance} (extends {@link BaseBean} that provides almost all common methods to handle entities filtering/sorting in datatable, their
@@ -52,10 +51,7 @@ public class ServiceInstanceBean extends BaseBean<ServiceInstance> {
      */
     @Inject
     private ServiceInstanceService serviceInstanceService;
-    
-
-    @Inject
-    private Messages messages;
+  
 
     /**
      * Offer Id passed as a parameter. Used when creating new Service from Offer window, so default offer will be set on newly created service.
@@ -101,10 +97,10 @@ public class ServiceInstanceBean extends BaseBean<ServiceInstance> {
             serviceInstanceService.serviceInstanciation(serviceInstance, getCurrentUser());
         } catch (BusinessException e) {
             e.printStackTrace();
-            messages.error(e.getMessage());
+            Messages.createError(e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
-            messages.error(e.getMessage());
+            Messages.createError(e.getMessage());
         }
         return null;
     }
@@ -113,14 +109,14 @@ public class ServiceInstanceBean extends BaseBean<ServiceInstance> {
         log.info("activateService serviceInstanceId:" + entity.getId());
         try {
             serviceInstanceService.serviceActivation(entity, null, null, getCurrentUser());
-            messages.info(new BundleKey("messages", "activation.activateSuccessful"));
+            Messages.createInfo( "activation.activateSuccessful");
             return "/pages/resource/serviceInstances/serviceInstanceDetail.xhtml?objectId=" + entity.getId() + "&edit=false";
         } catch (BusinessException e) {
             e.printStackTrace();
-            messages.error(e.getMessage());
+            Messages.createError(e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
-            messages.error(e.getMessage());
+            Messages.createError(e.getMessage());
         }
         return null;
     }
@@ -130,12 +126,12 @@ public class ServiceInstanceBean extends BaseBean<ServiceInstance> {
         try {
             // serviceInstanceService.serviceTermination(serviceInstance, new
             // Date(), currentUser);
-            messages.info(new BundleKey("messages", "resiliation.resiliateSuccessful"));
+            Messages.createInfo( "resiliation.resiliateSuccessful");
             return "/pages/resource/serviceInstances/serviceInstanceDetail.xhtml?objectId=" + entity.getId() + "&edit=false";
 
         } catch (Exception e) {
             e.printStackTrace();
-            messages.error(e.getMessage());
+            Messages.createError(e.getMessage());
         }
         return null;
     }
@@ -145,11 +141,11 @@ public class ServiceInstanceBean extends BaseBean<ServiceInstance> {
         try {
             // serviceInstanceService.serviceCancellation(serviceInstance, new
             // Date(), currentUser);
-            messages.info(new BundleKey("messages", "cancellation.cancelSuccessful"));
+            Messages.createInfo( "cancellation.cancelSuccessful");
             return "/pages/resource/serviceInstances/serviceInstanceDetail.xhtml?objectId=" + entity.getId() + "&edit=false";
         } catch (Exception e) {
             e.printStackTrace();
-            messages.error(e.getMessage());
+            Messages.createError(e.getMessage());
         }
         return null;
     }
@@ -159,11 +155,11 @@ public class ServiceInstanceBean extends BaseBean<ServiceInstance> {
         try {
             entity.setStatus(InstanceStatusEnum.CANCELED);
             serviceInstanceService.update(entity, getCurrentUser());
-            messages.info(new BundleKey("messages", "resiliation.resiliateSuccessful"));
+            Messages.createInfo( "resiliation.resiliateSuccessful");
             return "/pages/resource/serviceInstances/serviceInstanceDetail.xhtml?objectId=" + entity.getId() + "&edit=false";
         } catch (Exception e) {
             e.printStackTrace();
-            messages.error(e.getMessage());
+            Messages.createError(e.getMessage());
         }
         return null;
     }
@@ -172,14 +168,14 @@ public class ServiceInstanceBean extends BaseBean<ServiceInstance> {
         log.info("closeAccount serviceInstanceId:" + entity.getId());
         try {
             serviceInstanceService.serviceSuspension(entity, new Date(), getCurrentUser());
-            messages.info(new BundleKey("messages", "suspension.suspendSuccessful"));
+            Messages.createInfo( "suspension.suspendSuccessful");
             return "/pages/resource/serviceInstances/serviceInstanceDetail.xhtml?objectId=" + entity.getId() + "&edit=false";
         } catch (BusinessException e) {
             e.printStackTrace();
-            messages.error(e.getMessage());
+            Messages.createError(e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
-            messages.error(e.getMessage());
+            Messages.createError(e.getMessage());
         }
         return null;
     }

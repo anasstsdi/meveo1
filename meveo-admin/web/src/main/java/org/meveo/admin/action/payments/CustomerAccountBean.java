@@ -24,7 +24,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.lang.RandomStringUtils;
-import org.jboss.seam.international.status.builder.BundleKey;
 import org.jboss.solder.servlet.http.RequestParam;
 import org.meveo.admin.action.BaseBean;
 import org.meveo.admin.exception.BusinessException;
@@ -36,6 +35,7 @@ import org.meveo.service.base.PersistenceService;
 import org.meveo.service.base.local.IPersistenceService;
 import org.meveo.service.crm.impl.CustomerService;
 import org.meveo.service.payments.impl.CustomerAccountService;
+import org.omnifaces.util.Messages;
 
 /**
  * Standard backing bean for {@link CustomerAccount} (extends {@link BaseBean}
@@ -142,11 +142,11 @@ public class CustomerAccountBean extends BaseBean<CustomerAccount> {
 					+ conversation.getId()
 					+ "&faces-redirect=true&includeViewParams=true";
 		} catch (DuplicateDefaultAccountException e1) {
-			messages.error(new BundleKey("messages",
-					"error.account.duplicateDefautlLevel"));
+			Messages.createError(
+					"error.account.duplicateDefautlLevel");
 		} catch (Exception e) {
 			e.printStackTrace();
-			messages.error(new BundleKey("messages", "javax.el.ELException"));
+			Messages.createError( "javax.el.ELException");
 
 		}
 		return null;
@@ -164,15 +164,15 @@ public class CustomerAccountBean extends BaseBean<CustomerAccount> {
 			customerAccountService.transferAccount(entity,
 					getCustomerAccountTransfer(), getAmountToTransfer(),
 					getCurrentUser());
-			messages.info(new BundleKey("messages",
-					"customerAccount.transfertOK"));
+			Messages.createInfo(
+					"customerAccount.transfertOK");
 			setCustomerAccountTransfer(null);
 			setAmountToTransfer(BigDecimal.ZERO);
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			messages.error(new BundleKey("messages",
-					"customerAccount.transfertKO"));
+			Messages.createError(
+					"customerAccount.transfertKO");
 		}
 
 		return "/pages/payments/customerAccounts/customerAccountDetail.xhtml?objectId="
@@ -243,14 +243,14 @@ public class CustomerAccountBean extends BaseBean<CustomerAccount> {
 		try {
 			customerAccountService.closeCustomerAccount(entity,
 					getCurrentUser());
-			messages.info(new BundleKey("messages",
-					"customerAccount.closeSuccessful"));
+			Messages.createInfo(
+					"customerAccount.closeSuccessful");
 		} catch (BusinessException e) {
 			e.printStackTrace();
-			messages.error(e.getMessage());
+			Messages.createError(e.getMessage());
 		} catch (Exception e) {
 			e.printStackTrace();
-			messages.error(e.getMessage());
+			Messages.createError(e.getMessage());
 		}
 		return null;
 	}

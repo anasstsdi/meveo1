@@ -89,11 +89,12 @@
 			<artifactId>javaee-api</artifactId>
 			<version>6.0</version>
 		</dependency>
+	<dependency>
+		<groupId>joda-time</groupId>
+		<artifactId>joda-time</artifactId>
+		<version>2.3</version>
+	</dependency>
 
-		<dependency>
-			<groupId>joda-time</groupId>
-			<artifactId>joda-time</artifactId>
-		</dependency>
 		
 		<!-- TESTING dependencies -->
 		<dependency>

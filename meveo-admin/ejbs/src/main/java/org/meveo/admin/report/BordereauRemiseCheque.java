@@ -46,8 +46,8 @@ import net.sf.jasperreports.engine.data.JRCsvDataSource;
 import net.sf.jasperreports.engine.design.JasperDesign;
 import net.sf.jasperreports.engine.util.JRLoader;
 
-import org.jboss.seam.international.status.Messages;
-import org.jboss.seam.international.status.builder.BundleKey;
+//import org.jboss.seam.international.status.Messages;
+//import org.jboss.seam.international.status.builder.BundleKey;
 import org.meveo.admin.action.admin.CurrentProvider;
 import org.meveo.commons.utils.ParamBean;
 import org.meveo.model.crm.Provider;
@@ -65,8 +65,8 @@ public class BordereauRemiseCheque {
 	protected Logger log;
 
 
-    @Inject
-    private Messages messages;
+    //@Inject
+    //private Messages messages;
 
     private ParamBean paramBean=ParamBean.getInstance("meveo-admin.properties");
 	
@@ -109,7 +109,7 @@ public class BordereauRemiseCheque {
 				jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, dataSource);
 				JasperExportManager.exportReportToPdfFile(jasperPrint,
 						generateFileName(providerCode));
-				messages.info(new BundleKey("messages", "report.reportCreted"));
+				//messages.info(new BundleKey("messages", "report.reportCreted"));
 				OutputStream os;
 				try {
 					os = response.getOutputStream();
@@ -123,7 +123,7 @@ public class BordereauRemiseCheque {
 				}
 
 			} else {
-			    messages.info(new BundleKey("messages", "bordereauRemiseCheque.noData"));
+			    //messages.info(new BundleKey("messages", "bordereauRemiseCheque.noData"));
 			}
 		} catch (JRException e) {
 			// TODO Auto-generated catch block

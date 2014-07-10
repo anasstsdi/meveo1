@@ -1,30 +1,30 @@
 package org.meveo.admin.web;
 
-import java.util.List;
-import java.util.Set;
+//import java.util.List;
+//import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.inject.Inject;
-import javax.persistence.Entity;
-import javax.persistence.MappedSuperclass;
+//import javax.persistence.Entity;
+//import javax.persistence.MappedSuperclass;
 import javax.servlet.ServletContext;
 
-import org.hibernate.cfg.Configuration;
+/*import org.hibernate.cfg.Configuration;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.integrator.spi.Integrator;
 import org.hibernate.metamodel.source.MetadataImplementor;
 import org.hibernate.service.spi.SessionFactoryServiceRegistry;
-import org.reflections.Reflections;
+import org.reflections.Reflections;*/
 
-@Singleton
-@Startup
-public class  ModuleLoader  implements Integrator {
+//@Singleton
+//@Startup
+public class  ModuleLoader  {
 
 	
-	@Inject 
-	ServletContext servletContext;
+	//@Inject 
+	//ServletContext servletContext;
 	
 	@PostConstruct
 	public void init(){
@@ -34,7 +34,7 @@ public class  ModuleLoader  implements Integrator {
 	public void addItem(String menuName,String itemName,String action){
 		System.out.println("addItem "+menuName+","+itemName+","+ action);
 	}
-
+/*
 	@Override
 	public void disintegrate(SessionFactoryImplementor arg0,
 			SessionFactoryServiceRegistry arg1) {
@@ -95,4 +95,5 @@ public class  ModuleLoader  implements Integrator {
 		// TODO Auto-generated method stub
 		
 	}
+	*/
 }

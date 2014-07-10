@@ -5,7 +5,6 @@ import javax.enterprise.context.NonexistentConversationException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.maven.wagon.authorization.AuthorizationException;
 import org.jboss.solder.exception.control.CaughtException;
 import org.jboss.solder.exception.control.Handles;
 import org.jboss.solder.exception.control.HandlesExceptions;
@@ -17,7 +16,7 @@ public class ExceptionHandler {
 
 	private Logger log = LoggerFactory.getLogger(ExceptionHandler.class);
 
-	public void handleAuthorizationException(@Handles CaughtException<AuthorizationException> evt, final HttpServletRequest request, final HttpServletResponse response) {
+	/*public void handleAuthorizationException(@Handles CaughtException<AccessDeniedException> evt, final HttpServletRequest request, final HttpServletResponse response) {
 
 		evt.handled();
 
@@ -27,7 +26,7 @@ public class ExceptionHandler {
 		} catch (Exception e) {
 			log.error(e.getMessage());
 		}
-	}
+	}*/
 
 	public void handleInvalidConversationException(
 			@Handles CaughtException<NonexistentConversationException> evt, final HttpServletRequest request, final HttpServletResponse response) {

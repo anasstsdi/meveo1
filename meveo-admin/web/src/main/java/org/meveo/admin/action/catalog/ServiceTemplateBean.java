@@ -23,7 +23,6 @@ import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.jboss.seam.international.status.builder.BundleKey;
 import org.meveo.admin.action.BaseBean;
 import org.meveo.model.catalog.OneShotChargeTemplate;
 import org.meveo.model.catalog.RecurringChargeTemplate;
@@ -35,6 +34,7 @@ import org.meveo.service.catalog.impl.OneShotChargeTemplateService;
 import org.meveo.service.catalog.impl.RecurringChargeTemplateService;
 import org.meveo.service.catalog.impl.ServiceTemplateService;
 import org.meveo.service.catalog.impl.ServiceUsageChargeTemplateService;
+import org.omnifaces.util.Messages;
 import org.primefaces.component.datatable.DataTable;
 import org.primefaces.model.DualListModel;
 
@@ -193,17 +193,17 @@ public class ServiceTemplateBean extends BaseBean<ServiceTemplate> {
 				}
 				if (serviceUsageChargeTemplate.getId() != null) {
 					serviceUsageChargeTemplateService.update(serviceUsageChargeTemplate);
-					messages.info(new BundleKey("messages", "update.successful"));
+					Messages.createInfo( "update.successful");
 				} else {
 					serviceUsageChargeTemplate.setServiceTemplate(entity);
 					serviceUsageChargeTemplateService.create(serviceUsageChargeTemplate);
 					entity.getServiceUsageCharges().add(serviceUsageChargeTemplate);
-					messages.info(new BundleKey("messages", "save.successful"));
+					Messages.createInfo( "save.successful");
 				}
 			}
 		} catch (Exception e) {
 			log.error("exception when applying one serviceUsageChargeTemplate !", e);
-			messages.error(new BundleKey("messages", "serviceTemplate.uniqueUsageCounterFlied"));
+			Messages.createError( "serviceTemplate.uniqueUsageCounterFlied");
 		}
 		serviceUsageChargeTemplate = new ServiceUsageChargeTemplate();
 	}

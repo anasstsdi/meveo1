@@ -26,7 +26,6 @@ import javax.enterprise.context.ConversationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.jboss.seam.international.status.builder.BundleKey;
 import org.meveo.admin.action.BaseBean;
 import org.meveo.admin.exception.BusinessException;
 import org.meveo.admin.util.pagination.EntityListDataModelPF;
@@ -51,6 +50,7 @@ import org.meveo.service.billing.impl.ServiceInstanceService;
 import org.meveo.service.billing.impl.SubscriptionService;
 import org.meveo.service.billing.impl.UsageChargeInstanceService;
 import org.meveo.service.billing.impl.UserAccountService;
+import org.omnifaces.util.Messages;
 
 @Named
 @ConversationScoped
@@ -183,8 +183,8 @@ public class SubscriptionBean extends BaseBean<Subscription> {
 			// UserAccount userAccount = entity.getUserAccount();
 			if (subscriptionService.isDuplicationExist(entity)) {
 				entity.setDefaultLevel(false);
-				messages.error(new BundleKey("messages",
-						"error.account.duplicateDefautlLevel"));
+				Messages.createError(
+						"error.account.duplicateDefautlLevel");
 				return null;
 			}
 
@@ -201,10 +201,10 @@ public class SubscriptionBean extends BaseBean<Subscription> {
 		if (entity.isTransient()) {
 			subscriptionService.create(entity);
 			serviceTemplates.addAll(entity.getOffer().getServiceTemplates());
-			messages.info(new BundleKey("messages", "save.successful"));
+			Messages.createInfo( "save.successful");
 		} else {
 			subscriptionService.update(entity);
-			messages.info(new BundleKey("messages", "update.successful"));
+			Messages.createInfo( "update.successful");
 		}
 
 		return back();
@@ -261,13 +261,13 @@ public class SubscriptionBean extends BaseBean<Subscription> {
 				oneShotChargeInstance.setProvider(oneShotChargeInstance
 						.getChargeTemplate().getProvider());
 			}
-			messages.info(new BundleKey("messages", "save.successful"));
+			Messages.createInfo( "save.successful");
 
 			clearObjectId();
 		} catch (Exception e) {
 			log.error("exception when applying one shot charge!",
 					e.getMessage());
-			messages.error(e.getMessage());
+			Messages.createError(e.getMessage());
 		}
 	}
 
@@ -317,15 +317,15 @@ public class SubscriptionBean extends BaseBean<Subscription> {
 					recurringChargeInstance.setProvider(recurringChargeInstance
 							.getChargeTemplate().getProvider());
 				}
-				messages.info(new BundleKey("messages", "save.successful"));
+				Messages.createInfo( "save.successful");
 				recurringChargeInstance = new RecurringChargeInstance();
 				clearObjectId();
 			}
 		} catch (BusinessException e1) {
-			messages.error(e1.getMessage());
+			Messages.createError(e1.getMessage());
 		} catch (Exception e) {
 			log.error("exception when applying recurring charge!", e);
-			messages.error(e.getMessage());
+			Messages.createError(e.getMessage());
 		}
 	}
 
@@ -471,17 +471,17 @@ public class SubscriptionBean extends BaseBean<Subscription> {
 				serviceTemplates.remove(serviceTemplate);
 			}
 			if (!isChecked) {
-				messages.warn(new BundleKey("messages",
-						"instanciation.selectService"));
+				Messages.createWarn(
+						"instanciation.selectService");
 			} else {
-				messages.info(new BundleKey("messages",
-						"instanciation.instanciateSuccessful"));
+				Messages.createInfo(
+						"instanciation.instanciateSuccessful");
 			}
 		} catch (BusinessException e1) {
-			messages.error(e1.getMessage());
+			Messages.createError(e1.getMessage());
 		} catch (Exception e) {
 			log.error("error in SubscriptionBean.instanciateManyServices", e);
-			messages.error(e.getMessage());
+			Messages.createError(e.getMessage());
 		}
 	}
 
@@ -497,13 +497,13 @@ public class SubscriptionBean extends BaseBean<Subscription> {
 								.size());
 
 				if (selectedServiceInstance.getStatus() == InstanceStatusEnum.TERMINATED) {
-					messages.info(new BundleKey("messages",
-							"error.activation.terminatedService"));
+					Messages.createInfo(
+							"error.activation.terminatedService");
 					return;
 				}
 				if (selectedServiceInstance.getStatus() == InstanceStatusEnum.ACTIVE) {
-					messages.info(new BundleKey("messages",
-							"error.activation.activeService"));
+					Messages.createInfo(
+							"error.activation.activeService");
 					return;
 				}
 
@@ -513,14 +513,14 @@ public class SubscriptionBean extends BaseBean<Subscription> {
 				log.error("activateService id=#0 is NOT a serviceInstance");
 			}
 			selectedServiceInstance = null;
-			messages.info(new BundleKey("messages",
-					"activation.activateSuccessful"));
+			Messages.createInfo(
+					"activation.activateSuccessful");
 
 		} catch (BusinessException e1) {
-			messages.error(e1.getMessage());
+			Messages.createError(e1.getMessage());
 		} catch (Exception e) {
 			log.error("unexpected exception when activating service!", e);
-			messages.error(e.getMessage());
+			Messages.createError(e.getMessage());
 		}
 	}
 
@@ -549,14 +549,14 @@ public class SubscriptionBean extends BaseBean<Subscription> {
 			}
 
 			selectedServiceInstance = null;
-			messages.info(new BundleKey("messages",
-					"resiliation.resiliateSuccessful"));
+			Messages.createInfo(
+					"resiliation.resiliateSuccessful");
 
 		} catch (BusinessException e1) {
-			messages.error(e1.getMessage());
+			Messages.createError(e1.getMessage());
 		} catch (Exception e) {
 			log.error("unexpected exception when terminating service!", e);
-			messages.error(e.getMessage());
+			Messages.createError(e.getMessage());
 		}
 	}
 
@@ -564,20 +564,20 @@ public class SubscriptionBean extends BaseBean<Subscription> {
 		try {
 
 			if (selectedServiceInstance.getStatus() != InstanceStatusEnum.ACTIVE) {
-				messages.error(new BundleKey("messages",
-						"error.termination.inactiveService"));
+				Messages.createError(
+						"error.termination.inactiveService");
 				return;
 			}
 			// serviceInstanceService.cancelService(selectedServiceInstance,
 			// getCurrentUser());
 
 			selectedServiceInstance = null;
-			messages.info(new BundleKey("messages",
-					"cancellation.cancelSuccessful"));
+			Messages.createInfo(
+					"cancellation.cancelSuccessful");
 
 		} catch (Exception e) {
 			log.error("unexpected exception when canceling service!", e);
-			messages.error(e.getMessage());
+			Messages.createError(e.getMessage());
 		}
 	}
 
@@ -587,14 +587,14 @@ public class SubscriptionBean extends BaseBean<Subscription> {
 					new Date(), getCurrentUser());
 
 			selectedServiceInstance = null;
-			messages.info(new BundleKey("messages",
-					"suspension.suspendSuccessful"));
+			Messages.createInfo(
+					"suspension.suspendSuccessful");
 
 		} catch (BusinessException e1) {
-			messages.error(e1.getMessage());
+			Messages.createError(e1.getMessage());
 		} catch (Exception e) {
 			log.error("unexpected exception when suspending service!", e);
-			messages.error(e.getMessage());
+			Messages.createError(e.getMessage());
 		}
 	}
 

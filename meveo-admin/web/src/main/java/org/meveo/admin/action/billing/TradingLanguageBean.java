@@ -22,8 +22,6 @@ import javax.enterprise.context.ConversationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.jboss.seam.international.status.Messages;
-import org.jboss.seam.international.status.builder.BundleKey;
 import org.meveo.admin.action.BaseBean;
 import org.meveo.admin.exception.BusinessEntityException;
 import org.meveo.model.billing.Language;
@@ -33,6 +31,7 @@ import org.meveo.service.base.PersistenceService;
 import org.meveo.service.base.local.IPersistenceService;
 import org.meveo.service.billing.impl.TradingLanguageService;
 import org.meveo.service.crm.impl.ProviderService;
+import org.omnifaces.util.Messages;
 import org.primefaces.event.SelectEvent;
 
 /**
@@ -60,9 +59,6 @@ public class TradingLanguageBean extends BaseBean<TradingLanguage> {
 
 	@Inject
 	private ProviderService providerService;
-
-	@Inject
-	private Messages messages;
 
 	/**
 	 * Constructor. Invokes super constructor and provides class type of this
@@ -102,11 +98,11 @@ public class TradingLanguageBean extends BaseBean<TradingLanguage> {
 			}
 			back = super.saveOrUpdate(killConversation);
 		} catch (BusinessEntityException e) {
-			messages.error(new BundleKey("messages", "tradingLanguage.uniqueField"));
+			Messages.createError( "tradingLanguage.uniqueField");
 		} catch (Exception e) {
 			e.printStackTrace();
 
-			messages.error(new BundleKey("messages", "tradingLanguage.uniqueField"));
+			Messages.createError( "tradingLanguage.uniqueField");
 		}
 
 		return back;

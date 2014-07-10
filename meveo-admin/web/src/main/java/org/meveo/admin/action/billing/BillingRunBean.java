@@ -27,8 +27,6 @@ import javax.faces.model.ListDataModel;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.jboss.seam.international.status.Messages;
-import org.jboss.seam.international.status.builder.BundleKey;
 import org.jboss.solder.servlet.http.RequestParam;
 import org.meveo.admin.action.BaseBean;
 import org.meveo.admin.exception.BusinessException;
@@ -43,6 +41,7 @@ import org.meveo.model.billing.PreInvoicingReportsDTO;
 import org.meveo.service.base.PersistenceService;
 import org.meveo.service.base.local.IPersistenceService;
 import org.meveo.service.billing.impl.BillingRunService;
+import org.omnifaces.util.Messages;
 
 @Named
 @ConversationScoped
@@ -68,8 +67,6 @@ public class BillingRunBean extends BaseBean<BillingRun> {
 
 	private ListItemsSelector<Invoice> itemSelector;
 
-	@Inject
-	private Messages messages;
 
 	private DataModel<Invoice> invoicesModel;
 
@@ -145,8 +142,8 @@ public class BillingRunBean extends BaseBean<BillingRun> {
 			if (billingRunService
 					.isActiveBillingRunsExist(getCurrentProvider())
 					&& !isAllowed) {
-				messages.error(new BundleKey("messages",
-						"error.invoicing.alreadyLunched"));
+				Messages.createError(
+						"error.invoicing.alreadyLaunched");
 				return null;
 			}
 
@@ -159,7 +156,7 @@ public class BillingRunBean extends BaseBean<BillingRun> {
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			messages.error(e.getMessage());
+			Messages.createError(e.getMessage());
 		}
 		return null;
 	}
@@ -173,7 +170,7 @@ public class BillingRunBean extends BaseBean<BillingRun> {
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			messages.error(e.getMessage());
+			Messages.createError(e.getMessage());
 		}
 		return null;
 	}
@@ -186,7 +183,7 @@ public class BillingRunBean extends BaseBean<BillingRun> {
 			return "/pages/billing/invoicing/billingRuns.xhtml?faces-redirect=true&edit=false";
 		} catch (Exception e) {
 			e.printStackTrace();
-			messages.error(e.getMessage());
+			Messages.createError(e.getMessage());
 		}
 		return null;
 	}
@@ -199,7 +196,7 @@ public class BillingRunBean extends BaseBean<BillingRun> {
 			return "/pages/billing/invoicing/billingRuns.xhtml?faces-redirect=true&edit=false";
 		} catch (Exception e) {
 			e.printStackTrace();
-			messages.error(e.getMessage());
+			Messages.createError(e.getMessage());
 		}
 		return null;
 	}
@@ -213,7 +210,7 @@ public class BillingRunBean extends BaseBean<BillingRun> {
 			return "/pages/billing/invoicing/billingRuns.xhtml?faces-redirect=true&edit=false";
 		} catch (Exception e) {
 			e.printStackTrace();
-			messages.error(e.getMessage());
+			Messages.createError(e.getMessage());
 		}
 		return null;
 	}
@@ -225,7 +222,7 @@ public class BillingRunBean extends BaseBean<BillingRun> {
 			return "/pages/billing/invoicing/billingRuns.xhtml?edit=false";
 		} catch (Exception e) {
 			e.printStackTrace();
-			messages.error(e.getMessage());
+			Messages.createError(e.getMessage());
 		}
 		return null;
 	}
@@ -237,7 +234,7 @@ public class BillingRunBean extends BaseBean<BillingRun> {
 			return "/pages/billing/invoicing/billingRuns.xhtml?edit=false";
 		} catch (Exception e) {
 			e.printStackTrace();
-			messages.error(e.getMessage());
+			Messages.createError(e.getMessage());
 		}
 		return null;
 	}
@@ -249,7 +246,7 @@ public class BillingRunBean extends BaseBean<BillingRun> {
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			messages.error(e.getMessage());
+			Messages.createError(e.getMessage());
 		}
 		return null;
 	}
@@ -261,7 +258,7 @@ public class BillingRunBean extends BaseBean<BillingRun> {
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			messages.error(e.getMessage());
+			Messages.createError(e.getMessage());
 		}
 		return null;
 	}
@@ -273,13 +270,13 @@ public class BillingRunBean extends BaseBean<BillingRun> {
 			for (Invoice invoice : itemSelector.getList()) {
 				billingRunService.deleteInvoice(invoice);
 			}
-			messages.info(new BundleKey("messages",
-					"info.invoicing.billingAccountExcluded"));
+			Messages.createInfo(
+					"info.invoicing.billingAccountExcluded");
 
 		} catch (Exception e) {
 			log.error("unexpected exception when excluding BillingAccounts!", e);
-			messages.error(e.getMessage());
-			messages.error(e.getMessage());
+			Messages.createError(e.getMessage());
+			Messages.createError(e.getMessage());
 		}
 
 		return "/pages/billing/invoicing/postInvoicingReports.xhtml?edit=false&postReport=true&objectId="

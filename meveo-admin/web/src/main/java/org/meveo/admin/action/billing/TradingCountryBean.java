@@ -22,7 +22,6 @@ import javax.enterprise.context.ConversationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.jboss.seam.international.status.builder.BundleKey;
 import org.meveo.admin.action.BaseBean;
 import org.meveo.admin.exception.BusinessEntityException;
 import org.meveo.model.billing.Country;
@@ -32,6 +31,7 @@ import org.meveo.service.base.PersistenceService;
 import org.meveo.service.base.local.IPersistenceService;
 import org.meveo.service.billing.impl.TradingCountryService;
 import org.meveo.service.crm.impl.ProviderService;
+import org.omnifaces.util.Messages;
 import org.primefaces.event.SelectEvent;
 
 /**
@@ -128,11 +128,11 @@ public class TradingCountryBean extends BaseBean<TradingCountry> {
 	            back = super.saveOrUpdate(killConversation);
 
 	        } catch (BusinessEntityException e) {
-	            messages.error(new BundleKey("messages", "tradingCountry.uniqueField"));
+	            Messages.createError( "tradingCountry.uniqueField");
 	        }catch (Exception e) {
 				e.printStackTrace();
 
-	            messages.error(new BundleKey("messages", "tradingCountry.uniqueField"));
+	            Messages.createError( "tradingCountry.uniqueField");
 			}
 	        return back;
 	 }

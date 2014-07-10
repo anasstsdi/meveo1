@@ -26,9 +26,7 @@ import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.inject.Named;
-import org.jboss.seam.international.status.Messages;
-import org.jboss.seam.international.status.builder.BundleKey;
-import org.jboss.solder.logging.Logger;
+
 import org.jboss.solder.servlet.http.RequestParam;
 import org.meveo.admin.action.BaseBean;
 import org.meveo.admin.util.pagination.PaginationConfiguration;
@@ -36,8 +34,11 @@ import org.meveo.model.jobs.JobExecutionResult;
 import org.meveo.model.jobs.JobExecutionResultImpl;
 import org.meveo.model.jobs.TimerEntity;
 import org.meveo.service.base.local.IPersistenceService;
+import org.omnifaces.util.Messages;
 import org.primefaces.model.LazyDataModel;
 import org.primefaces.model.SortOrder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @ConversationScoped
 @Named
@@ -45,18 +46,14 @@ public class TimerBean extends BaseBean<JobExecutionResultImpl> {
 
 	private static final long serialVersionUID = 5578930292531038376L;
 
+	private static final Logger log = LoggerFactory.getLogger(TimerBean.class);
+	
 	@Inject
 	@RequestParam
 	private Instance<Long> timerId;
 
 	@Inject
 	TimerEntityService timerEntityService;
-
-	@Inject
-	private Logger log;
-
-	@Inject
-	private Messages messages;
 
 	@Inject
 	private Conversation conversation;
@@ -90,12 +87,12 @@ public class TimerBean extends BaseBean<JobExecutionResultImpl> {
 	public String create() {// FIXME: throws BusinessException {
 		log.debug("createTimer on job : " + timerEntity.getJobName());
 		if (timerEntity.getJobName() == null) {
-			messages.error("Veuillez selectionner un job");
+			Messages.createError("Veuillez selectionner un job");
 		} else if (!getJobNames().contains(timerEntity.getJobName())) {
-			messages.error("Veuillez selectionner un job");
+			Messages.createError("Veuillez selectionner un job");
 		} else {
 			timerEntityService.create(timerEntity);
-			messages.info(new BundleKey("messages", "save.successful"));
+			Messages.createInfo( "save.successful");
 		}
 		try {
 			conversation.end();
@@ -109,9 +106,9 @@ public class TimerBean extends BaseBean<JobExecutionResultImpl> {
 
 		try {
 			timerEntityService.update(timerEntity);
-			messages.info(new BundleKey("messages", "update.successful"));
+			Messages.createInfo( "update.successful");
 		} catch (Exception e) {
-			messages.error(new BundleKey("messages", "error.user.usernameAlreadyExists"));
+			Messages.createError( "error.user.usernameAlreadyExists");
 			return null;
 		}
 
@@ -121,7 +118,7 @@ public class TimerBean extends BaseBean<JobExecutionResultImpl> {
 	public String deleteTimer() {// FIXME: throws BusinessException {
 
 		timerEntityService.remove(timerEntity);
-		messages.info(new BundleKey("messages", "delete.successful"));
+		Messages.createInfo( "delete.successful");
 		try {
 			conversation.end();
 		} catch (Exception e) {
@@ -134,20 +131,20 @@ public class TimerBean extends BaseBean<JobExecutionResultImpl> {
 	public String executeTimer() {
 		try {
 			JobExecutionResult result = timerEntityService.manualExecute(timerEntity);
-			messages.info(new BundleKey("messages", "info.entity.executed"),
+			Messages.createInfo( "info.entity.executed",
 					timerEntity.getJobName());
 			if (result.getErrors() != null) {
 				for (String error : result.getErrors()) {
-					messages.error("error:" + error);
+					Messages.createError("error:" + error);
 				}
 			}
 			if (result.getWarnings() != null) {
 				for (String warning : result.getWarnings()) {
-					messages.warn("warn:" + warning);
+					Messages.createWarn("warn:" + warning);
 				}
 			}
 		} catch (Exception e) {
-			messages.error(new BundleKey("messages", "error.execution"));
+			Messages.createError( "error.execution");
 			return null;
 		}
 		return "jobTimers";

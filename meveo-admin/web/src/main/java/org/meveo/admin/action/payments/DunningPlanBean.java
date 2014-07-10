@@ -20,7 +20,6 @@ import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.jboss.seam.international.status.builder.BundleKey;
 import org.meveo.admin.action.BaseBean;
 import org.meveo.admin.exception.BusinessEntityException;
 import org.meveo.model.payments.ActionPlanItem;
@@ -31,6 +30,7 @@ import org.meveo.service.base.local.IPersistenceService;
 import org.meveo.service.payments.impl.ActionPlanItemService;
 import org.meveo.service.payments.impl.DunningPlanService;
 import org.meveo.service.payments.impl.DunningPlanTransitionService;
+import org.omnifaces.util.Messages;
 
 /**
  * Standard backing bean for {@link DunningPlan} (extends {@link BaseBean} that
@@ -38,7 +38,6 @@ import org.meveo.service.payments.impl.DunningPlanTransitionService;
  * datatable, their create, edit, view, delete operations). It works with Manaty
  * custom JSF components.
  * 
- * @author Tyshan(tyshan@manaty.net)
  */
 @Named
 @ConversationScoped
@@ -88,7 +87,7 @@ public class DunningPlanBean extends BaseBean<DunningPlan> {
 		 
 		if (dunningPlanTransition.getId() != null) {
 			dunningPlanTransitionService.update(dunningPlanTransition);
-			messages.info(new BundleKey("messages", "update.successful"));
+			Messages.createInfo( "update.successful");
 		} else { 
 			try{
 		    	 for (DunningPlanTransition transition : entity.getTransitions()) {
@@ -100,13 +99,13 @@ public class DunningPlanBean extends BaseBean<DunningPlan> {
 		    	 dunningPlanTransition.setDunningPlan(entity);
 					dunningPlanTransitionService.create(dunningPlanTransition);
 					entity.getTransitions().add(dunningPlanTransition);
-					messages.info(new BundleKey("messages", "save.successful")); 
+					Messages.createInfo( "save.successful"); 
 		    	} catch (BusinessEntityException e) {
-		            messages.error(new BundleKey("messages", "dunningPlanTransition.uniqueField"));
+		            Messages.createError( "dunningPlanTransition.uniqueField");
 		        }catch (Exception e) {
 					e.printStackTrace();
 
-		            messages.error(new BundleKey("messages", "dunningPlanTransition.uniqueField"));
+		            Messages.createError( "dunningPlanTransition.uniqueField");
 				} 
 		}
 
@@ -118,12 +117,12 @@ public class DunningPlanBean extends BaseBean<DunningPlan> {
 		 
 		if (actionPlanItem.getId() != null) {
 			actionPlanItemService.update(actionPlanItem);
-			messages.info(new BundleKey("messages", "update.successful"));
+			Messages.createInfo( "update.successful");
 		} else { 
 			actionPlanItem.setDunningPlan(entity);
 			actionPlanItemService.create(actionPlanItem);
 			entity.getActions().add(actionPlanItem);
-			messages.info(new BundleKey("messages", "save.successful"));
+			Messages.createInfo( "save.successful");
 		
                     }
 		actionPlanItem = new ActionPlanItem();
@@ -133,14 +132,14 @@ public class DunningPlanBean extends BaseBean<DunningPlan> {
 	public void deleteDunningPlanTransition(DunningPlanTransition dunningPlanTransition) {  
 		dunningPlanTransitionService.remove(dunningPlanTransition); 
 		entity.getTransitions().remove(dunningPlanTransition);
-		messages.info(new BundleKey("messages", "delete.successful")); 
+		Messages.createInfo( "delete.successful"); 
 	}
 	
 	
 	public void deleteActionPlanItem(ActionPlanItem actionPlanItem) {  
 		actionPlanItemService.remove(actionPlanItem); 
 		entity.getActions().remove(actionPlanItem);
-		messages.info(new BundleKey("messages", "delete.successful")); 
+		Messages.createInfo( "delete.successful"); 
 	}
 	
 	

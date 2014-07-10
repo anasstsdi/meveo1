@@ -48,23 +48,6 @@
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-				<groupId>org.jboss.seam</groupId>
-				<artifactId>seam-bom</artifactId>
-				<version>3.1.0.Final</version>
-				<scope>import</scope>
-				<type>pom</type>
-			</dependency>
-			<dependency>
-				<groupId>org.jboss.seam.faces</groupId>
-				<artifactId>seam-faces</artifactId>
-				<version>3.1.0.Final</version>
-			</dependency>
-			<dependency>
-				<groupId>org.jboss.seam.faces</groupId>
-				<artifactId>seam-faces-api</artifactId>
-				<version>3.1.0.Final</version>
-			</dependency>
-			<dependency>
 				<groupId>org.manaty</groupId>
 				<artifactId>manaty-commons</artifactId>
 				<version>${project.version}</version>

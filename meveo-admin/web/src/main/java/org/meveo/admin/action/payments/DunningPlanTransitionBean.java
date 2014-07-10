@@ -20,7 +20,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.persistence.EntityExistsException;
 
-import org.jboss.seam.international.status.builder.BundleKey;
 import org.meveo.admin.action.BaseBean;
 import org.meveo.model.payments.DunningPlan;
 import org.meveo.model.payments.DunningPlanTransition;
@@ -28,6 +27,7 @@ import org.meveo.service.base.PersistenceService;
 import org.meveo.service.base.local.IPersistenceService;
 import org.meveo.service.payments.impl.DunningPlanService;
 import org.meveo.service.payments.impl.DunningPlanTransitionService;
+import org.omnifaces.util.Messages;
 
 /**
  * Standard backing bean for {@link DunningPlanTransition} (extends {@link BaseBean} that provides almost all common methods to handle entities filtering/sorting in datatable,
@@ -105,14 +105,14 @@ public class DunningPlanTransitionBean extends BaseBean<DunningPlanTransition> {
             entity.getDunningPlan().getTransitions().remove(entity);
             getPersistenceService().remove(id);
             entity = null;
-            messages.info(new BundleKey("messages", "delete.successful"));
+            Messages.createInfo( "delete.successful");
         } catch (Throwable t) {
             if (t.getCause() instanceof EntityExistsException) {
                 log.info("delete was unsuccessful because entity is used in the system", t);
-                messages.error(new BundleKey("messages", "error.delete.entityUsed"));
+                Messages.createError( "error.delete.entityUsed");
             } else {
                 log.info("unexpected exception when deleting!", t);
-                messages.error(new BundleKey("messages", "error.delete.unexpected"));
+                Messages.createError( "error.delete.unexpected");
             }
         }
     }

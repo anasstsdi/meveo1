@@ -21,14 +21,13 @@ import javax.enterprise.inject.Model;
 import javax.inject.Inject;
 
 import org.apache.commons.lang.StringUtils;
-import org.jboss.seam.international.status.Messages;
-import org.jboss.seam.international.status.builder.BundleKey;
 import org.meveo.admin.exception.BusinessException;
 import org.meveo.admin.exception.LoginException;
 import org.meveo.admin.util.security.Sha1Encrypt;
 import org.meveo.model.admin.User;
 import org.meveo.security.MeveoUser;
 import org.meveo.service.admin.impl.UserService;
+import org.omnifaces.util.Messages;
 import org.picketlink.Identity;
 import org.slf4j.Logger;
 
@@ -44,9 +43,6 @@ public class ChangePasswordAction implements Serializable {
 
 	@Inject
 	private UserService userService;
-
-	@Inject
-	protected Messages messages;
 
 	private String username;
 
@@ -67,7 +63,7 @@ public class ChangePasswordAction implements Serializable {
 				currentUser = userService.loginChecks(username, currentPassword, true);
 
 			} catch (LoginException e) {
-				messages.error(new BundleKey("messages", "changePassword.err.badUsernameOrPassword"));
+				Messages.createError( "changePassword.err.badUsernameOrPassword");
 				return null;
 			}
 		}
@@ -79,10 +75,10 @@ public class ChangePasswordAction implements Serializable {
 			} catch (BusinessException e) {
 				log.error("Error when update the password of #{currentUser.username} with password="
 						+ currentPassword);
-				messages.error(new BundleKey("messages", "changePassword.err.badUsernameOrPassword"));
+				Messages.createError( "changePassword.err.badUsernameOrPassword");
 				return null;
 			}
-			messages.info(new BundleKey("messages", "changePassword.msg.passwordChanged"));
+			Messages.createInfo( "changePassword.msg.passwordChanged");
 			return "/home.xhtml?faces-redirect=true";
 		}
 		return null;
@@ -90,17 +86,17 @@ public class ChangePasswordAction implements Serializable {
 
 	private boolean validate(User currentUser) {
 		if (!Sha1Encrypt.encodePassword(currentPassword).equals(currentUser.getPassword())) {
-			messages.error(new BundleKey("messages", "changePassword.err.currentPasswordIncorrect"));
+			Messages.createError( "changePassword.err.currentPasswordIncorrect");
 			return false;
 		}
 
 		if (Sha1Encrypt.encodePassword(newPassword).equals(currentUser.getPassword())) {
-			messages.error(new BundleKey("messages", "changePassword.err.passwordMustBeDifferent"));
+			Messages.createError( "changePassword.err.passwordMustBeDifferent");
 			return false;
 		}
 
 		if (!StringUtils.equals(newPassword, newPasswordConfirmation)) {
-			messages.error(new BundleKey("messages", "changePassword.err.confirmationFailed"));
+			Messages.createError( "changePassword.err.confirmationFailed");
 			return false;
 		}
 

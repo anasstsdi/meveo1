@@ -23,7 +23,6 @@ import javax.enterprise.context.ConversationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.jboss.seam.international.status.builder.BundleKey;
 import org.meveo.admin.action.BaseBean;
 import org.meveo.admin.exception.BusinessEntityException;
 import org.meveo.model.admin.Currency;
@@ -32,6 +31,7 @@ import org.meveo.model.crm.Provider;
 import org.meveo.service.admin.impl.TradingCurrencyService;
 import org.meveo.service.base.local.IPersistenceService;
 import org.meveo.service.crm.impl.ProviderService;
+import org.omnifaces.util.Messages;
 import org.primefaces.event.SelectEvent;
 
 /**
@@ -89,11 +89,11 @@ public class TradingCurrencyBean extends BaseBean<TradingCurrency> {
 			back = super.saveOrUpdate(killConversation);
 
 		} catch (BusinessEntityException e) {
-			messages.error(new BundleKey("messages", "tradingCurrency.uniqueField"));
+			Messages.createError( "tradingCurrency.uniqueField");
 		} catch (Exception e) {
 			e.printStackTrace();
 
-			messages.error(new BundleKey("messages", "tradingCurrency.uniqueField"));
+			Messages.createError( "tradingCurrency.uniqueField");
 		}
 		return back;
 

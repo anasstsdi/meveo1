@@ -18,8 +18,6 @@ package org.meveo.admin.action;
 import javax.enterprise.inject.Model;
 import javax.inject.Inject;
 
-import org.jboss.seam.international.status.Messages;
-import org.jboss.seam.international.status.builder.BundleKey;
 import org.meveo.admin.exception.InactiveUserException;
 import org.meveo.admin.exception.LoginException;
 import org.meveo.admin.exception.NoRoleException;
@@ -28,6 +26,7 @@ import org.meveo.admin.exception.UnknownUserException;
 import org.meveo.model.admin.User;
 import org.meveo.security.MeveoUser;
 import org.meveo.service.admin.impl.UserService;
+import org.omnifaces.util.Messages;
 import org.picketlink.annotations.PicketLink;
 import org.picketlink.authentication.BaseAuthenticator;
 import org.picketlink.credential.DefaultLoginCredentials;
@@ -45,9 +44,6 @@ public class Authenticator extends BaseAuthenticator {
 	private DefaultLoginCredentials credentials;
 
 	private static final Logger log = LoggerFactory.getLogger(Authenticator.class);
-
-	@Inject
-	private Messages messages;
 
 	/* Authentication errors */
 	private boolean noLoginError;
@@ -83,24 +79,24 @@ public class Authenticator extends BaseAuthenticator {
 						+ " and password="
 						+ credentials.getPassword()
 						+ " : cause user is not active");
-				messages.info(new BundleKey("messages", "user.error.inactive"));
+				Messages.createInfo("user.error.inactive");
 
 			} else if (e instanceof NoRoleException) {
 				noRoleError = true;
 				log.error("The password of user " + credentials.getUserId() + " has expired.");
-				messages.info(new BundleKey("messages", "user.error.noRole"));
+				Messages.createInfo("user.error.noRole");
 
 			} else if (e instanceof PasswordExpiredException) {
 				passwordExpired = true;
 				log.error("The password of user " + credentials.getUserId() + " has expired.");
-				messages.info(new BundleKey("messages", "user.password.expired"));
+				Messages.createInfo( "user.password.expired");
 
 			} else if (e instanceof UnknownUserException) {
 				noLoginError = true;
 				log.debug("login failed with username={} and password={}",
 						credentials.getUserId(),
 						credentials.getPassword());
-				messages.info(new BundleKey("messages", "user.error.login"));
+				Messages.createInfo( "user.error.login");
 			}
 		}
 

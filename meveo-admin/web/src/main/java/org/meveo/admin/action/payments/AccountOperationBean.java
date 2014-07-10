@@ -24,7 +24,6 @@ import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.jboss.seam.international.status.builder.BundleKey;
 import org.meveo.admin.action.BaseBean;
 import org.meveo.admin.exception.BusinessException;
 import org.meveo.admin.exception.NoAllOperationUnmatchedException;
@@ -41,6 +40,7 @@ import org.meveo.service.base.PersistenceService;
 import org.meveo.service.base.local.IPersistenceService;
 import org.meveo.service.payments.impl.AccountOperationService;
 import org.meveo.service.payments.impl.MatchingCodeService;
+import org.omnifaces.util.Messages;
 
 /**
  * Standard backing bean for {@link AccountOperation} (extends {@link BaseBean}
@@ -155,14 +155,14 @@ public class AccountOperationBean extends BaseBean<AccountOperation> {
 		}
 		log.info("operationIds    " + operationIds);
 		if (operationIds.isEmpty()) {
-			messages.error(new BundleKey("messages", "customerAccount.matchingUnselectedOperation"));
+			Messages.createError( "customerAccount.matchingUnselectedOperation");
 			return null;
 		}
 		try {
 			MatchingReturnObject result = matchingCodeService.matchOperations(customerAccountId,
 					null, operationIds, null, getCurrentUser());
 			if (result.isOk()) {
-				messages.info(new BundleKey("messages", "customerAccount.matchingSuccessful"));
+				Messages.createInfo( "customerAccount.matchingSuccessful");
 			} else {
 				setPartialMatchingOps(result.getPartialMatchingOcc());
 				return "/pages/payments/customerAccounts/partialMatching.xhtml?objectId="
@@ -170,12 +170,12 @@ public class AccountOperationBean extends BaseBean<AccountOperation> {
 			}
 
 		} catch (NoAllOperationUnmatchedException ee) {
-			messages.error(new BundleKey("messages", "customerAccount.noAllOperationUnmatched"));
+			Messages.createError( "customerAccount.noAllOperationUnmatched");
 		} catch (BusinessException ee) {
-			messages.error(new BundleKey("messages", ee.getMessage()));
+			Messages.createError( ee.getMessage());
 		} catch (Exception e) {
 			e.printStackTrace();
-			messages.error(e.getMessage());
+			Messages.createError(e.getMessage());
 		}
 		return "/pages/payments/customerAccounts/customerAccountDetail.xhtml?objectId="
 				+ customerAccountId + "&edit=false&tab=ops&faces-redirect=true";
@@ -193,15 +193,15 @@ public class AccountOperationBean extends BaseBean<AccountOperation> {
 					null, operationIds, partialMatchingOccSelected.getAccountOperation().getId(),
 					getCurrentUser());
 			if (result.isOk()) {
-				messages.info(new BundleKey("messages", "customerAccount.matchingSuccessful"));
+				Messages.createInfo( "customerAccount.matchingSuccessful");
 			} else {
-				messages.error(new BundleKey("messages", "customerAccount.matchingFailed"));
+				Messages.createError( "customerAccount.matchingFailed");
 			}
 		} catch (NoAllOperationUnmatchedException ee) {
-			messages.error(new BundleKey("messages", "customerAccount.noAllOperationUnmatched"));
+			Messages.createError( "customerAccount.noAllOperationUnmatched");
 		} catch (Exception e) {
 			e.printStackTrace();
-			messages.error(e.getMessage());
+			Messages.createError(e.getMessage());
 		}
 		return "/pages/payments/customerAccounts/customerAccountDetail.xhtml?objectId="
 				+ partialMatchingOccSelected.getAccountOperation().getCustomerAccount().getId()
@@ -223,7 +223,7 @@ public class AccountOperationBean extends BaseBean<AccountOperation> {
         }
 		log.info(" consultMatching operationIds " + operationIds);
 		if (operationIds.isEmpty() || operationIds.size() > 1) {
-			messages.info(new BundleKey("messages", "consultMatching.noOperationSelected"));
+			Messages.createInfo( "consultMatching.noOperationSelected");
 
 			return "/pages/payments/customerAccounts/customerAccountDetail.xhtml?objectId="
 					+ customerAccountId + "&edit=false&tab=ops&faces-redirect=true";
@@ -231,7 +231,7 @@ public class AccountOperationBean extends BaseBean<AccountOperation> {
 		AccountOperation accountOperation = accountOperationService.findById(operationIds.get(0));
 		if (accountOperation.getMatchingStatus() != MatchingStatusEnum.L
 				&& accountOperation.getMatchingStatus() != MatchingStatusEnum.P) {
-			messages.info(new BundleKey("messages", "consultMatching.operationNotMatched"));
+			Messages.createInfo( "consultMatching.operationNotMatched");
 
 			return "/pages/payments/customerAccounts/customerAccountDetail.xhtml?objectId="
 					+ customerAccountId + "&edit=false&tab=ops&faces-redirect=true";

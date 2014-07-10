@@ -29,8 +29,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.http.HttpServletResponse;
 
-import org.jboss.seam.international.status.Messages;
-import org.jboss.seam.international.status.builder.BundleKey;
 import org.meveo.admin.action.BaseBean;
 import org.meveo.admin.exception.BusinessException;
 import org.meveo.admin.exception.DuplicateDefaultAccountException;
@@ -50,6 +48,7 @@ import org.meveo.service.billing.impl.BillingRunService;
 import org.meveo.service.billing.impl.InvoiceService;
 import org.meveo.service.billing.impl.RatedTransactionService;
 import org.meveo.service.payments.impl.CustomerAccountService;
+import org.omnifaces.util.Messages;
 
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
@@ -90,9 +89,6 @@ public class BillingAccountBean extends BaseBean<BillingAccount> {
 	private BillingRunService billingRunService;
 
 	private Long customerAccountId;
-
-	@Inject
-	private Messages messages;
 
 	@Inject
 	private RatedTransactionService ratedTransactionService;
@@ -175,11 +171,11 @@ public class BillingAccountBean extends BaseBean<BillingAccount> {
 					+ entity.getId()
 					+ "&faces-redirect=true&includeViewParams=true";
 		} catch (DuplicateDefaultAccountException e1) {
-			messages.error(new BundleKey("messages",
-					"error.account.duplicateDefautlLevel"));
+			Messages.createError(
+					"error.account.duplicateDefautlLevel");
 		} catch (Exception e) {
 			e.printStackTrace();
-			messages.error(new BundleKey("messages", "javax.el.ELException"));
+			Messages.createError("javax.el.ELException");
 		}
 		return null;
 	}
@@ -197,10 +193,10 @@ public class BillingAccountBean extends BaseBean<BillingAccount> {
 
 			if (entity.isTransient()) {
 				billingAccountService.createBillingAccount(entity, null);
-				messages.info(new BundleKey("messages", "save.successful"));
+				Messages.createInfo( "save.successful");
 			} else {
 				billingAccountService.updateBillingAccount(entity, null);
-				messages.info(new BundleKey("messages", "update.successful"));
+				Messages.createInfo( "update.successful");
 			}
 
 		} catch (Exception e) {
@@ -217,14 +213,14 @@ public class BillingAccountBean extends BaseBean<BillingAccount> {
 			billingAccountService.billingAccountTermination(entity,
 					entity.getTerminationDate(), entity.getTerminationReason(),
 					getCurrentUser());
-			messages.info(new BundleKey("messages",
-					"resiliation.resiliateSuccessful"));
+			Messages.createInfo(
+					"resiliation.resiliateSuccessful");
 		} catch (BusinessException e) {
 			e.printStackTrace();
-			messages.error(e.getMessage());
+			Messages.createError(e.getMessage());
 		} catch (Exception e) {
 			e.printStackTrace();
-			messages.error(e.getMessage());
+			Messages.createError(e.getMessage());
 		}
 	}
 
@@ -233,16 +229,16 @@ public class BillingAccountBean extends BaseBean<BillingAccount> {
 		try {
 			billingAccountService.billingAccountCancellation(entity,
 					new Date(), getCurrentUser());
-			messages.info(new BundleKey("messages",
-					"cancellation.cancelSuccessful"));
+			Messages.createInfo(
+					"cancellation.cancelSuccessful");
 			return "/pages/billing/billingAccounts/billingAccountDetail.xhtml?objectId="
 					+ entity.getId() + "&edit=false";
 		} catch (BusinessException e) {
 			e.printStackTrace();
-			messages.error(e.getMessage());
+			Messages.createError(e.getMessage());
 		} catch (Exception e) {
 			e.printStackTrace();
-			messages.error(e.getMessage());
+			Messages.createError(e.getMessage());
 		}
 		return null;
 	}
@@ -251,15 +247,15 @@ public class BillingAccountBean extends BaseBean<BillingAccount> {
 		log.info("closeAccount billingAccountId:" + entity.getId());
 		try {
 			billingAccountService.closeBillingAccount(entity, getCurrentUser());
-			messages.info(new BundleKey("messages", "close.closeSuccessful"));
+			Messages.createInfo( "close.closeSuccessful");
 			return "/pages/billing/billingAccounts/billingAccountDetail.xhtml?objectId="
 					+ entity.getId() + "&edit=false";
 		} catch (BusinessException e) {
 			e.printStackTrace();
-			messages.error(e.getMessage());
+			Messages.createError(e.getMessage());
 		} catch (Exception e) {
 			e.printStackTrace();
-			messages.error(e.getMessage());
+			Messages.createError(e.getMessage());
 		}
 		return null;
 	}
@@ -352,8 +348,8 @@ public class BillingAccountBean extends BaseBean<BillingAccount> {
 			if (billingRunService
 					.isActiveBillingRunsExist(getCurrentProvider())
 					&& !isAllowed) {
-				messages.error(new BundleKey("messages",
-						"error.invoicing.alreadyLunched"));
+				Messages.createError(
+						"error.invoicing.alreadyLaunched");
 				return null;
 			}
 
@@ -375,8 +371,8 @@ public class BillingAccountBean extends BaseBean<BillingAccount> {
 				}
 			}
 			if (!isBillable) {
-				messages.error(new BundleKey("messages",
-						"error.invoicing.noTransactions"));
+				Messages.createError(
+						"error.invoicing.noTransactions");
 				return null;
 			}
 			log.info("selectedBillingAccounts=" + selectedBillingAccounts);
@@ -384,8 +380,8 @@ public class BillingAccountBean extends BaseBean<BillingAccount> {
 			billingRunService.create(billingRun);
 			return "/pages/billing/invoicing/billingRuns.xhtml?edit=false";
 		} catch (Exception e) {
-			log.error("lunchExceptionelInvoicing", e);
-			messages.error(e.getMessage());
+			log.error("launchExceptionelInvoicing", e);
+			Messages.createError(e.getMessage());
 		}
 		return null;
 	}

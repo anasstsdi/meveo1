@@ -20,7 +20,6 @@ import javax.enterprise.context.ConversationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.jboss.seam.international.status.builder.BundleKey;
 import org.meveo.admin.action.BaseBean;
 import org.meveo.model.payments.ActionPlanItem;
 import org.meveo.model.payments.DDRequestLotOp;
@@ -28,6 +27,7 @@ import org.meveo.model.payments.DDRequestOpEnum;
 import org.meveo.model.payments.DDRequestOpStatusEnum;
 import org.meveo.service.base.local.IPersistenceService;
 import org.meveo.service.payments.impl.DDRequestLotOpService;
+import org.omnifaces.util.Messages;
 
 /**
  * Standard backing bean for {@link ActionPlanItem} (extends {@link BaseBean} that provides almost all common methods to handle entities filtering/sorting in datatable, their
@@ -72,10 +72,10 @@ public class DdRequestLotOpBean extends BaseBean<DDRequestLotOp> {
 			entity.setDdrequestOp(DDRequestOpEnum.CREATE); 
 	    	 entity.setStatus(DDRequestOpStatusEnum.WAIT);
 			getPersistenceService().create(entity);
-			messages.info(new BundleKey("messages", "save.successful"));
+			Messages.createInfo( "save.successful");
 		} else {
 			getPersistenceService().update(entity);
-			messages.info(new BundleKey("messages", "update.successful"));
+			Messages.createInfo( "update.successful");
 		}
 
 		return back();

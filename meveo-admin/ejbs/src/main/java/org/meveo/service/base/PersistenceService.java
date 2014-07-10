@@ -518,7 +518,6 @@ public abstract class PersistenceService<E extends IEntity> extends BaseService
 		this.provider = provider;
 	}
 
-	@SuppressWarnings("unchecked")
 	public BaseEntity attach(BaseEntity e) {
 		return (BaseEntity) getEntityManager().merge(e);
 	}

@@ -22,7 +22,6 @@ import javax.enterprise.context.ConversationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.jboss.seam.international.status.builder.BundleKey;
 import org.meveo.admin.action.BaseBean;
 import org.meveo.model.billing.CatMessages;
 import org.meveo.model.catalog.ChargeTemplate;
@@ -33,6 +32,7 @@ import org.meveo.service.catalog.impl.CatMessagesService;
 import org.meveo.service.catalog.impl.OneShotChargeTemplateService;
 import org.meveo.service.catalog.impl.RecurringChargeTemplateService;
 import org.meveo.service.catalog.impl.UsageChargeTemplateService;
+import org.omnifaces.util.Messages;
 import org.primefaces.component.datatable.DataTable;
 
 /**
@@ -114,7 +114,7 @@ public class RecurringChargeTemplateBean extends BaseBean<RecurringChargeTemplat
 		// check for unicity
 		if (oneShotChargeTemplateService.findByCode(entity.getCode(),entity.getProvider()) != null
 				|| usageChargeTemplateService.findByCode(entity.getCode(),entity.getProvider()) != null) {
-			messages.error(new BundleKey("messages", "commons.uniqueField.code"));
+			Messages.createError( "commons.uniqueField.code");
 			return null;
 		}
 

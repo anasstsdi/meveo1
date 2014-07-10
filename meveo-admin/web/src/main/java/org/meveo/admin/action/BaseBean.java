@@ -28,8 +28,6 @@ import javax.inject.Inject;
 import javax.persistence.EntityExistsException;
 
 import org.apache.commons.lang.StringUtils;
-import org.jboss.seam.international.status.Messages;
-import org.jboss.seam.international.status.builder.BundleKey;
 import org.jboss.solder.servlet.http.RequestParam;
 import org.meveo.admin.action.admin.CurrentProvider;
 import org.meveo.admin.util.pagination.PaginationConfiguration;
@@ -41,6 +39,7 @@ import org.meveo.model.crm.Provider;
 import org.meveo.security.MeveoUser;
 import org.meveo.service.base.local.IPersistenceService;
 import org.meveo.service.crm.impl.ProviderService;
+import org.omnifaces.util.Messages;
 import org.picketlink.Identity;
 import org.primefaces.component.datatable.DataTable;
 import org.primefaces.event.SelectEvent;
@@ -58,9 +57,6 @@ public abstract class BaseBean<T extends IEntity> implements Serializable {
 	/** Logger. */
 	@Inject
 	protected org.slf4j.Logger log;
-
-	@Inject
-	protected Messages messages;
 
 	@Inject
 	protected Identity identity;
@@ -269,10 +265,10 @@ public abstract class BaseBean<T extends IEntity> implements Serializable {
 	protected String saveOrUpdate(T entity) {
 		if (entity.isTransient()) {
 			getPersistenceService().create(entity);
-			messages.info(new BundleKey("messages", "save.successful"));
+			Messages.createInfo( "save.successful");
 		} else {
 			getPersistenceService().update(entity);
-			messages.info(new BundleKey("messages", "update.successful"));
+			Messages.createInfo( "update.successful");
 		}
 
 		return back();
@@ -382,19 +378,19 @@ public abstract class BaseBean<T extends IEntity> implements Serializable {
 			log.info(String.format("Deleting entity %s with id = %s",
 					clazz.getName(), id));
 			getPersistenceService().remove(id);
-			messages.info(new BundleKey("messages", "delete.successful"));
+			Messages.createInfo( "delete.successful");
 		} catch (Throwable t) {
 			if (t.getCause() instanceof EntityExistsException) {
 				log.info(
 						"delete was unsuccessful because entity is used in the system",
 						t);
-				messages.error(new BundleKey("messages",
-						"error.delete.entityUsed"));
+				Messages.createError(
+						"error.delete.entityUsed");
 
 			} else {
 				log.info("unexpected exception when deleting!", t);
-				messages.error(new BundleKey("messages",
-						"error.delete.unexpected"));
+				Messages.createError(
+						"error.delete.unexpected");
 			}
 		}
 	}
@@ -404,19 +400,19 @@ public abstract class BaseBean<T extends IEntity> implements Serializable {
 			log.info(String.format("Deleting entity %s with id = %s",
 					clazz.getName(), getEntity().getId()));
 			getPersistenceService().remove((Long) getEntity().getId());
-			messages.info(new BundleKey("messages", "delete.successful"));
+			Messages.createInfo( "delete.successful");
 		} catch (Throwable t) {
 			if (t.getCause() instanceof EntityExistsException) {
 				log.info(
 						"delete was unsuccessful because entity is used in the system",
 						t);
-				messages.error(new BundleKey("messages",
-						"error.delete.entityUsed"));
+				Messages.createError(
+						"error.delete.entityUsed");
 
 			} else {
 				log.info("unexpected exception when deleting!", t);
-				messages.error(new BundleKey("messages",
-						"error.delete.unexpected"));
+				Messages.createError(
+						"error.delete.unexpected");
 			}
 		}
 	}
@@ -439,24 +435,24 @@ public abstract class BaseBean<T extends IEntity> implements Serializable {
 						clazz.getName(), idsString.toString()));
 
 				getPersistenceService().remove(idsToDelete);
-				messages.info(new BundleKey("messages",
-						"delete.entitities.successful"));
+				Messages.createInfo(
+						"delete.entitities.successful");
 			} else {
-				messages.info(new BundleKey("messages",
-						"delete.entitities.noSelection"));
+				Messages.createInfo(
+						"delete.entitities.noSelection");
 			}
 		} catch (Throwable t) {
 			if (t.getCause() instanceof EntityExistsException) {
 				log.info(
 						"delete was unsuccessful because entity is used in the system",
 						t);
-				messages.error(new BundleKey("messages",
-						"error.delete.entityUsed"));
+				Messages.createError(
+						"error.delete.entityUsed");
 
 			} else {
 				log.info("unexpected exception when deleting!", t);
-				messages.error(new BundleKey("messages",
-						"error.delete.unexpected"));
+				Messages.createError(
+						"error.delete.unexpected");
 			}
 		}
 	}
@@ -548,19 +544,19 @@ public abstract class BaseBean<T extends IEntity> implements Serializable {
 			log.info(String.format("Disabling entity %s with id = %s",
 					clazz.getName(), id));
 			getPersistenceService().disable(id);
-			messages.info(new BundleKey("messages", "disabled.successful"));
+			Messages.createInfo( "disabled.successful");
 
 		} catch (Throwable t) {
 			if (t.getCause() instanceof EntityExistsException) {
 				log.info(
 						"delete was unsuccessful because entity is used in the system",
 						t);
-				messages.error(new BundleKey("messages",
-						"error.delete.entityUsed"));
+				Messages.createError(
+						"error.delete.entityUsed");
 			} else {
 				log.info("unexpected exception when deleting!", t);
-				messages.error(new BundleKey("messages",
-						"error.delete.unexpected"));
+				Messages.createError(
+						"error.delete.unexpected");
 			}
 		}
 	}

@@ -23,7 +23,6 @@ import javax.enterprise.context.ConversationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.jboss.seam.international.status.builder.BundleKey;
 import org.meveo.admin.action.BaseBean;
 import org.meveo.admin.util.pagination.PaginationDataModel;
 import org.meveo.model.payments.DDRequestLOT;
@@ -36,6 +35,7 @@ import org.meveo.service.base.local.IPersistenceService;
 import org.meveo.service.payments.impl.DDRequestLOTService;
 import org.meveo.service.payments.impl.DDRequestLotOpService;
 import org.meveo.service.payments.impl.RecordedInvoiceService;
+import org.omnifaces.util.Messages;
 
 /**
  * Standard backing bean for {@link DDRequestLOT} (extends {@link BaseBean} that
@@ -94,10 +94,10 @@ public class DdRequestLOTBean extends BaseBean<DDRequestLOT> {
 			ddrequestLotOp.setDdrequestLOT(entity);
 			ddrequestLotOpService.create(ddrequestLotOp, getCurrentUser(),
 			    getCurrentProvider());
-			messages.info(new BundleKey("messages", "ddrequestLot.generateFileSuccessful"));
+			Messages.createInfo( "ddrequestLot.generateFileSuccessful");
 		} catch (Exception e) {
 			e.printStackTrace();
-			messages.error(new BundleKey("messages", "ddrequestLot.generateFileFailed"));
+			Messages.createError( "ddrequestLot.generateFileFailed");
 		}
 
 		return null;
@@ -116,10 +116,10 @@ public class DdRequestLOTBean extends BaseBean<DDRequestLOT> {
 			ddrequestLotOp.setDdrequestLOT(entity);
 			ddrequestLotOpService.create(ddrequestLotOp, getCurrentUser(),
 			    getCurrentProvider());
-			messages.info(new BundleKey("messages", "ddrequestLot.doPaymentsSuccessful"));
+			Messages.createInfo( "ddrequestLot.doPaymentsSuccessful");
 		} catch (Exception e) {
 			e.printStackTrace();
-			messages.info(new BundleKey("messages", "ddrequestLot.doPaymentsFailed"));
+			Messages.createInfo( "ddrequestLot.doPaymentsFailed");
 		}
 
 		return null;
@@ -139,12 +139,12 @@ public class DdRequestLOTBean extends BaseBean<DDRequestLOT> {
 			ddrequestLotOp.setDdrequestOp(DDRequestOpEnum.CREATE); 
 			ddrequestLotOpService.create(ddrequestLotOp, getCurrentUser(),
 			    getCurrentProvider()); 
-			messages.info(new BundleKey("messages", "ddrequestLot.launchProcessSuccessful")); 
+			Messages.createInfo( "ddrequestLot.launchProcessSuccessful"); 
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			messages.info(new BundleKey("messages", "ddrequestLot.launchProcessFailed"));
-			messages.info(e.getMessage());
+			Messages.createError( "ddrequestLot.launchProcessFailed");
+			Messages.createError(e.getMessage());
 		}
 		return null;
 	}

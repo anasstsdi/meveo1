@@ -20,7 +20,6 @@ import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.jboss.seam.international.status.builder.BundleKey;
 import org.jboss.solder.servlet.http.RequestParam;
 import org.meveo.admin.action.BaseBean;
 import org.meveo.model.billing.Subscription;
@@ -30,6 +29,7 @@ import org.meveo.service.base.local.IPersistenceService;
 import org.meveo.service.billing.impl.SubscriptionService;
 import org.meveo.service.medina.impl.AccessService;
 import org.meveo.service.medina.impl.CDRParsingService;
+import org.omnifaces.util.Messages;
 
 @Named
 @ConversationScoped
@@ -114,7 +114,7 @@ public class AccessBean extends BaseBean<Access> {
 		Subscription subscription = subscriptionService.findById(entity.getSubscription().getId());
 		entity.setSubscription(subscription);
 		if (accessService.isDuplicate(entity)) {
-			messages.error(new BundleKey("messages", "access.duplicate"));
+			Messages.createError( "access.duplicate");
 		} else {
 			 result=super.saveOrUpdate(killConversation);
 			 CDRParsingService.resetAccessPointCache(entity);

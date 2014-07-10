@@ -20,12 +20,12 @@ import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.jboss.seam.international.status.builder.BundleKey;
 import org.meveo.admin.action.BaseBean;
 import org.meveo.model.payments.RecordedInvoice;
 import org.meveo.service.base.PersistenceService;
 import org.meveo.service.base.local.IPersistenceService;
 import org.meveo.service.payments.impl.RecordedInvoiceService;
+import org.omnifaces.util.Messages;
 
 /**
  * Standard backing bean for {@link RecordedInvoice} (extends {@link BaseBean} that provides almost all common methods to handle entities filtering/sorting in datatable, their
@@ -87,10 +87,10 @@ public class RecordedInvoiceBean extends BaseBean<RecordedInvoice> {
     public String addLitigation() {
         try {
             recordedInvoiceService.addLitigation(entity, getCurrentUser());
-            messages.info(new BundleKey("messages", "customerAccount.addLitigationSuccessful"));
+            Messages.createInfo( "customerAccount.addLitigationSuccessful");
         } catch (Exception e) {
             e.printStackTrace();
-            messages.error(e.getMessage());
+            Messages.createError(e.getMessage());
         }
         return null;
     }
@@ -99,10 +99,10 @@ public class RecordedInvoiceBean extends BaseBean<RecordedInvoice> {
 
         try {
             recordedInvoiceService.cancelLitigation(entity, getCurrentUser());
-            messages.info(new BundleKey("messages", "customerAccount.cancelLitigationSuccessful"));
+            Messages.createInfo( "customerAccount.cancelLitigationSuccessful");
         } catch (Exception e) {
             e.printStackTrace();
-            messages.error(e.getMessage());
+            Messages.createError(e.getMessage());
         }
         return null;
     }

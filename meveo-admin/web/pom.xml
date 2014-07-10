@@ -102,7 +102,6 @@
 			<artifactId>picketlink-api</artifactId>
 			<version>2.6.0.Final</version>
 		</dependency>
-		
 		<dependency>
 			<groupId>org.picketlink</groupId>
 			<artifactId>picketlink-impl</artifactId>
@@ -114,34 +113,30 @@
 			<version>1.4.1</version>
 		</dependency>
 		<dependency>
+			<groupId>org.jboss.solder</groupId>
+			<artifactId>solder-api</artifactId>
+			<version>3.2.1.Final</version>
+		</dependency>
+		<!-- <dependency>
 			<groupId>com.ocpsoft</groupId>
 			<artifactId>prettyfaces-jsf2</artifactId>
-		</dependency>
+		</dependency> -->
 
 		<dependency>
 			<groupId>org.primefaces.extensions</groupId>
 			<artifactId>primefaces-extensions</artifactId>
 			<version>1.1.0</version>
 		</dependency>
-
+		<dependency>
+			<groupId>net.sourceforge.jexcelapi</groupId>
+			<artifactId>jxl</artifactId>
+			<version>2.6.12</version>
+		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 			<version>1.7.5</version>
 		</dependency>
-
-
-		<dependency>
-			<groupId>org.reflections</groupId>
-			<artifactId>reflections-maven</artifactId>
-			<version>0.9.8</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-core</artifactId>
-		</dependency>
-
 
 	</dependencies>
 

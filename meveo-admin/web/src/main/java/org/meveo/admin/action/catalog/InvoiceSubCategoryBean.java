@@ -23,8 +23,6 @@ import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.jboss.seam.international.status.Messages;
-import org.jboss.seam.international.status.builder.BundleKey;
 import org.jboss.solder.servlet.http.RequestParam;
 import org.meveo.admin.action.BaseBean;
 import org.meveo.model.billing.CatMessages;
@@ -36,6 +34,7 @@ import org.meveo.service.billing.impl.InvoiceSubCategoryCountryService;
 import org.meveo.service.catalog.impl.CatMessagesService;
 import org.meveo.service.catalog.impl.InvoiceCategoryService;
 import org.meveo.service.catalog.impl.InvoiceSubCategoryService;
+import org.omnifaces.util.Messages;
 
 /**
  * Standard backing bean for {@link InvoiceSubCategory} (extends
@@ -70,9 +69,6 @@ public class InvoiceSubCategoryBean extends BaseBean<InvoiceSubCategory> {
 	 */
 	@Inject
 	private InvoiceCategoryService invoiceCategoryService;
-
-	@Inject
-	private Messages messages;
 
 	/**
 	 * InvoiceCategory Id passed as a parameter. Used when creating new
@@ -109,17 +105,17 @@ public class InvoiceSubCategoryBean extends BaseBean<InvoiceSubCategory> {
 				}
 				if (invoiceSubcategoryCountry.getId() != null) {
 					invoiceSubCategoryCountryService.update(invoiceSubcategoryCountry);
-					messages.info(new BundleKey("messages", "update.successful"));
+					Messages.createInfo( "update.successful");
 				} else {
 					invoiceSubcategoryCountry.setInvoiceSubCategory(entity);
 					invoiceSubCategoryCountryService.create(invoiceSubcategoryCountry);
 					entity.getInvoiceSubcategoryCountries().add(invoiceSubcategoryCountry);
-					messages.info(new BundleKey("messages", "save.successful"));
+					Messages.createInfo( "save.successful");
 				}
 			}
 		} catch (Exception e) {
 			log.error("exception when applying one invoiceSubCategoryCountry !", e);
-			messages.error(new BundleKey("messages", "invoiceSubCategory.uniqueTaxFlied"));
+			Messages.createError( "invoiceSubCategory.uniqueTaxFlied");
 		}
 		invoiceSubcategoryCountry = new InvoiceSubcategoryCountry();
 	}
@@ -200,7 +196,7 @@ public class InvoiceSubCategoryBean extends BaseBean<InvoiceSubCategory> {
 
 		} else {
 			getPersistenceService().create(entity);
-			messages.info(new BundleKey("messages", "invoiceSubCaterogy.AddTax"));
+			Messages.createInfo( "invoiceSubCaterogy.AddTax");
 			if (killConversation) {
 				endConversation();
 			}

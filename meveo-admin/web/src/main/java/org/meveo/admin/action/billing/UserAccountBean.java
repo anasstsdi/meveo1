@@ -24,7 +24,6 @@ import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.jboss.seam.international.status.builder.BundleKey;
 import org.meveo.admin.action.BaseBean;
 import org.meveo.admin.exception.BusinessException;
 import org.meveo.admin.exception.DuplicateDefaultAccountException;
@@ -38,6 +37,7 @@ import org.meveo.service.base.local.IPersistenceService;
 import org.meveo.service.billing.impl.BillingAccountService;
 import org.meveo.service.billing.impl.RatedTransactionService;
 import org.meveo.service.billing.impl.UserAccountService;
+import org.omnifaces.util.Messages;
 import org.primefaces.model.LazyDataModel;
 
 /**
@@ -134,11 +134,11 @@ public class UserAccountBean extends BaseBean<UserAccount> {
 					+ entity.getId()
 					+ "&faces-redirect=true&includeViewParams=true";
 		} catch (DuplicateDefaultAccountException e1) {
-			messages.error(new BundleKey("messages",
-					"error.account.duplicateDefautlLevel"));
+			Messages.createError(
+					"error.account.duplicateDefautlLevel");
 		} catch (Exception e) {
 			e.printStackTrace();
-			messages.error(new BundleKey("messages", "javax.el.ELException"));
+			Messages.createError( "javax.el.ELException");
 
 		}
 
@@ -165,15 +165,15 @@ public class UserAccountBean extends BaseBean<UserAccount> {
 			if (entity.isTransient()) {
 				userAccountService.createUserAccount(
 						entity.getBillingAccount(), entity, getCurrentUser());
-				messages.info(new BundleKey("messages", "save.successful"));
+				Messages.createInfo( "save.successful");
 			} else {
 				userAccountService.updateUserAccount(entity, getCurrentUser());
-				messages.info(new BundleKey("messages", "update.successful"));
+				Messages.createInfo( "update.successful");
 			}
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			messages.error(e.getMessage());
+			Messages.createError(e.getMessage());
 		}
 
 		return back();
@@ -185,14 +185,14 @@ public class UserAccountBean extends BaseBean<UserAccount> {
 			userAccountService.userAccountTermination(entity,
 					entity.getTerminationDate(), entity.getTerminationReason(),
 					getCurrentUser());
-			messages.info(new BundleKey("messages",
-					"resiliation.resiliateSuccessful"));
+			Messages.createInfo(
+					"resiliation.resiliateSuccessful");
 		} catch (BusinessException e) {
 			e.printStackTrace();
-			messages.error(e.getMessage());
+			Messages.createError(e.getMessage());
 		} catch (Exception e) {
 			e.printStackTrace();
-			messages.error(e.getMessage());
+			Messages.createError(e.getMessage());
 		}
 	}
 
@@ -201,16 +201,16 @@ public class UserAccountBean extends BaseBean<UserAccount> {
 		try {
 			userAccountService.userAccountCancellation(entity, new Date(),
 					getCurrentUser());
-			messages.info(new BundleKey("messages",
-					"cancellation.cancelSuccessful"));
+			Messages.createInfo(
+					"cancellation.cancelSuccessful");
 			return "/pages/billing/userAccounts/userAccountDetail.xhtml?objectId="
 					+ entity.getId() + "&edit=false";
 		} catch (BusinessException e) {
 			e.printStackTrace();
-			messages.error(e.getMessage());
+			Messages.createError(e.getMessage());
 		} catch (Exception e) {
 			e.printStackTrace();
-			messages.error(e.getMessage());
+			Messages.createError(e.getMessage());
 		}
 		return null;
 	}
@@ -220,16 +220,16 @@ public class UserAccountBean extends BaseBean<UserAccount> {
 		try {
 			userAccountService.userAccountReactivation(entity, new Date(),
 					getCurrentUser());
-			messages.info(new BundleKey("messages",
-					"reactivation.reactivateSuccessful"));
+			Messages.createInfo(
+					"reactivation.reactivateSuccessful");
 			return "/pages/billing/userAccounts/userAccountDetail.xhtml?objectId="
 					+ entity.getId() + "&edit=false";
 		} catch (BusinessException e) {
 			e.printStackTrace(); // TODO WTF printStackTrace??
-			messages.error(e.getMessage());
+			Messages.createError(e.getMessage());
 		} catch (Exception e) {
 			e.printStackTrace();
-			messages.error(e.getMessage());
+			Messages.createError(e.getMessage());
 		}
 		return null;
 	}

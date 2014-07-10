@@ -25,8 +25,6 @@ import javax.enterprise.context.ConversationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.jboss.seam.international.status.Messages;
-import org.jboss.seam.international.status.builder.BundleKey;
 import org.meveo.admin.action.BaseBean;
 import org.meveo.model.admin.User;
 import org.meveo.model.crm.Provider;
@@ -36,6 +34,7 @@ import org.meveo.service.admin.impl.UserService;
 import org.meveo.service.base.PersistenceService;
 import org.meveo.service.base.local.IPersistenceService;
 import org.meveo.service.crm.impl.ProviderService;
+import org.omnifaces.util.Messages;
 import org.primefaces.model.DualListModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,9 +60,6 @@ public class UserBean extends BaseBean<User> {
 
 	@Inject
 	private ProviderService providerService;
-
-	@Inject
-	private Messages messages;
 
 	private static final Logger log = LoggerFactory.getLogger(UserBean.class);
 
@@ -113,20 +109,20 @@ public class UserBean extends BaseBean<User> {
 				&& !password.equals(repeatedPassword);
 		
 		if (passwordsDoNotMatch) {
-			messages.error(new BundleKey("messages", "save.passwordsDoNotMatch"));
+			Messages.createError( "save.passwordsDoNotMatch");
 			return null;
 		} else {
 			if (getObjectId() != null) {
 				if (userService.isUsernameExists(entity.getUserName(),
 						entity.getId())) {
-					messages.error(new BundleKey("messages",
-							"exception.UsernameAlreadyExistsException"));
+					Messages.createError(
+							"exception.UsernameAlreadyExistsException");
 					return null;
 				}
 			} else {
 				if (userService.isUsernameExists(entity.getUserName())) {
-					messages.error(new BundleKey("messages",
-							"exception.UsernameAlreadyExistsException"));
+					Messages.createError(
+							"exception.UsernameAlreadyExistsException");
 					return null;
 				}
 			}

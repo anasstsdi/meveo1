@@ -11,14 +11,13 @@ import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.jboss.seam.international.status.Messages;
-import org.jboss.seam.international.status.builder.BundleKey;
 import org.meveo.admin.action.BaseBean;
 import org.meveo.admin.util.pagination.PaginationConfiguration;
 import org.meveo.admin.util.pagination.PaginationDataModel;
 import org.meveo.model.jobs.TimerEntity;
 import org.meveo.model.jobs.TimerInfo;
 import org.meveo.service.base.local.IPersistenceService;
+import org.omnifaces.util.Messages;
 
 @ConversationScoped
 @Named
@@ -28,9 +27,6 @@ public class TimersBean extends BaseBean<TimerEntity> {
 
 	@Inject
 	TimerEntityService timerEntityservice;
-
-	@Inject
-	private Messages messages;
 
 	private int pageSize = 20;
 	private PaginationDataModel<TimerEntity> timersDataModel;
@@ -93,10 +89,10 @@ public class TimersBean extends BaseBean<TimerEntity> {
 			} else {
 				timer.cancel();
 			}
-			messages.info(new BundleKey("messages", "info.ejbTimer.cancelled"));
+			Messages.createInfo( "info.ejbTimer.cancelled");
 		} catch (Exception e) {
 			e.printStackTrace();
-			messages.error(new BundleKey("messages", "error.ejbTimer.cancellation"));
+			Messages.createError( "error.ejbTimer.cancellation");
 		}
 	}
 
@@ -113,9 +109,9 @@ public class TimersBean extends BaseBean<TimerEntity> {
 				}
 			}
 
-			messages.info(new BundleKey("messages", "info.ejbTimers.cancelled"));
+			Messages.createInfo( "info.ejbTimers.cancelled");
 		} catch (Exception e) {
-			messages.error(new BundleKey("messages", "error.ejbTimers.cancellation"));
+			Messages.createError( "error.ejbTimers.cancellation");
 		}
 	}
 

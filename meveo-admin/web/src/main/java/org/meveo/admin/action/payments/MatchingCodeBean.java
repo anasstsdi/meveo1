@@ -19,13 +19,13 @@ import javax.enterprise.context.ConversationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.jboss.seam.international.status.builder.BundleKey;
 import org.meveo.admin.action.BaseBean;
 import org.meveo.admin.exception.BusinessException;
 import org.meveo.model.payments.MatchingCode;
 import org.meveo.service.base.PersistenceService;
 import org.meveo.service.base.local.IPersistenceService;
 import org.meveo.service.payments.impl.MatchingCodeService;
+import org.omnifaces.util.Messages;
 
 /**
  * Standard backing bean for {@link MatchingCode} (extends {@link BaseBean} that
@@ -84,10 +84,10 @@ public class MatchingCodeBean extends BaseBean<MatchingCode> {
 							.getCustomerAccount().getId()
 					+ "&edit=false&tab=ops";
 			matchingCodeService.unmatching(entity.getId(), getCurrentUser());
-			messages.info(new BundleKey("messages", "matchingCode.unmatchingOK"));
+			Messages.createInfo( "matchingCode.unmatchingOK");
 		} catch (BusinessException e) {
-			messages.error(new BundleKey("messages",
-					"matchingCode.unmatchingKO"));
+			Messages.createError(
+					"matchingCode.unmatchingKO");
 			e.printStackTrace();
 		}
 		return returnPage;

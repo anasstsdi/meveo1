@@ -19,7 +19,6 @@ import javax.ejb.TimerService;
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 
-import org.jboss.solder.logging.Logger;
 import org.meveo.admin.exception.BusinessException;
 import org.meveo.commons.utils.ExceptionUtils;
 import org.meveo.commons.utils.FileUtils;
@@ -53,19 +52,20 @@ import org.meveo.service.crm.impl.ProviderService;
 import org.meveo.services.job.Job;
 import org.meveo.services.job.JobExecutionService;
 import org.meveo.services.job.TimerEntityService;
+import org.slf4j.Logger;
 
 @Startup
 @Singleton
 public class ImportAccountsJob implements Job {
+
+	@Inject
+	protected Logger log;
+	
 	@Resource
 	TimerService timerService;
 
 	@Inject
 	JobExecutionService jobExecutionService;
-
-	@Inject
-	private Logger log;
-
 
 	@Inject
 	private BillingAccountService billingAccountService;
