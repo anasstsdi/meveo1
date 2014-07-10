@@ -310,7 +310,7 @@ public class UsageRatingService {
 	 * @return
 	 * @throws BusinessException
 	 */
-	public WalletOperation rateEDRwithMatchingCharge(EDR edr,
+	public WalletOperation rateEDRwithMatchingCharge(EDR edr,BigDecimal deducedQuantity,
 			UsageChargeInstanceCache chargeCache,
 			UsageChargeInstance chargeInstance, Provider provider)
 			throws BusinessException {
@@ -348,7 +348,11 @@ public class UsageRatingService {
 		walletOperation.setWallet(edr.getSubscription().getUserAccount()
 				.getWallet());
 		walletOperation.setCode(chargeInstance.getCode());
-		walletOperation.setQuantity(edr.getQuantity());
+		if(deducedQuantity!=null){
+			walletOperation.setQuantity(deducedQuantity);
+		} else {
+			walletOperation.setQuantity(edr.getQuantity());
+		}
 		walletOperation.setTaxPercent(tax.getPercent());
 		walletOperation.setStartDate(null);
 		walletOperation.setEndDate(null);
@@ -473,7 +477,7 @@ public class UsageRatingService {
 			Provider provider = charge.getProvider();
 			UsageChargeInstance chargeInstance = usageChargeInstanceService
 					.findById(charge.getChargeInstanceId());
-			WalletOperation walletOperation = rateEDRwithMatchingCharge(edr,
+			WalletOperation walletOperation = rateEDRwithMatchingCharge(edr,deducedQuantity,
 					charge, chargeInstance, provider);
 			if (deducedQuantity != null) {
 				edr.setQuantity(edr.getQuantity().subtract(deducedQuantity));
