@@ -40,15 +40,28 @@
 	<session-config>
 		<session-timeout>30</session-timeout>
 	</session-config>
-	<!-- Error page -->
+	<!-- Error pages -->
+	<error-page>
+		<error-code>403</error-code>
+		<location>/errors/403.xhtml</location>
+	</error-page>
 	<error-page>
 		<error-code>500</error-code>
-		<location>/applicationerror.jsp</location>
+		<location>/errors/error.xhtml</location>
 	</error-page>
 	<error-page>
-		<exception-type>java.lang.IllegalStateException</exception-type>
-		<location>/toomanysessionserror.html</location>
+		<exception-type>org.jboss.weld.context.NonexistentConversationException</exception-type>
+		<location>/errors/sessionExpired.xhtml</location>
 	</error-page>
+	<error-page>
+		<exception-type>javax.faces.application.ViewExpiredException</exception-type>
+		<location>/errors/sessionExpired.xhtml</location>
+	</error-page>
+	<error-page>
+		<exception-type>java.lang.Exception</exception-type>
+		<location>/errors/error.xhtml</location>
+	</error-page>
+	
 
 	<servlet>
 		<servlet-name>javax.ws.rs.core.Application</servlet-name>

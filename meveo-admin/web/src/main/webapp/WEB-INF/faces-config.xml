@@ -21,6 +21,12 @@
 		</resource-bundle>
 		<message-bundle>messages</message-bundle>
 	</application>
+	
+	<factory>
+    	<exception-handler-factory>
+    	org.omnifaces.exceptionhandler.FacesMessageExceptionHandlerFactory
+    	</exception-handler-factory>
+	</factory>
 
 	<navigation-rule>
 		<navigation-case>

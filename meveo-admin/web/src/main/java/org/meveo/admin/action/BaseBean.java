@@ -28,7 +28,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityExistsException;
 
 import org.apache.commons.lang.StringUtils;
-import org.jboss.solder.servlet.http.RequestParam;
+import org.meveo.admin.web.RequestParam;
 import org.meveo.admin.action.admin.CurrentProvider;
 import org.meveo.admin.util.pagination.PaginationConfiguration;
 import org.meveo.model.BaseEntity;

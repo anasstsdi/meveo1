@@ -23,7 +23,7 @@ import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.jboss.solder.servlet.http.RequestParam;
+import org.meveo.admin.web.RequestParam;
 import org.meveo.admin.action.BaseBean;
 import org.meveo.model.billing.CatMessages;
 import org.meveo.model.billing.InvoiceSubCategory;
