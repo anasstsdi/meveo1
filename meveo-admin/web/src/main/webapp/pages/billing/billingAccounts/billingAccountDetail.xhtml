@@ -1,5 +1,5 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:s="http://jboss.org/seam/faces"
+	xmlns:o="http://omnifaces.org/ui"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:h="http://java.sun.com/jsf/html" xmlns:hftl="http://hftl.org"
@@ -10,8 +10,9 @@
 
 	<ui:define name="metadata">
 		<f:metadata>
-		<f:event type="preRenderView" listener="#{billingAccountBean.preRenderView}" />
-		
+			<f:event type="preRenderView"
+				listener="#{billingAccountBean.preRenderView}" />
+
 			<f:viewParam name="billingAccountId"
 				value="#{billingAccountBean.objectId}" />
 			<f:viewParam name="customerAccountId"
@@ -216,11 +217,11 @@
 
 														<p:selectOneMenu id="title_select"
 															value="#{billingAccountBean.entity.name.title}"
-															rendered="#{billingAccountBean.edit}">
+															rendered="#{billingAccountBean.edit}"
+															converter="omnifaces.SelectItemsConverter">
 															<f:selectItem itemLabel="" itemValue="" />
 															<f:selectItems value="#{titleBean.listAll()}" var="t"
 																itemLabel="#{messages['Title.'.concat(t.code)]}" />
-															<s:objectConverter />
 															<p:ajax event="valueChange" immediate="false"
 																update=":parentTab:formBillingAccountPanel:formId:childTab:invoicePrefixPanel :parentTab:formBillingAccountPanel:formId:childTab:invoicePrefixBoxPanel :parentTab:formBillingAccountPanel:formId:childTab:bankCoordinatePanel :parentTab:formBillingAccountPanel:formId:childTab:userNamePanel :parentTab:formBillingAccountPanel:formId:childTab:countryPanel" />
 														</p:selectOneMenu>

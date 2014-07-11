@@ -1,7 +1,6 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:c="http://java.sun.com/jstl/core"
-	xmlns:p="http://primefaces.org/ui"
-	xmlns:s="http://jboss.org/seam/faces"
+	xmlns:p="http://primefaces.org/ui" xmlns:o="http://omnifaces.org/ui"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:h="http://java.sun.com/jsf/html" xmlns:hftl="http://hftl.org"
@@ -10,7 +9,8 @@
 
 	<ui:define name="metadata">
 		<f:metadata>
-			<f:event type="preRenderView" listener="#{customerAccountBean.preRenderView}" />
+			<f:event type="preRenderView"
+				listener="#{customerAccountBean.preRenderView}" />
 			<f:viewParam name="customerAccountId"
 				value="#{customerAccountBean.objectId}" />
 			<f:viewParam name="customerId"
@@ -138,11 +138,11 @@
 														value="#{messages['name.title']}" />
 													<p:selectOneMenu id="title_text"
 														value="#{customerAccountBean.entity.name.title}"
-														required="false" rendered="#{customerAccountBean.edit}">
+														required="false" rendered="#{customerAccountBean.edit}"
+														converter="omnifaces.SelectItemsConverter">
 														<f:selectItem itemLabel="" itemValue="" />
 														<f:selectItems value="#{titleBean.listAll()}" var="t"
 															itemLabel="#{messages['Title.'.concat(t.code)]}" />
-														<s:objectConverter />
 														<p:ajax event="valueChange"
 															update=":parentTab:formCustomerAccountPanel:formCustomerAccount:childTab:countryPanel :parentTab:formCustomerAccountPanel:formCustomerAccount:childTab:userNamePanel" />
 													</p:selectOneMenu>
