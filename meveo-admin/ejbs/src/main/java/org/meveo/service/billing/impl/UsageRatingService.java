@@ -304,7 +304,7 @@ public class UsageRatingService {
 	 * @throws BusinessException
 	 */
 	public WalletOperation rateEDRwithMatchingCharge(EDR edr,
-			UsageChargeInstanceCache chargeCache,
+			BigDecimal deducedQuantity, UsageChargeInstanceCache chargeCache,
 			UsageChargeInstance chargeInstance, Provider provider)
 			throws BusinessException {
 		WalletOperation walletOperation = new WalletOperation();
@@ -336,7 +336,11 @@ public class UsageRatingService {
 		walletOperation.setWallet(edr.getSubscription().getUserAccount()
 				.getWallet());
 		walletOperation.setCode(chargeInstance.getCode());
-		walletOperation.setQuantity(edr.getQuantity());
+		if (deducedQuantity != null) {
+			walletOperation.setQuantity(deducedQuantity);
+		} else {
+			walletOperation.setQuantity(edr.getQuantity());
+		}
 		walletOperation.setTaxPercent(tax.getPercent());
 		walletOperation.setStartDate(null);
 		walletOperation.setEndDate(null);
@@ -398,9 +402,10 @@ public class UsageRatingService {
 			log.info("value to deduce " + edr.getQuantity() + "*"
 					+ charge.getUnityMultiplicator() + "=" + countedValue);
 			if (charge.getUnityNbDecimal() > 0) {
-				int rounding = (charge.getUnityNbDecimal()>BaseEntity.NB_DECIMALS)?BaseEntity.NB_DECIMALS:charge.getUnityNbDecimal();
-				countedValue = countedValue.setScale(
-						rounding, RoundingMode.HALF_UP);
+				int rounding = (charge.getUnityNbDecimal() > BaseEntity.NB_DECIMALS) ? BaseEntity.NB_DECIMALS
+						: charge.getUnityNbDecimal();
+				countedValue = countedValue.setScale(rounding,
+						RoundingMode.HALF_UP);
 			}
 			if (periodCache.getValue().compareTo(BigDecimal.ZERO) > 0) {
 				if (periodCache.getValue().compareTo(countedValue) < 0) {
@@ -459,7 +464,7 @@ public class UsageRatingService {
 			UsageChargeInstance chargeInstance = usageChargeInstanceService
 					.findById(charge.getChargeInstanceId());
 			WalletOperation walletOperation = rateEDRwithMatchingCharge(edr,
-					charge, chargeInstance, provider);
+					deducedQuantity, charge, chargeInstance, provider);
 			if (deducedQuantity != null) {
 				edr.setQuantity(edr.getQuantity().subtract(deducedQuantity));
 				walletOperation.setQuantity(deducedQuantity);
