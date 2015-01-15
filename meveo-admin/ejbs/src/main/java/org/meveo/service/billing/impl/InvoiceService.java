@@ -56,92 +56,71 @@ public class InvoiceService extends PersistenceService<Invoice> {
 	@Inject
 	private RejectedBillingAccountService rejectedBillingAccountService;
 
-	public Invoice getInvoiceByNumber(String invoiceNumber, String providerCode)
-			throws BusinessException {
+	public Invoice getInvoiceByNumber(String invoiceNumber, String providerCode) throws BusinessException {
 		try {
-			Query q = getEntityManager()
-					.createQuery(
-							"from Invoice where invoiceNumber = :invoiceNumber and provider=:provider");
-			q.setParameter("invoiceNumber", invoiceNumber).setParameter(
-					"provider", providerService.findByCode(providerCode));
+			Query q = getEntityManager().createQuery(
+					"from Invoice where invoiceNumber = :invoiceNumber and provider=:provider");
+			q.setParameter("invoiceNumber", invoiceNumber).setParameter("provider",
+					providerService.findByCode(providerCode));
 			Object invoiceObject = q.getSingleResult();
 			return (Invoice) invoiceObject;
 		} catch (NoResultException e) {
-			log.info(
-					"Invoice with invoice number #0 was not found. Returning null.",
-					invoiceNumber);
+			log.info("Invoice with invoice number #0 was not found. Returning null.", invoiceNumber);
 			return null;
 		} catch (NonUniqueResultException e) {
-			log.info(
-					"Multiple invoices with invoice number #0 was found. Returning null.",
-					invoiceNumber);
+			log.info("Multiple invoices with invoice number #0 was found. Returning null.", invoiceNumber);
 			return null;
 		} catch (Exception e) {
 			return null;
 		}
 	}
 
-	public Invoice getInvoice(String invoiceNumber,
-			CustomerAccount customerAccount) throws BusinessException {
+	public Invoice getInvoice(String invoiceNumber, CustomerAccount customerAccount) throws BusinessException {
 		return getInvoice(getEntityManager(), invoiceNumber, customerAccount);
 	}
 
-	public Invoice getInvoice(EntityManager em, String invoiceNumber,
-			CustomerAccount customerAccount) throws BusinessException {
+	public Invoice getInvoice(EntityManager em, String invoiceNumber, CustomerAccount customerAccount)
+			throws BusinessException {
 		try {
 			Query q = em
 					.createQuery("from Invoice where invoiceNumber = :invoiceNumber and billingAccount.customerAccount=:customerAccount");
-			q.setParameter("invoiceNumber", invoiceNumber).setParameter(
-					"customerAccount", customerAccount);
+			q.setParameter("invoiceNumber", invoiceNumber).setParameter("customerAccount", customerAccount);
 			Object invoiceObject = q.getSingleResult();
 			return (Invoice) invoiceObject;
 		} catch (NoResultException e) {
-			log.info(
-					"Invoice with invoice number #0 was not found. Returning null.",
-					invoiceNumber);
+			log.info("Invoice with invoice number #0 was not found. Returning null.", invoiceNumber);
 			return null;
 		} catch (NonUniqueResultException e) {
-			log.info(
-					"Multiple invoices with invoice number #0 was found. Returning null.",
-					invoiceNumber);
+			log.info("Multiple invoices with invoice number #0 was found. Returning null.", invoiceNumber);
 			return null;
 		} catch (Exception e) {
 			return null;
 		}
 	}
 
-	public Invoice getInvoiceByNumber(String invoiceNumber)
-			throws BusinessException {
+	public Invoice getInvoiceByNumber(String invoiceNumber) throws BusinessException {
 		try {
-			Query q = getEntityManager().createQuery(
-					"from Invoice where invoiceNumber = :invoiceNumber");
+			Query q = getEntityManager().createQuery("from Invoice where invoiceNumber = :invoiceNumber");
 			q.setParameter("invoiceNumber", invoiceNumber);
 			Object invoiceObject = q.getSingleResult();
 			return (Invoice) invoiceObject;
 		} catch (NoResultException e) {
-			log.info(
-					"Invoice with invoice number #0 was not found. Returning null.",
-					invoiceNumber);
+			log.info("Invoice with invoice number #0 was not found. Returning null.", invoiceNumber);
 			return null;
 		} catch (NonUniqueResultException e) {
-			log.info(
-					"Multiple invoices with invoice number #0 was found. Returning null.",
-					invoiceNumber);
+			log.info("Multiple invoices with invoice number #0 was found. Returning null.", invoiceNumber);
 			return null;
 		}
 	}
 
-	public List<Invoice> getInvoices(BillingRun billingRun)
-			throws BusinessException {
+	public List<Invoice> getInvoices(BillingRun billingRun) throws BusinessException {
 		return getInvoices(getEntityManager(), billingRun);
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<Invoice> getInvoices(EntityManager em, BillingRun billingRun)
-			throws BusinessException {
+	public List<Invoice> getInvoices(EntityManager em, BillingRun billingRun) throws BusinessException {
 		try {
-			Query q = em
-					.createQuery("from Invoice where billingRun = :billingRun");
+			Query q = em.createQuery("from Invoice where billingRun = :billingRun");
 			q.setParameter("billingRun", billingRun);
 			List<Invoice> invoices = q.getResultList();
 			return invoices;
@@ -151,18 +130,15 @@ public class InvoiceService extends PersistenceService<Invoice> {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<Invoice> getInvoices(BillingAccount billingAccount,
-			String invoiceType) throws BusinessException {
+	public List<Invoice> getInvoices(BillingAccount billingAccount, String invoiceType) throws BusinessException {
 		try {
-			Query q = getEntityManager()
-					.createQuery(
-							"from Invoice where billingAccount = :billingAccount and invoiceType=:invoiceType");
+			Query q = getEntityManager().createQuery(
+					"from Invoice where billingAccount = :billingAccount and invoiceType=:invoiceType");
 			q.setParameter("billingAccount", billingAccount);
 			q.setParameter("invoiceType", invoiceType);
 			List<Invoice> invoices = q.getResultList();
-			log.info(
-					"getInvoices: founds #0 invoices with BA_code={} and type=#2 ",
-					invoices.size(), billingAccount.getCode(), invoiceType);
+			log.info("getInvoices: founds #0 invoices with BA_code={} and type=#2 ", invoices.size(),
+					billingAccount.getCode(), invoiceType);
 			return invoices;
 		} catch (Exception e) {
 			return null;
@@ -182,12 +158,15 @@ public class InvoiceService extends PersistenceService<Invoice> {
 	}
 
 	public String getInvoiceNumber(Invoice invoice, User currentUser) {
-		Seller seller = invoice.getBillingAccount().getCustomerAccount()
-				.getCustomer().getSeller();
+		Seller seller = invoice.getBillingAccount().getCustomerAccount().getCustomer().getSeller();
 		String prefix = seller.getInvoicePrefix();
+
 		if (prefix == null) {
 			prefix = seller.getProvider().getInvoicePrefix();
+		} else {
+			prefix = seller.getCode() + "_" + prefix;
 		}
+
 		if (prefix == null) {
 			prefix = "";
 		}
@@ -198,32 +177,34 @@ public class InvoiceService extends PersistenceService<Invoice> {
 			seller.updateAudit(seller.getAuditable().getCreator());
 		}
 
-		long nextInvoiceNb = getNextValue(seller, currentUser);
+		String nextInvoiceNb = getNextValue(seller, currentUser);
 		StringBuffer num1 = new StringBuffer("000000000");
 		num1.append(nextInvoiceNb + "");
 		String invoiceNumber = num1.substring(num1.length() - 9);
 		return (prefix + invoiceNumber);
 	}
 
-	public synchronized long getNextValue(Seller seller, User currentUser) {
-		long result = 0;
+	public synchronized String getNextValue(Seller seller, User currentUser) {
+		String result = "0";
+
 		if (seller != null) {
 			if (seller.getCurrentInvoiceNb() != null) {
 				long currentInvoiceNbre = seller.getCurrentInvoiceNb();
-				result = 1 + currentInvoiceNbre;
-				seller.setCurrentInvoiceNb(result);
+				long nextInvoiceNo = 1 + currentInvoiceNbre;
+				seller.setCurrentInvoiceNb(nextInvoiceNo);
+				result = String.valueOf(nextInvoiceNo);
 			} else {
-				result = getNextValue(seller.getProvider(), currentUser);
+				result = String.valueOf(getNextValue(seller.getProvider(), currentUser));
 			}
 		}
+
 		return result;
 	}
 
 	public synchronized long getNextValue(Provider provider, User currentUser) {
 		long result = 0;
 		if (provider != null) {
-			long currentInvoiceNbre = provider.getCurrentInvoiceNb() != null ? provider
-					.getCurrentInvoiceNb() : 0;
+			long currentInvoiceNbre = provider.getCurrentInvoiceNb() != null ? provider.getCurrentInvoiceNb() : 0;
 			result = 1 + currentInvoiceNbre;
 			provider.setCurrentInvoiceNb(result);
 			if (currentUser != null) {
@@ -235,18 +216,15 @@ public class InvoiceService extends PersistenceService<Invoice> {
 		return result;
 	}
 
-	public List<Invoice> getValidatedInvoicesWithNoPdf(BillingRun br,
-			Provider provider) {
+	public List<Invoice> getValidatedInvoicesWithNoPdf(BillingRun br, Provider provider) {
 		return getValidatedInvoicesWithNoPdf(getEntityManager(), br, provider);
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<Invoice> getValidatedInvoicesWithNoPdf(EntityManager em,
-			BillingRun br, Provider provider) {
+	public List<Invoice> getValidatedInvoicesWithNoPdf(EntityManager em, BillingRun br, Provider provider) {
 		try {
 			QueryBuilder qb = new QueryBuilder(Invoice.class, "i");
-			qb.addCriterionEntity("i.billingRun.status",
-					BillingRunStatusEnum.VALIDATED);
+			qb.addCriterionEntity("i.billingRun.status", BillingRunStatusEnum.VALIDATED);
 			qb.addCriterionEntity("provider", provider);
 			qb.addSql("i.pdf is null");
 
@@ -264,14 +242,12 @@ public class InvoiceService extends PersistenceService<Invoice> {
 	public List<Invoice> getInvoicesWithNoAccountOperation(BillingRun br) {
 		try {
 			QueryBuilder qb = new QueryBuilder(Invoice.class, "i");
-			qb.addCriterionEntity("i.billingRun.status",
-					BillingRunStatusEnum.VALIDATED);
+			qb.addCriterionEntity("i.billingRun.status", BillingRunStatusEnum.VALIDATED);
 			qb.addSql("i.recordedInvoice is null");
 			if (br != null) {
 				qb.addCriterionEntity("i.billingRun", br);
 			}
-			return (List<Invoice>) qb.getQuery(getEntityManager())
-					.getResultList();
+			return (List<Invoice>) qb.getQuery(getEntityManager()).getResultList();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -279,17 +255,16 @@ public class InvoiceService extends PersistenceService<Invoice> {
 	}
 
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public void createAgregatesAndInvoice(
-			BillingAccount billingAccount, Long billingRunId,
-			User currentUser) throws BusinessException, Exception {
-		log.debug("createAgregatesAndInvoice tx status={}",txReg.getTransactionStatus());
+	public void createAgregatesAndInvoice(BillingAccount billingAccount, Long billingRunId, User currentUser)
+			throws BusinessException, Exception {
+		log.debug("createAgregatesAndInvoice tx status={}", txReg.getTransactionStatus());
 		EntityManager em = getEntityManager();
-		BillingRun billingRun=em.find(BillingRun.class,billingRunId);
+		BillingRun billingRun = em.find(BillingRun.class, billingRunId);
 		em.refresh(billingRun);
 		try {
-			billingAccount=em.find(billingAccount.getClass(),billingAccount.getId());
+			billingAccount = em.find(billingAccount.getClass(), billingAccount.getId());
 			em.refresh(billingAccount);
-			currentUser=em.find(currentUser.getClass(),currentUser.getId());
+			currentUser = em.find(currentUser.getClass(), currentUser.getId());
 			em.refresh(currentUser);
 			Long startDate = System.currentTimeMillis();
 			BillingCycle billingCycle = billingRun.getBillingCycle();
@@ -314,25 +289,20 @@ public class InvoiceService extends PersistenceService<Invoice> {
 			invoice.setPaymentMethod(billingAccount.getPaymentMethod());
 			invoice.setProvider(billingRun.getProvider());
 			em.persist(invoice);
-			//create(invoice, currentUser, currentUser.getProvider());
-			log.debug("created invoice entity with id={},  tx status={}, em open={}",invoice.getId(),txReg.getTransactionStatus(),em.isOpen());
-			ratedTransactionService.createInvoiceAndAgregates(
-					billingAccount, invoice, currentUser);
-			log.debug("created aggregates tx status={}, em open={}",txReg.getTransactionStatus(),em.isOpen());
+			// create(invoice, currentUser, currentUser.getProvider());
+			log.debug("created invoice entity with id={},  tx status={}, em open={}", invoice.getId(),
+					txReg.getTransactionStatus(), em.isOpen());
+			ratedTransactionService.createInvoiceAndAgregates(billingAccount, invoice, currentUser);
+			log.debug("created aggregates tx status={}, em open={}", txReg.getTransactionStatus(), em.isOpen());
 			em.joinTransaction();
-			if(billingRun.getProvider().isDisplayFreeTransacInInvoice()){
+			if (billingRun.getProvider().isDisplayFreeTransacInInvoice()) {
 				em.createNamedQuery("RatedTransaction.updateInvoicedDisplayFree")
-				.setParameter("billingAccount", billingAccount)
-				.setParameter("billingRun", billingRun)
-				.setParameter("invoice", invoice)
-				.executeUpdate();
+						.setParameter("billingAccount", billingAccount).setParameter("billingRun", billingRun)
+						.setParameter("invoice", invoice).executeUpdate();
 			} else {
-				em.createNamedQuery("RatedTransaction.updateInvoiced")
-				.setParameter("billingAccount", billingAccount)
-				.setParameter("billingRun", billingRun)
-				.setParameter("invoice", invoice)
-				.executeUpdate();
-				
+				em.createNamedQuery("RatedTransaction.updateInvoiced").setParameter("billingAccount", billingAccount)
+						.setParameter("billingRun", billingRun).setParameter("invoice", invoice).executeUpdate();
+
 			}
 
 			StringBuffer num1 = new StringBuffer("000000000");
@@ -343,18 +313,15 @@ public class InvoiceService extends PersistenceService<Invoice> {
 				key = key + Integer.parseInt(invoiceNumber.substring(i, i + 1));
 			}
 			invoice.setTemporaryInvoiceNumber(invoiceNumber + "-" + key % 10);
-			//getEntityManager().merge(invoice);
+			// getEntityManager().merge(invoice);
 			Long endDate = System.currentTimeMillis();
-			log.info("createAgregatesAndInvoice BR_ID=" + billingRun.getId()
-					+ ", BA_ID=" + billingAccount.getId() + ", Time en ms="
-					+ (endDate - startDate));
+			log.info("createAgregatesAndInvoice BR_ID=" + billingRun.getId() + ", BA_ID=" + billingAccount.getId()
+					+ ", Time en ms=" + (endDate - startDate));
 		} catch (Exception e) {
-			log.error("Error for BA=" + billingAccount.getCode() + " : "
-					+ e.getMessage());
+			log.error("Error for BA=" + billingAccount.getCode() + " : " + e.getMessage());
 			e.printStackTrace();
-			RejectedBillingAccount rejectedBA = new RejectedBillingAccount(
-					billingAccount, billingRun, e.getMessage());
-			rejectedBillingAccountService.create(rejectedBA,currentUser,currentUser.getProvider());
+			RejectedBillingAccount rejectedBA = new RejectedBillingAccount(billingAccount, billingRun, e.getMessage());
+			rejectedBillingAccountService.create(rejectedBA, currentUser, currentUser.getProvider());
 		}
 	}
 
