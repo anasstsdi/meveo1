@@ -229,13 +229,16 @@ public class BillingAccountService extends AccountService<BillingAccount> {
 		try {
 			QueryBuilder qb = new QueryBuilder(BillingAccount.class, "b");
 			qb.addCriterionEntity("b.billingCycle", billingCycle);
+			
 			if (startdate != null) {
 				qb.addCriterionDateRangeFromTruncatedToDay("nextInvoiceDate", startdate);
 			}
+			
 			if (endDate != null) {
 
 				qb.addCriterionDateRangeToTruncatedToDay("nextInvoiceDate", endDate);
 			}
+			
 			return (List<BillingAccount>) qb.getQuery(getEntityManager()).getResultList();
 		} catch (Exception ex) {
 			log.error(ex.getMessage());

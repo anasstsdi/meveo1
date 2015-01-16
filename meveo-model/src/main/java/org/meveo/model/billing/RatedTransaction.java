@@ -59,6 +59,10 @@ import org.meveo.model.crm.Provider;
 				+ " AND r.billingAccount.billingCycle=:billingCycle"
 				+ " AND (r.billingAccount.nextInvoiceDate >= :startDate)"
 				+ " AND (r.billingAccount.nextInvoiceDate < :endDate)"),
+		@NamedQuery(name = "RatedTransaction.sumbillingRunByCycleNoDate", 
+				query = "SELECT sum(r.amountWithoutTax),sum(r.amountWithTax),sum(r.amountTax) FROM RatedTransaction r"
+				+ " WHERE r.status=:status AND r.doNotTriggerInvoicing=false AND r.amountWithoutTax<>0 AND r.invoice is null"
+				+ " AND r.billingAccount.billingCycle=:billingCycle"),
 		@NamedQuery(name = "RatedTransaction.sumbillingRunByList", 
 				query = "SELECT sum(r.amountWithoutTax),sum(r.amountWithTax),sum(r.amountTax) FROM RatedTransaction r "
 				+ "WHERE r.status=:status AND r.doNotTriggerInvoicing=false AND r.amountWithoutTax<>0 AND r.invoice is null"
