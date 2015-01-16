@@ -68,10 +68,6 @@
 			<hf:formPanel id="sellerFormPanel" formId="sellerFormId"
 				label="#{messages['seller.title']}" backingBean="#{sellerBean}">
 
-				<div class="alert-box alert-box-notice">#{of:format2(messages['message.info.seller.invoicePrefixRequiredWhenInvoiceNoSet'],
-					messages['seller.invoicePrefix'],
-					messages['seller.currentInvoiceNb'])}</div>
-
 				<p:tabView id="sellerTab">
 					<p:tab title="#{messages['billingAccount.tab.account']}">
 						<div class="alert-box alert-box-notice">#{messages['message.info.seller.invoicePrefixRequiredWhenInvoiceNoSet']}</div>
