@@ -474,8 +474,7 @@ public class BillingRunService extends PersistenceService<BillingRun> {
 				ratedTransactionsAmounts = (Object[]) getEntityManager()
 						.createNamedQuery("RatedTransaction.sumbillingRunByCycleNoDate")
 						.setParameter("status", RatedTransactionStatusEnum.OPEN)
-						.setParameter("billingCycle", billingCycle).setParameter("startDate", startDate)
-						.setParameter("endDate", endDate).getSingleResult();
+						.setParameter("billingCycle", billingCycle).getSingleResult();
 			}
 
 			result = billingAccountService.findBillingAccounts(billingCycle, startDate, endDate);
