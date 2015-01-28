@@ -100,6 +100,7 @@ public class XMLInvoiceCreator extends PersistenceService<Invoice> {
 
 		try {
 			boolean entreprise = invoice.getProvider().isEntreprise();
+			int rounding = invoice.getProvider().getRounding()==null?2:invoice.getProvider().getRounding();
 
 			if (BillingRunStatusEnum.VALIDATED.equals(invoice.getBillingRun()
 					.getStatus()) && invoice.getInvoiceNumber() == null) {
@@ -292,14 +293,13 @@ public class XMLInvoiceCreator extends PersistenceService<Invoice> {
 
 			Element amountWithoutTax = doc.createElement("amountWithoutTax");
 			Text amountWithoutTaxTxt = doc
-					.createTextNode(round(invoice.getAmountWithoutTax(),
-							invoice.getProvider().getRounding()));
+					.createTextNode(round(invoice.getAmountWithoutTax(),rounding));
 			amountWithoutTax.appendChild(amountWithoutTaxTxt);
 			amount.appendChild(amountWithoutTax);
 
 			Element amountWithTax = doc.createElement("amountWithTax");
 			Text amountWithTaxTxt = doc.createTextNode(round(invoice
-					.getAmountWithTax(), invoice.getProvider().getRounding()));
+					.getAmountWithTax(), rounding));
 			amountWithTax.appendChild(amountWithTaxTxt);
 			amount.appendChild(amountWithTax);
 
@@ -318,8 +318,7 @@ public class XMLInvoiceCreator extends PersistenceService<Invoice> {
 			 */
 
 			Element netToPayElement = doc.createElement("netToPay");
-			Text netToPayTxt = doc.createTextNode(round(netToPay, invoice
-					.getProvider().getRounding()));
+			Text netToPayTxt = doc.createTextNode(round(netToPay, rounding));
 			netToPayElement.appendChild(netToPayTxt);
 			amount.appendChild(netToPayElement);
 
@@ -611,6 +610,8 @@ public class XMLInvoiceCreator extends PersistenceService<Invoice> {
 		Element categories = doc.createElement("categories");
 		parent.appendChild(categories);
 		boolean entreprise = invoice.getProvider().isEntreprise();
+		int rounding = invoice.getProvider().getRounding()==null?2:invoice.getProvider().getRounding();
+		
 		List<CategoryInvoiceAgregate> categoryInvoiceAgregates = new ArrayList<CategoryInvoiceAgregate>();
 
 		for (InvoiceAgregate invoiceAgregate : invoice.getInvoiceAgregates()) {
@@ -660,18 +661,17 @@ public class XMLInvoiceCreator extends PersistenceService<Invoice> {
 			categories.appendChild(category);
 			Element amountWithoutTax = doc.createElement("amountWithoutTax");
 			Text amountWithoutTaxTxt = doc.createTextNode(round(
-					categoryInvoiceAgregate.getAmountWithoutTax(), invoice
-							.getProvider().getRounding()));
+					categoryInvoiceAgregate.getAmountWithoutTax(), rounding));
 			amountWithoutTax.appendChild(amountWithoutTaxTxt);
 			category.appendChild(amountWithoutTax);
-
+             
+			if(!entreprise){
 			Element amountWithTax = doc.createElement("amountWithTax");
 			Text amountWithTaxTxt = doc.createTextNode(round(
-					categoryInvoiceAgregate.getAmountWithTax(), invoice
-							.getProvider().getRounding()));
+					categoryInvoiceAgregate.getAmountWithTax(), rounding));
 			amountWithTax.appendChild(amountWithTaxTxt);
 			category.appendChild(amountWithTax);
-
+			}
 			if (generateSubCat) {
 				Element subCategories = doc.createElement("subCategories");
 				category.appendChild(subCategories);
@@ -727,6 +727,15 @@ public class XMLInvoiceCreator extends PersistenceService<Invoice> {
 						}
 
 						line.setAttribute("code", code != null ? code : "");
+						if( ratedTransaction.getParameter1() != null){
+							line.setAttribute("param1",  ratedTransaction.getParameter1());
+						}
+						if( ratedTransaction.getParameter2() != null){
+							line.setAttribute("param2",  ratedTransaction.getParameter2());
+						}
+						if( ratedTransaction.getParameter3() != null){
+							line.setAttribute("param3",  ratedTransaction.getParameter3());
+						}
 						Element lebel = doc.createElement("label");
 						Text lebelTxt = doc
 								.createTextNode(description != null ? description
@@ -748,8 +757,7 @@ public class XMLInvoiceCreator extends PersistenceService<Invoice> {
 								.createElement("unitAmountWithoutTax");
 						Text lineUnitAmountWithoutTaxTxt = doc
 								.createTextNode(round(ratedTransaction
-										.getUnitAmountWithoutTax(), invoice
-										.getProvider().getRounding()));
+										.getUnitAmountWithoutTax(), rounding));
 						lineUnitAmountWithoutTax
 								.appendChild(lineUnitAmountWithoutTaxTxt);
 						line.appendChild(lineUnitAmountWithoutTax);
@@ -758,8 +766,7 @@ public class XMLInvoiceCreator extends PersistenceService<Invoice> {
 								.createElement("amountWithoutTax");
 						Text lineAmountWithoutTaxTxt = doc
 								.createTextNode(round(
-										ratedTransaction.getAmountWithoutTax(),
-										invoice.getProvider().getRounding()));
+										ratedTransaction.getAmountWithoutTax(),rounding));
 						lineAmountWithoutTax
 								.appendChild(lineAmountWithoutTaxTxt);
 						line.appendChild(lineAmountWithoutTax);
@@ -768,12 +775,7 @@ public class XMLInvoiceCreator extends PersistenceService<Invoice> {
 							Element lineAmountWithTax = doc
 									.createElement("amountWithTax");
 							Text lineAmountWithTaxTxt = doc
-									.createTextNode(round(
-											entreprise ? ratedTransaction
-													.getAmountWithTax()
-													: ratedTransaction
-															.getAmountWithoutTax(),
-											invoice.getProvider().getRounding()));
+									.createTextNode(round(ratedTransaction.getAmountWithTax(),rounding));
 							lineAmountWithTax.appendChild(lineAmountWithTaxTxt);
 							line.appendChild(lineAmountWithTax);
 						}
@@ -810,11 +812,11 @@ public class XMLInvoiceCreator extends PersistenceService<Invoice> {
 			throws BusinessException {
 		log.debug("adding taxes...");
 		Element taxes = doc.createElement("taxes");
+		int rounding = invoice.getProvider().getRounding()==null?2:invoice.getProvider().getRounding();
 
 		taxes.setAttribute(
 				"total",
-				round(invoice.getAmountTax(), invoice.getProvider()
-						.getRounding()));
+				round(invoice.getAmountTax(), rounding));
 		parent.appendChild(taxes);
 		Map<Long, TaxInvoiceAgregate> taxInvoiceAgregateMap = new HashMap<Long, TaxInvoiceAgregate>();
 		for (InvoiceAgregate invoiceAgregate : invoice.getInvoiceAgregates()) {
@@ -880,21 +882,20 @@ public class XMLInvoiceCreator extends PersistenceService<Invoice> {
 
 			Element percent = doc.createElement("percent");
 			Text percentTxt = doc.createTextNode(round(taxInvoiceAgregate
-					.getTaxPercent(), invoice.getProvider().getRounding()));
+					.getTaxPercent(), rounding));
 			percent.appendChild(percentTxt);
 			tax.appendChild(percent);
 
 			Element taxAmount = doc.createElement("amount");
 			Text amountTxt = doc.createTextNode(round(taxInvoiceAgregate
-					.getAmountTax(), invoice.getProvider().getRounding()));
+					.getAmountTax(), rounding));
 			taxAmount.appendChild(amountTxt);
 			tax.appendChild(taxAmount);
 
 			Element amountHT = doc.createElement("amountHT");
 			Text amountHTTxt = doc
 					.createTextNode(round(taxInvoiceAgregate
-							.getAmountWithoutTax(), invoice.getProvider()
-							.getRounding()));
+							.getAmountWithoutTax(), rounding));
 			amountHT.appendChild(amountHTTxt);
 			tax.appendChild(amountHT);
 
@@ -1032,6 +1033,8 @@ public class XMLInvoiceCreator extends PersistenceService<Invoice> {
 			LinkedHashMap<String, XMLInvoiceHeaderCategoryDTO> headerCategories,
 			Document doc, Element parent, boolean entreprise, Provider provider) {
 
+		int rounding = provider.getRounding()==null?2:provider.getRounding();
+		
 		log.debug("add header categories");
 
 		Element categories = doc.createElement("categories");
@@ -1051,17 +1054,17 @@ public class XMLInvoiceCreator extends PersistenceService<Invoice> {
 
 			Element amountWithoutTax = doc.createElement("amountWithoutTax");
 			Text amountWithoutTaxTxt = doc.createTextNode(round(
-					xmlInvoiceHeaderCategoryDTO.getAmountWithoutTax(),
-					provider.getRounding()));
+					xmlInvoiceHeaderCategoryDTO.getAmountWithoutTax(),rounding));
 			amountWithoutTax.appendChild(amountWithoutTaxTxt);
 			category.appendChild(amountWithoutTax);
-
-			Element amountWithTax = doc.createElement("amountWithTax");
-			Text amountWithTaxTxt = doc.createTextNode(round(
-					xmlInvoiceHeaderCategoryDTO.getAmountWithTax(),
-					provider.getRounding()));
-			amountWithTax.appendChild(amountWithTaxTxt);
-			category.appendChild(amountWithTax);
+			if(!entreprise){
+				Element amountWithTax = doc.createElement("amountWithTax");
+				Text amountWithTaxTxt = doc.createTextNode(round(
+						xmlInvoiceHeaderCategoryDTO.getAmountWithTax(),rounding));
+				amountWithTax.appendChild(amountWithTaxTxt);
+				category.appendChild(amountWithTax);	
+			}
+			
 			if (entreprise) {
 				for (RatedTransaction headerTransaction : xmlInvoiceHeaderCategoryDTO
 						.getRatedtransactions().values()) {
@@ -1092,8 +1095,7 @@ public class XMLInvoiceCreator extends PersistenceService<Invoice> {
 							.createElement("unitAmountWithoutTax");
 					Text lineUnitAmountWithoutTaxTxt = doc
 							.createTextNode(round(
-									headerTransaction.getUnitAmountWithoutTax(),
-									provider.getRounding())
+									headerTransaction.getUnitAmountWithoutTax(),rounding)
 									+ "");
 					lineUnitAmountWithoutTax
 							.appendChild(lineUnitAmountWithoutTaxTxt);
@@ -1101,8 +1103,7 @@ public class XMLInvoiceCreator extends PersistenceService<Invoice> {
 					Element lineAmountWithoutTax = doc
 							.createElement("amountWithoutTax");
 					Text lineAmountWithoutTaxTxt = doc.createTextNode(round(
-							headerTransaction.getAmountWithoutTax(),
-							provider.getRounding())
+							headerTransaction.getAmountWithoutTax(),rounding)
 							+ "");
 					lineAmountWithoutTax.appendChild(lineAmountWithoutTaxTxt);
 					line.appendChild(lineAmountWithoutTax);
@@ -1114,7 +1115,7 @@ public class XMLInvoiceCreator extends PersistenceService<Invoice> {
 		}
 	}
 
-	public static String round(BigDecimal amount, Integer scale) {
+	private static String round(BigDecimal amount, Integer scale) {
 		if (amount == null) {
 			amount = BigDecimal.ZERO;
 		}
