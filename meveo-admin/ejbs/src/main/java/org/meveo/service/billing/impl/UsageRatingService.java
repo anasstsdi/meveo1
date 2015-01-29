@@ -709,7 +709,7 @@ public class UsageRatingService {
 		Map<Object, Object> userMap = new HashMap<Object, Object>();
 		userMap.put("edr", edr);
 		userMap.put("op", walletOperation);
-		if(expression.indexOf("ua")>=0){
+		if(expression!=null && expression.indexOf("ua")>=0){
 			userMap.put("ua", walletOperation.getWallet().getUserAccount());
 		}
 
@@ -728,7 +728,7 @@ public class UsageRatingService {
 		Map<Object, Object> userMap = new HashMap<Object, Object>();
 		userMap.put("edr", edr);
 		userMap.put("op", walletOperation);
-		if(expression.indexOf("ua")>=0){
+		if(expression!=null && expression.indexOf("ua")>=0){
 			userMap.put("ua", walletOperation.getWallet().getUserAccount());
 		}
 		Object res = RatingService.evaluateExpression(expression, userMap, String.class);
@@ -746,7 +746,7 @@ public class UsageRatingService {
 		Map<Object, Object> userMap = new HashMap<Object, Object>();
 		userMap.put("edr", edr);
 		userMap.put("op", walletOperation);
-		if(expression.indexOf("ua")>=0){
+		if(expression!=null && expression.indexOf("ua")>=0){
 			userMap.put("ua", walletOperation.getWallet().getUserAccount());
 		}
 		Object res = RatingService.evaluateExpression(expression, userMap, Double.class);
