@@ -635,14 +635,17 @@ public class UsageRatingService {
 					provider);
 
 			// handle associated edr creation
+			log.debug("charge.getTemplateCache().getEdrTemplates().size()={}",charge.getTemplateCache().getEdrTemplates().size());
 			if (charge.getTemplateCache().getEdrTemplates().size() > 0) {
 				for (TriggeredEDRCache triggeredEDRCache : charge
 						.getTemplateCache().getEdrTemplates()) {
+					log.debug("triggeredEDRCache.getConditionEL()={}",triggeredEDRCache.getConditionEL());
 					if (triggeredEDRCache.getConditionEL() == null
 							|| "".equals(triggeredEDRCache.getConditionEL())
 							|| matchExpression(
 									triggeredEDRCache.getConditionEL(), edr,
 									walletOperation)) {
+						log.debug("Condition EL matches",triggeredEDRCache.getConditionEL());
 						EDR newEdr = new EDR();
 						newEdr.setCreated(new Date());
 						newEdr.setEventDate(edr.getEventDate());
@@ -689,7 +692,7 @@ public class UsageRatingService {
 						}
 
 						if (sub != null) {
-							log.info("trigger EDR from code "
+							log.debug("trigger EDR from code "
 									+ triggeredEDRCache.getCode());
 							edrService.create(newEdr, currentUser, provider);
 						}
