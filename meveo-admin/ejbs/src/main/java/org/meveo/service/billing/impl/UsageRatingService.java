@@ -583,26 +583,21 @@ public class UsageRatingService {
 						newEdr.setQuantity(new BigDecimal(evaluateDoubleExpression(triggeredEDRCache.getQuantityEL(),
 								edr, walletOperation)));
 						newEdr.setStatus(EDRStatusEnum.OPEN);
-						Subscription sub = null;
-
-						if (StringUtils.isBlank(triggeredEDRCache.getSubscriptionEL())) {
-							newEdr.setSubscription(edr.getSubscription());
-						} else {
+						Subscription sub = edr.getSubscription();
+						if (!StringUtils.isBlank(triggeredEDRCache.getSubscriptionEL())) {
 							String subCode = evaluateStringExpression(triggeredEDRCache.getSubscriptionEL(), edr,
 									walletOperation);
 							sub = subscriptionService.findByCode(subCode, provider);
-
 							if (sub == null) {
-								log.info("could not find subscription for code =" + subCode + " (EL="
+								throw new BusinessException("could not find subscription for code =" + subCode + " (EL="
 										+ triggeredEDRCache.getSubscriptionEL() + ") in triggered EDR with code "
 										+ triggeredEDRCache.getCode());
 							}
 						}
-
-						if (sub != null) {
-							log.info("trigger EDR from code " + triggeredEDRCache.getCode());
-							edrService.create(newEdr, currentUser, provider);
-						}
+						newEdr.setSubscription(sub);
+						log.info("trigger EDR from code " + triggeredEDRCache.getCode());
+						edrService.create(newEdr, currentUser, provider);
+						
 					}
 				}
 			} else {
