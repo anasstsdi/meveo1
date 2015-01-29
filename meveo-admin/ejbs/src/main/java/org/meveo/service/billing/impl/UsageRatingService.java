@@ -584,6 +584,7 @@ public class UsageRatingService {
 								edr, walletOperation)));
 						newEdr.setStatus(EDRStatusEnum.OPEN);
 						Subscription sub = edr.getSubscription();
+						log.debug("triggeredEDRCache.getSubscriptionEL() = {}",triggeredEDRCache.getSubscriptionEL());
 						if (!StringUtils.isBlank(triggeredEDRCache.getSubscriptionEL())) {
 							String subCode = evaluateStringExpression(triggeredEDRCache.getSubscriptionEL(), edr,
 									walletOperation);
@@ -683,7 +684,7 @@ public class UsageRatingService {
 			} catch (Exception e) {
 				edr.setStatus(EDRStatusEnum.REJECTED);
 				edr.setRejectReason(e.getMessage());
-				log.error(e.getMessage());
+				e.printStackTrace();
 			}
 		}
 
