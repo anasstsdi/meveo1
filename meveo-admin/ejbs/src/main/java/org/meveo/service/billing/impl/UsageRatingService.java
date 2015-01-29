@@ -587,8 +587,12 @@ public class UsageRatingService {
 						if (!StringUtils.isBlank(triggeredEDRCache.getSubscriptionEL())) {
 							String subCode = evaluateStringExpression(triggeredEDRCache.getSubscriptionEL(), edr,
 									walletOperation);
+							log.debug("subCode = {}",subCode);
 							sub = subscriptionService.findByCode(subCode, provider);
 							if (sub == null) {
+								log.error("could not find subscription for code =" + subCode + " (EL="
+										+ triggeredEDRCache.getSubscriptionEL() + ") in triggered EDR with code "
+										+ triggeredEDRCache.getCode());
 								throw new BusinessException("could not find subscription for code =" + subCode + " (EL="
 										+ triggeredEDRCache.getSubscriptionEL() + ") in triggered EDR with code "
 										+ triggeredEDRCache.getCode());
