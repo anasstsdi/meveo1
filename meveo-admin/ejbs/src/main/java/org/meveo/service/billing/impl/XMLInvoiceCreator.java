@@ -113,6 +113,7 @@ public class XMLInvoiceCreator extends PersistenceService<Invoice> {
 			Element invoiceTag = doc.createElement("invoice");
 			Element header = doc.createElement("header");
 			invoiceTag.setAttribute("number", invoice.getInvoiceNumber());
+			invoiceTag.setAttribute("invoiceCounter", invoice.getAlias());
 			invoiceTag.setAttribute("id", invoice.getId().toString());
 			invoiceTag.setAttribute("customerId", invoice.getBillingAccount()
 					.getCustomerAccount().getCustomer().getCode()
