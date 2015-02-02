@@ -641,7 +641,7 @@ public class RatingService {
 			boolean quantityMaxOk = pricePlan.getMaxQuantity() == null
 					|| pricePlan.getMaxQuantity().compareTo(bareOperation.getQuantity()) > 0;
 			if (!quantityMaxOk) {
-				log.debug("the quantity " + bareOperation.getQuantity() + " is strictly greater than "
+				log.debug("the quantity " + bareOperation.getQuantity() + " is greater or equal to "
 						+ pricePlan.getMaxQuantity());
 				continue;
 			} else {
