@@ -179,11 +179,13 @@ public class UsageRatingService {
 					if (edrTemplate.getQuantityEl() == null || (edrTemplate.getQuantityEl().equals(""))) {
 						log.error("edrTemplate QuantityEL must be set for triggeredEDRTemplate=" + edrTemplate.getId());
 					} else {
+						log.info("set param1El to " + edrTemplate.getQuantityEl());
 						trigerredEDRCache.setQuantityEL(edrTemplate.getQuantityEl());
 					}
 					if (edrTemplate.getParam1El() == null || (edrTemplate.getParam1El().equals(""))) {
 						log.error("edrTemplate param1El must be set for triggeredEDRTemplate=" + edrTemplate.getId());
 					} else {
+						log.info("set param1El to " + edrTemplate.getParam1El());
 						trigerredEDRCache.setParam1EL(edrTemplate.getParam1El());
 					}
 
@@ -241,10 +243,10 @@ public class UsageRatingService {
 
 	public void updateCache(UsageChargeInstance usageChargeInstance) {
 		if (usageChargeInstance != null) {
-
+			
 			UsageChargeInstanceCache cachedValue = new UsageChargeInstanceCache();
 			ChargeTemplate chargeTemplate = usageChargeInstance.getChargeTemplate();
-			log.debug("chargeTemplateId={}" + chargeTemplate.getId());
+			log.debug("usageChargeInstance={} chargeTemplateId={} code={}", usageChargeInstance.getId(),chargeTemplate.getId(),chargeTemplate.getCode());
 			// UsageChargeTemplate usageChargeTemplate=(UsageChargeTemplate)
 			// usageChargeInstance.getChargeTemplate();
 			UsageChargeTemplate usageChargeTemplate = em.find(UsageChargeTemplate.class, chargeTemplate.getId());
@@ -453,7 +455,7 @@ public class UsageRatingService {
 	 * @throws BusinessException
 	 */
 	BigDecimal deduceCounter(EDR edr, UsageChargeInstanceCache charge, User currentUser) throws BusinessException {
-		log.info("Deduce counter for key " + charge.getCounter().getKey());
+		log.debug("Deduce counter for key " + charge.getCounter().getKey());
 
 		BigDecimal deducedQuantity = BigDecimal.ZERO;
 		CounterInstanceCache counterInstanceCache = counterCache.get(charge.getCounter().getKey());
@@ -530,7 +532,8 @@ public class UsageRatingService {
 			throws BusinessException {
 		boolean stopEDRRating = false;
 		BigDecimal deducedQuantity = null;
-
+		log.debug("rate EDR {}, eventDate={} , param1={}, with chargeid {}, counter {} "
+				,edr.getOriginRecord(),edr.getEventDate(),edr.getParameter1(),charge.getChargeInstanceId(),charge.getCounter());
 		if (charge.getCounter() != null) {
 			// if the charge is associated to a counter and we can decrement it
 			// then we rate the charge if not we simply try the next charge
@@ -543,15 +546,19 @@ public class UsageRatingService {
 		} else {
 			stopEDRRating = true;
 		}
-
+		log.debug("deduced quantity={}",deducedQuantity);
 		if (deducedQuantity == null || deducedQuantity.compareTo(BigDecimal.ZERO) > 0) {
 			Provider provider = charge.getProvider();
 			UsageChargeInstance chargeInstance = usageChargeInstanceService.findById(charge.getChargeInstanceId());
+			log.debug("create walletOp for usageChargeInstance {}",chargeInstance.getCode());
 			WalletOperation walletOperation = rateEDRwithMatchingCharge(edr, deducedQuantity, charge, chargeInstance,
 					provider);
 
 			if (deducedQuantity != null) {
 				edr.setQuantity(edr.getQuantity().subtract(deducedQuantity));
+				log.debug("change edr quantity to {} and walletOp quantity from {} to {}",edr.getQuantity()
+						,walletOperation.getQuantity(),deducedQuantity);
+				
 				walletOperation.setQuantity(deducedQuantity);
 			}
 
