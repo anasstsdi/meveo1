@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project name="maven-antrun-" default="main"  >
+<target name="main">
+  <copy file="src/main/resources/import-generic.sql" tofile="C:\Users\Damien\Dropbox\Projet Plugin WordPress\MEVEO Clone\meveo\meveo-admin\web\target/meveo/WEB-INF/classes/import.sql"/>
+</target>
+</project>

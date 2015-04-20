@@ -14,12 +14,14 @@ import org.meveo.api.dto.InvoiceCategoryDto;
 import org.meveo.api.dto.InvoiceSubCategoryDto;
 import org.meveo.api.dto.LanguageDto;
 import org.meveo.api.dto.ProviderDto;
+import org.meveo.api.dto.SellerDto;
 import org.meveo.api.dto.TaxDto;
 import org.meveo.api.dto.TerminationReasonDto;
 import org.meveo.api.dto.response.CustomerBrandDto;
 import org.meveo.api.dto.response.CustomerCategoryDto;
 import org.meveo.api.dto.response.GetCustomerConfigurationResponseDto;
 import org.meveo.api.dto.response.GetInvoicingConfigurationResponseDto;
+import org.meveo.api.dto.response.GetListSellerCodeResponseDto;
 import org.meveo.api.dto.response.GetTradingConfigurationResponseDto;
 import org.meveo.api.dto.response.TitleDto;
 import org.meveo.api.exception.EntityAlreadyExistsException;
@@ -28,6 +30,7 @@ import org.meveo.api.exception.MeveoApiException;
 import org.meveo.api.exception.MissingParameterException;
 import org.meveo.commons.utils.StringUtils;
 import org.meveo.model.admin.Currency;
+import org.meveo.model.admin.Seller;
 import org.meveo.model.admin.User;
 import org.meveo.model.billing.BillingCycle;
 import org.meveo.model.billing.Country;
@@ -49,6 +52,7 @@ import org.meveo.service.admin.impl.CountryService;
 import org.meveo.service.admin.impl.CurrencyService;
 import org.meveo.service.admin.impl.LanguageService;
 import org.meveo.service.admin.impl.TradingCurrencyService;
+import org.meveo.service.admin.impl.SellerService;
 import org.meveo.service.billing.impl.BillingCycleService;
 import org.meveo.service.billing.impl.TerminationReasonService;
 import org.meveo.service.billing.impl.TradingCountryService;
@@ -119,6 +123,9 @@ public class ProviderApi extends BaseApi {
 
 	@Inject
 	private TitleService titleService;
+
+	@Inject
+	private SellerService SellerService;
 
 	public void create(ProviderDto postData, User currentUser) throws MeveoApiException {
 		if (!StringUtils.isBlank(postData.getCode())) {
@@ -328,7 +335,7 @@ public class ProviderApi extends BaseApi {
 		if (invoiceSubCategories != null) {
 			for (InvoiceSubCategory invoiceSubCategory : invoiceSubCategories) {
 				result.getInvoiceSubCategories().getInvoiceSubCategory()
-						.add(new InvoiceSubCategoryDto(invoiceSubCategory));
+				.add(new InvoiceSubCategoryDto(invoiceSubCategory));
 			}
 		}
 
@@ -383,4 +390,23 @@ public class ProviderApi extends BaseApi {
 		return result;
 	}
 
+
+	/**
+	 * Return a list of all the seller of the provider.
+	 * 
+	 * @param currentUser
+	 * @return
+	 * @throws MeveoApiException
+	 */
+	public GetListSellerCodeResponseDto getListSellerCode(User currentUser) throws MeveoApiException {
+		GetListSellerCodeResponseDto result = new GetListSellerCodeResponseDto();
+
+		List<Seller> Sellers = SellerService.list(currentUser.getProvider());
+		if (Sellers != null) {
+			for (Seller Seller : Sellers) {
+				result.getSellers().getSeller().add(new SellerDto(Seller));
+			}
+		}
+		return result;
+	}
 }

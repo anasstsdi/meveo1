@@ -1,0 +1,50 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html" xmlns:hftl="http://hftl.org"
+	xmlns:hf="http://java.sun.com/jsf/composite/tags"
+	template="/layout/template.xhtml">
+
+	<f:metadata>
+		<f:event type="preRenderView"
+			listener="#{discountPlanListBean.preRenderView}" />
+	</f:metadata>
+
+	<ui:define name="navigation">
+		<ui:include src="/layout/navigation.xhtml" />
+	</ui:define>
+
+	<ui:define name="body">
+
+		<hf:searchPanel id="searchPanel" label="#{messages['action.search']}"
+			backingBean="#{discountPlanListBean}" columns="3">
+			<hf:searchField label="#{messages['BusinessEntity.code']}"
+				field="code" />
+			<hf:searchField label="#{messages['BusinessEntity.description']}"
+				field="description" />
+		</hf:searchPanel>
+
+		<hftl:dataList label="#{messages['discountPlan.title']}"
+			backingBean="#{discountPlanListBean}" sortBy="code">
+			<hftl:column label="#{messages['BusinessEntity.code']}" field="code" />
+			<hftl:column label="#{messages['BusinessEntity.description']}"
+				field="description" />
+			<hftl:column label="#{messages['discountPlanMatrix.minDuration']}"
+				field="minDuration" />
+			<hftl:column label="#{messages['discountPlanMatrix.maxDuration']}"
+				field="maxDuration" />
+			<hftl:column label="#{messages['discountPlanMatrix.planItems']}"
+				field="discountPlanItems" childField="code" isList="true"
+				childFieldId="id"
+				entityView="/pages/catalog/discountPlanItems/discountPlanItemDetail.xhtml"
+				backView="discountPlans" showPopup="true" popupFields="code" />
+            <hftl:column label="#{messages['enableEntity.active']}" field="active"
+                isMessage="true" />
+
+			<hftl:actionsColumn
+				permission="#{identity.hasPermission('catalog','catalogManagement')}" />
+		</hftl:dataList>
+
+	</ui:define>
+
+</ui:composition>

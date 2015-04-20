@@ -1,0 +1,53 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:s="http://jboss.com/products/seam/taglib"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:rich="http://richfaces.org/rich"
+	xmlns:a="http://richfaces.org/a4j" xmlns:hftl="http://hftl.org"
+	xmlns:hf="http://java.sun.com/jsf/composite/tags"
+	template="/layout/template.xhtml">
+
+	<f:metadata>
+		<f:event type="preRenderView"
+			listener="#{subscriptionListBean.preRenderView}" />
+	</f:metadata>
+
+	<ui:define name="navigation">
+		<ui:include src="/layout/navigation.xhtml" />
+	</ui:define>
+
+	<ui:define name="body">
+
+		<hf:searchPanel columns="3" label="#{messages['subscription.search']}"
+			backingBean="#{subscriptionListBean}">
+			<hf:searchField label="#{messages['subscription.code']}" field="code" />
+			<hf:searchField label="#{messages['subscription.status']}"
+				field="status" />
+			<hf:searchField label="#{messages['subscription.description']}"
+				field="description" />
+		</hf:searchPanel>
+
+		<hftl:dataList label="#{messages['subscription.title']}" sortBy="code"
+			backingBean="#{subscriptionListBean}" checkMany="false">
+			<hftl:column label="#{messages['businessEntity.code']}" field="code" />
+			<hftl:column label="#{messages['businessEntity.description']}"
+				field="description" />
+			<hftl:column label="#{messages['subscription.status']}"
+				field="status" childField="label" isMessage="true"
+				sortByField="true" />
+			<hftl:column label="#{messages['subscription.userAccount']}"
+				field="userAccount" childField="code" />
+			<hftl:column label="#{messages['subscription.serviceInstances']}"
+				field="serviceInstances" isList="true" childField="descriptionAndStatus"
+				childFieldId="id" sort="false"
+				view="/pages/resource/serviceInstances/serviceInstanceDetail.xhtml"
+				backView="subscriptions" />
+
+			<hftl:actionsColumn useCustomIdParam="true" renderDeleteLink="false"
+				permission="#{identity.hasPermission('billing','billingManagement')}" />
+		</hftl:dataList>
+
+	</ui:define>
+
+</ui:composition>

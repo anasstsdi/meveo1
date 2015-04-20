@@ -1,0 +1,131 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:s="http://jboss.com/products/seam/taglib"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:rich="http://richfaces.org/rich"
+	xmlns:a="http://richfaces.org/a4j" xmlns:hftl="http://hftl.org"
+	xmlns:hf="http://java.sun.com/jsf/composite/tags"
+	xmlns:c="http://java.sun.com/jstl/core"
+	xmlns:p="http://primefaces.org/ui" template="/layout/template.xhtml">
+
+	<ui:define name="navigation">
+		<ui:include src="/layout/navigation.xhtml" />
+	</ui:define>
+
+	<ui:define name="body">
+
+
+		<hftl:entityPopup id="searchMeasurableQuantity"
+			header="#{messages['measurableQuantity.popup.header']}"
+			updateField=":chartFormPanel:formChat:measurableQuantityId:measurableQuantityId"
+			selection="#{lineChartBean.entity.measurableQuantity}"
+			backingBean="#{measurableQuantityBean}"
+			searchField1Label="#{messages['businessEntity.code']}"
+			searchField1="code" column1Label="#{messages['businessEntity.code']}"
+			column1="code"
+			column2Label="#{messages['businessEntity.description']}"
+			column2="description" />
+
+		<hftl:entityPopup id="searchRole"
+			header="#{messages['role.userRolePanel']}"
+			updateField=":chartFormPanel:formChat:roleId:roleId"
+			selection="#{lineChartBean.entity.role}"
+			backingBean="#{userRoleBean}"
+			searchField1Label="#{messages['commons.name']}" searchField1="name"
+			column1Label="#{messages['commons.name']}" column1="name"
+			column2Label="#{messages['businessEntity.description']}"
+			column2="description" />
+
+		<hf:formPanel id="chartFormPanel" formId="formChat"
+			label="#{messages['chart.panel']}" backingBean="#{lineChartBean}"
+			columns="2">
+
+			<hf:formField label="#{messages['businessEntity.code']}" field="code" />
+
+			<hf:formEntityField id="measurableQuantityId"
+				label="#{messages['chart.measurableQuantity']}"
+				field="measurableQuantity" childField="code" required="true"
+				popup="true" popupId="searchMeasurableQuantity" />
+
+			<hf:formEntityField id="roleId" label="#{messages['chart.role']}"
+				field="role" childField="name" required="false" popup="true"
+				popupId="searchRole" />
+
+			<hf:formField label="#{messages['chart.style']}" field="style" />
+			<hf:formField label="#{messages['chart.styleClass']}"
+				field="styleClass" />
+			<hf:formField label="#{messages['chart.extender']}" field="extender" />
+			<hf:formField label="#{messages['lineChart.filled']}" field="filled" />
+			<hf:formField label="#{messages['lineChart.legendposition']}"
+				field="legendPosition" />
+			<p:panelGrid columns="2">
+				<p:outputLabel value="#{messages['pieChart.seriesColors']}" />
+				<p:colorPicker value="#{lineChartBean.entity.seriesColors}" />
+			</p:panelGrid>
+			<hf:formField label="#{messages['lineChart.shadow']}" field="shadow" />
+			<hf:formField label="#{messages['lineChart.minX']}" field="minX" />
+			<hf:formField label="#{messages['lineChart.minY']}" field="minY" />
+			<hf:formField label="#{messages['lineChart.maxX']}" field="maxX" />
+			<hf:formField label="#{messages['lineChart.maxY']}" field="maxY" />
+			<hf:formField label="#{messages['lineChart.breakOnNull']}"
+				field="breakOnNull" />
+			<hf:formField label="#{messages['lineChart.xaxislabel']}"
+				field="xaxisLabel" />
+			<hf:formField label="#{messages['lineChart.yaxislabel']}"
+				field="yaxisLabel" />
+			<hf:formField label="#{messages['lineChart.xaxisangle']}"
+				field="xaxisAngle" />
+			<hf:formField label="#{messages['lineChart.yaxisangle']}"
+				field="yaxisAngle" />
+			<hf:formField label="#{messages['lineChart.legendcols']}"
+				field="legendCols" />
+			<hf:formField label="#{messages['lineChart.legendrows']}"
+				field="legendRows" />
+			<hf:formField label="#{messages['lineChart.stacked']}"
+				field="stacked" />
+			<hf:formField label="#{messages['lineChart.zoom']}" field="zoom" />
+			<hf:formField label="#{messages['lineChart.animate']}"
+				field="animate" />
+			<hf:formField label="#{messages['lineChart.showDataTip']}"
+				field="showDataTip" />
+			<hf:formField label="#{messages['lineChart.datatipFormat']}"
+				field="datatipFormat" />
+
+			<p:commandButton id="showPreview"
+				action="#{lineChartBean.getChartEntityModel()}"
+				value="#{messages['page.chart.preview']}" update="@all"></p:commandButton>
+
+			<p:outputPanel id="chartPreview"
+				rendered="#{lineChartBean.chartEntityModel.model != null}">
+				<p:lineChart value="#{lineChartBean.chartEntityModel.model}"
+					fill="#{lineChartBean.chartEntityModel.lineChart.filled}"
+					legendPosition="#{lineChartBean.chartEntityModel.lineChart.legendPosition}"
+					stacked="#{lineChartBean.chartEntityModel.lineChart.stacked}"
+					minX="#{lineChartBean.chartEntityModel.lineChart.minX}"
+					minY="#{lineChartBean.chartEntityModel.lineChart.minY}"
+					maxX="#{lineChartBean.chartEntityModel.lineChart.maxX}"
+					maxY="#{lineChartBean.chartEntityModel.lineChart.maxY}"
+					breakOnNull="#{lineChartBean.chartEntityModel.lineChart.breakOnNull}"
+					xaxisLabel="#{lineChartBean.chartEntityModel.lineChart.xaxisLabel}"
+					yaxisLabel="#{lineChartBean.chartEntityModel.lineChart.yaxisLabel}"
+					xaxisAngle="#{lineChartBean.chartEntityModel.lineChart.xaxisAngle}"
+					yaxisAngle="#{lineChartBean.chartEntityModel.lineChart.yaxisAngle}"
+					legendCols="#{lineChartBean.chartEntityModel.lineChart.legendCols}"
+					legendRows="#{lineChartBean.chartEntityModel.lineChart.legendRows}"
+					zoom="#{lineChartBean.chartEntityModel.lineChart.zoom}"
+					animate="#{lineChartBean.chartEntityModel.lineChart.animate}"
+					showDatatip="#{lineChartBean.chartEntityModel.lineChart.showDataTip}"
+					datatipFormat="#{lineChartBean.chartEntityModel.lineChart.datatipFormat}"
+					seriesColors="#{lineChartBean.chartEntityModel.lineChart.seriesColors}"
+					shadow="#{lineChartBean.chartEntityModel.lineChart.shadow}"
+					style="#{line.lineChart.style}"
+					styleClass="#{line.lineChart.style}" />
+			</p:outputPanel>
+
+		</hf:formPanel>
+
+
+	</ui:define>
+
+</ui:composition>

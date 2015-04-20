@@ -1,0 +1,205 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:rich="http://richfaces.org/rich"
+	xmlns:a="http://richfaces.org/a4j" xmlns:hftl="http://hftl.org"
+	xmlns:hf="http://java.sun.com/jsf/composite/tags"
+	xmlns:s="http://jboss.org/seam/faces"
+	xmlns:sc="http://java.sun.com/jsf/composite/components/seamfaces"
+	xmlns:p="http://primefaces.org/ui" template="/layout/template.xhtml"
+	xmlns:e="http://primefaces.org/extension">
+
+	<ui:define name="navigation">
+		<ui:include src="/layout/navigation.xhtml" />
+	</ui:define>
+
+	<f:metadata>
+		<s:viewAction action="#{conversation.begin}"
+			if="#{conversation.transient}" />
+	</f:metadata>
+
+	<ui:param name="pageTitle" value="#{messages['job.page.title']}" />
+	<ui:define name="body">
+
+		<p:panel>
+			<f:facet name="header">
+				<h:outputText value="#{messages['job.page.title']}" />
+			</f:facet>
+
+				<hf:formPanel  formId="timerBeanFormId"
+					backingBean="#{timerBean}" showFormButtons="false"
+					ajaxSubmit="true">
+
+					<a target="_blank"
+						href="http://docs.oracle.com/javaee/6/api/javax/ejb/ScheduleExpression.html">Help
+						on format</a>
+
+					<p:panelGrid columns="2">
+					<p:outputLabel for="jobCategory" value="#{messages['timer.jobCategory']}"/>
+					<p:selectOneMenu id="jobCategory" value="#{timerBean.timerEntity.jobCategoryEnum}" required="true">
+					<f:selectItem itemLabel="#{messages['commons.select']}" />
+					<f:selectItems value="#{timerBean.jobCategoryEnumValues}" var="jobCat" itemLabel="#{messages[jobCat.label]}"/>					
+					<p:ajax event="valueChange" update="@form"></p:ajax>
+				   </p:selectOneMenu> 
+                   </p:panelGrid>
+				   
+				   
+					<p:panelGrid columns="2">
+						<p:outputLabel for="timerJobName"
+							value="#{messages['timer.jobName']}"></p:outputLabel>
+						<p:selectOneMenu id="timerJobName"
+							value="#{timerBean.timerEntity.jobName}"
+							disabled="#{timerBean.timerEntity.id != null}" required="true">
+							<f:selectItem itemLabel="#{messages['commons.select']}" />
+							<f:selectItems value="#{timerBean.jobNames}" />
+							<p:ajax event="valueChange" update="@form"></p:ajax>
+						</p:selectOneMenu>
+					</p:panelGrid>
+
+					<p:panelGrid columns="2">
+						<p:outputLabel for="jobName" value="#{messages['timer.name']}" />
+						<p:inputText id="jobName" value="#{timerBean.timerEntity.name}"
+							required="true" />
+					</p:panelGrid>
+
+					<p:panelGrid columns="4"
+						rendered="#{timerBean.timerEntity.id!=null or timerBean.timerEntity.jobName!=null}">
+
+						<p:panelGrid columns="2">
+							<p:outputLabel for="hour" value="#{messages['timer.hour']}" />
+							<p:inputText id="hour" value="#{timerBean.timerEntity.hour}"
+								required="true" />
+						</p:panelGrid>
+
+						<p:panelGrid columns="2">
+							<p:outputLabel for="minute" value="#{messages['timer.minute']}" />
+							<p:inputText id="minute" value="#{timerBean.timerEntity.minute}"
+								required="true" />
+						</p:panelGrid>
+
+						<p:panelGrid columns="2">
+							<p:outputLabel for="second" value="#{messages['timer.second']}" />
+							<p:inputText id="second" value="#{timerBean.timerEntity.second}"
+								required="true" />
+						</p:panelGrid>
+
+						<p:panelGrid columns="2">
+							<p:outputLabel for="year" value="#{messages['timer.year']}" />
+							<p:inputText id="year" value="#{timerBean.timerEntity.year}"
+								required="true" />
+						</p:panelGrid>
+
+						<p:panelGrid columns="2">
+							<p:outputLabel for="month" value="#{messages['timer.month']}" />
+							<p:inputText id="month" value="#{timerBean.timerEntity.month}"
+								required="true" />
+						</p:panelGrid>
+
+						<p:panelGrid columns="2">
+							<p:outputLabel for="dayOfMonth"
+								value="#{messages['timer.dayOfMonth']}" />
+							<p:inputText id="dayOfMonth"
+								value="#{timerBean.timerEntity.dayOfMonth}" required="true" />
+						</p:panelGrid>
+
+						<p:panelGrid columns="2">
+							<p:outputLabel for="dayOfWeek"
+								value="#{messages['timer.dayOfWeek']}" />
+							<p:inputText id="dayOfWeek"
+								value="#{timerBean.timerEntity.dayOfWeek}" required="true" />
+						</p:panelGrid>
+
+						<p:panelGrid columns="2">
+							<p:outputLabel for="parameters"
+								value="#{messages['timer.parameter']}" />
+							<p:inputText id="parameters"
+								value="#{timerBean.timerEntity.timerInfo.parametres}" />
+						</p:panelGrid>
+
+						<p:panelGrid columns="2">
+							<p:outputLabel for="active" value="#{messages['timer.active']}" />
+							<p:selectBooleanCheckbox id="active"
+								value="#{timerBean.timerEntity.timerInfo.active}" />
+						</p:panelGrid>
+
+					</p:panelGrid>
+
+					<p:panelGrid columns="2">
+						<p:outputLabel for="timerFollowingJob"
+							value="#{messages['timer.followingJob']}"></p:outputLabel>
+						<p:selectOneMenu id="timerFollowingJob"
+							value="#{timerBean.timerEntity.timerInfo.followingTimerId}">
+							<f:selectItem itemLabel="#{messages['commons.select']}" />
+							<f:selectItems value="#{timerBean.getTimerEntityList()}" var="t_"
+								itemLabel="#{t_.name}" itemValue="#{t_.id}" />
+						</p:selectOneMenu>
+					</p:panelGrid>
+
+					<p:panelGrid columns="4">
+						<div class="action-buttons">
+							<p:commandButton ajax="false" id="button_create"
+								value="#{messages['action.save']}"
+								action="#{timerBean.create()}"
+								rendered="#{timerBean.timerEntity.id==null and timerBean.timerEntity.jobName!=null}" />
+							<p:commandButton ajax="false" id="button_update"
+								value="#{messages['action.save']}"
+								action="#{timerBean.updateTimer()}"
+								rendered="#{timerBean.timerEntity.id!=null}" />
+							<p:commandButton ajax="false" id="button_delete"
+								value="#{messages['commons.delete']}"
+								action="#{timerBean.deleteTimer()}" immediate="true"
+								onclick="if(!confirm('#{messages['entity.remove.confirmation']}')) return false;"
+								rendered="#{timerBean.timerEntity.id!=null }" />
+							<p:commandButton ajax="false" id="button_execute"
+								value="#{messages['job.executeJobNow']}"
+								action="#{timerBean.executeTimer()}"
+								rendered="#{timerBean.timerEntity.id!=null}" />
+							<p:button id="button_back" value="#{messages['action.back']}"
+								outcome="jobTimers" />
+						</div>
+					</p:panelGrid>
+				</hf:formPanel>
+			
+
+			<!-- ===================================== JOB EXECUTION RESULTS ===================================== -->
+
+			<p:outputPanel id="jobExecutions">
+				<hftl:dataList backingBean="#{timerBean}"
+					resultsId="timerBean_results" sortBy="#{entity.startDate}"
+					sortOrder="descending">
+					<p:column sortBy="startDate">
+						<f:facet name="header">
+							<h:outputText value="#{messages['jobExecution.startDate']}" />
+						</f:facet>
+						<h:outputText value="#{entity.startDate}">
+							<f:convertDateTime pattern="dd/MM/yyyyy hh:mm:ss" />
+						</h:outputText>
+					</p:column>
+
+					<p:column>
+						<f:facet name="header">
+							<h:outputText value="#{messages['jobExecution.endDate']}" />
+						</f:facet>
+						<h:outputText value="#{entity.endDate}">
+							<f:convertDateTime pattern="dd/MM/yyyyy hh:mm:ss" />
+						</h:outputText>
+					</p:column>
+
+					<hftl:column label="#{messages['jobExecution.nbOk']}"
+						field="nbItemsCorrectlyProcessed" sort="false" />
+
+					<hftl:column label="#{messages['jobExecution.nbWarn']}"
+						field="nbItemsProcessedWithWarning" sort="false" />
+
+					<hftl:column label="#{messages['jobExecution.nbKo']}"
+						field="nbItemsProcessedWithError" sort="false" />
+
+					<hftl:column label="#{messages['jobExecution.report']}"
+						field="report" sort="false" />
+				</hftl:dataList>
+
+			</p:outputPanel>
+		</p:panel>
+	</ui:define>
+</ui:composition>

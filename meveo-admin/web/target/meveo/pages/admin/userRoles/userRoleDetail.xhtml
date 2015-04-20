@@ -1,0 +1,27 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:s="http://jboss.com/products/seam/taglib"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:rich="http://richfaces.org/rich"
+	xmlns:a="http://richfaces.org/a4j" xmlns:hftl="http://hftl.org"
+	xmlns:hf="http://java.sun.com/jsf/composite/tags"
+	template="/layout/template.xhtml">
+
+	<ui:define name="navigation">
+		<ui:include src="/layout/navigation.xhtml" />
+	</ui:define>
+
+	<ui:define name="body">
+
+		<hf:formPanel label="#{messages['role.userRolePanel']}"
+			backingBean="#{userRoleBean}">
+			<hf:formField label="#{messages['role.name']}" field="name" />
+			<hf:formField label="#{messages['role.description']}"
+				field="description" size="50" maxlength="50" />
+			<hf:formField label="#{messages['role.permission']}"
+				field="permissions" listType="pickUpList"
+				listService="#{roleService}" childField="name" />
+		</hf:formPanel>
+	</ui:define>
+</ui:composition>

@@ -1,0 +1,7 @@
+org\meveo\api\rest\MeveoClient.class
+org\meveo\api\rest\SellerRsTest.class
+org\meveo\api\rest\TaxRsTest.class
+org\meveo\api\rest\BaseRsTest.class
+org\meveo\api\rest\RestSecurityTest.class
+org\meveo\api\rest\CountryRsTest.class
+org\meveo\api\rest\DefaultUserProducer.class

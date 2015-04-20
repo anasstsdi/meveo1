@@ -1,0 +1,98 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jstl/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:custom="http://manaty.net/custom"
+	xmlns:hf="http://java.sun.com/jsf/composite/tags"
+	template="layout/template.xhtml">
+
+	<ui:define name="navigation">
+		<ui:include src="/layout/navigation.xhtml">
+		</ui:include>
+	</ui:define>
+
+	<ui:define name="body">
+		<p:panel>
+
+
+
+			<h:panelGrid columns="2" style="width:100%;text-align:center;">
+				<h:graphicImage value="/img/MeveoOpenCell.png" style="border:0px;" />
+				<!-- REMOVED FOR NOW -->
+				<!--
+				<p:columnChart value="#{dashboard.customerAccount}" var="customerAccounts" xfield="#{customerAccounts.month}">
+					<p:chartSeries label="#{messages['dashboard.customerAccounts']}" value="#{customerAccounts.amount}" />
+				</p:columnChart >
+               -->
+
+
+			</h:panelGrid>
+
+			<h:panelGrid columns="3">
+
+				<ui:repeat var="bar" value="#{barChartBean.barChartEntityModels}"
+					varStatus="i">
+
+					<h:form rendered="#{bar.barChart.isVisible}">
+						<p:outputPanel style="width:500px;">
+							<hf:barChartComponent barChartEntityModel="#{bar}" />
+							<!-- chartBackingBean="#{barChartBean}" -->
+						</p:outputPanel>
+						<p:outputLabel value="#{messages['chart.from']}"></p:outputLabel>
+						<p:calendar id="filterFrom" value="#{bar.minDate}">
+							<p:ajax event="dateSelect" update="@form"
+								listener="#{barChartBean.setModel(i.index)}" />
+						</p:calendar>
+						<p:outputLabel value="#{messages['chart.to']}"></p:outputLabel>
+						<p:calendar id="filterTo" value="#{bar.maxDate}">
+							<p:ajax event="dateSelect" update="@form"
+								listener="#{barChartBean.setModel(i.index)}" />
+						</p:calendar>
+					</h:form>
+				</ui:repeat>
+
+				<ui:repeat var="line" value="#{lineChartBean.lineChartEntityModels}"
+					varStatus="i">
+					<h:form rendered="#{line.lineChart.isVisible}">
+						<p:outputPanel style="width:500px;">
+							<hf:lineChartComponent lineChartEntityModel="#{line}"></hf:lineChartComponent>
+						</p:outputPanel>
+						<p:outputLabel value="#{messages['chart.from']}"></p:outputLabel>
+						<p:calendar id="filterFrom" value="#{line.minDate}">
+							<p:ajax event="dateSelect" update="@form"
+								listener="#{lineChartBean.setModel(i.index)}" />
+						</p:calendar>
+						<p:outputLabel value="#{messages['chart.to']}"></p:outputLabel>
+						<p:calendar id="filterTo" value="#{line.maxDate}">
+							<p:ajax event="dateSelect" update="@form"
+								listener="#{lineChartBean.setModel(i.index)}" />
+						</p:calendar>
+					</h:form>
+				</ui:repeat>
+
+				<ui:repeat var="pie" value="#{pieChartBean.pieChartEntityModels}"
+					varStatus="i">
+					<h:form rendered="#{pie.pieChart.isVisible}">
+						<p:outputPanel style="width:500px;">
+							<hf:pieChartComponent pieChartEntityModel="#{pie}"></hf:pieChartComponent>
+						</p:outputPanel>
+						<p:outputLabel value="#{messages['chart.from']}"></p:outputLabel>
+						<p:calendar id="filterFrom" value="#{pie.minDate}">
+							<p:ajax event="dateSelect" update="@form"
+								listener="#{pieChartBean.setModel(i.index)}" />
+						</p:calendar>
+						<p:outputLabel value="#{messages['chart.to']}"></p:outputLabel>
+						<p:calendar id="filterTo" value="#{pie.maxDate}">
+							<p:ajax event="dateSelect" update="@form"
+								listener="#{pieChartBean.setModel(i.index)}" />
+						</p:calendar>
+					</h:form>
+				</ui:repeat>
+
+			</h:panelGrid>
+		</p:panel>
+
+	</ui:define>
+</ui:composition>

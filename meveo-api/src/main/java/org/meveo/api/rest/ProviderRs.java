@@ -13,6 +13,7 @@ import org.meveo.api.dto.ActionStatus;
 import org.meveo.api.dto.ProviderDto;
 import org.meveo.api.dto.response.GetCustomerConfigurationResponseDto;
 import org.meveo.api.dto.response.GetInvoicingConfigurationResponseDto;
+import org.meveo.api.dto.response.GetListSellerCodeResponseDto;
 import org.meveo.api.dto.response.GetProviderResponse;
 import org.meveo.api.dto.response.GetTradingConfigurationResponseDto;
 import org.meveo.api.rest.security.RSSecured;
@@ -69,4 +70,8 @@ public interface ProviderRs extends IBaseRs {
 	@GET
 	@Path("/getCustomerConfiguration")
 	GetCustomerConfigurationResponseDto getCustomerConfiguration();
+
+	@GET
+	@Path("/getListSellerCode")
+	GetListSellerCodeResponseDto getListSellerCode();
 }

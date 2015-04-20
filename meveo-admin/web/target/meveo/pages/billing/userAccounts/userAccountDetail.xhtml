@@ -1,0 +1,544 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:s="http://jboss.org/seam/faces"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:rich="http://richfaces.org/rich"
+	xmlns:o="http://omnifaces.org/ui"
+	xmlns:of="http://omnifaces.org/functions"
+	xmlns:a="http://richfaces.org/a4j" xmlns:hftl="http://hftl.org"
+	xmlns:hf="http://java.sun.com/jsf/composite/tags"
+	template="/layout/template.xhtml" xmlns:p="http://primefaces.org/ui">
+
+	<ui:define name="metadata">
+		<f:metadata>
+			<f:event type="preRenderView"
+				listener="#{userAccountBean.preRenderView}" />
+
+			<f:viewParam name="userAccountId" value="#{userAccountBean.objectId}" />
+			<f:viewParam name="billingAccountId"
+				value="#{userAccountBean.billingAccountId}" />
+			<f:viewParam name="billingAccountId"
+				value="#{billingAccountBean.objectId}" />
+			<f:viewParam name="customerAccountId"
+				value="#{customerAccountBean.objectId}" />
+			<f:viewParam name="customerId" value="#{customerBean.objectId}" />
+		</f:metadata>
+
+		<o:importConstants type="org.meveo.model.crm.CustomFieldTypeEnum" />
+		<o:importConstants
+			type="org.meveo.model.billing.WalletOperationStatusEnum" />
+	</ui:define>
+
+	<ui:define name="navigation">
+		<ui:include src="/layout/navigation.xhtml" />
+	</ui:define>
+
+	<ui:define name="body">
+
+		<hftl:entityPopup id="billingAccountPopup"
+			header="#{messages['billingAccount.popup.header']}"
+			backingBean="#{billingAccountBean}"
+			searchField1Label="#{messages['billingAccount.code']}"
+			searchField1="code" column1Label="#{messages['billingAccount.code']}"
+			column1="code" selection="#{userAccountBean.entity.billingAccount}"
+			updateField=":userAccountFormPanel:formId:userAccountTab:billingAccountSelectId:billingAccountSelectId">
+		</hftl:entityPopup>
+
+		<hftl:entityPopup id="walletOperationPopup"
+			dataModel="#{userAccountBean.getWalletOperationsNoInvoiced()}"
+			header="#{messages['ratedTransactionsNoInvoiced.popup.header']}"
+			showSearchButton="false" backingBean="#{walletOperationBean}"
+			column1Label="#{messages['walletOperation.operationDate']}"
+			column1="operationDate" column1Converter="date"
+			column2Label="#{messages['walletOperation.endDate']}"
+			column2="endDate" column3Label="#{messages['chargeInstance.code']}"
+			column2Converter="date" column3="chargeInstance" column3Child="code"
+			column4Label="#{messages['walletOperation.quantity']}"
+			column4="quantity" column4Converter="4digits"
+			column5Label="#{messages['walletOperation.amountWithoutTax']}"
+			column5="amountWithoutTax" column5Converter="4digits"
+			column6Label="#{messages['walletOperation.amountWithTax']}"
+			column6="amountWithTax" column6Converter="4digits"
+			column7Label="#{messages['currency.codeCurrency']}"
+			column7="currency">
+		</hftl:entityPopup>
+
+		<hftl:entityPopup id="ratedTransactionsInvoicedPopup"
+			header="#{messages['ratedTransactionsInvoiced.popup.header']}"
+			showSearchButton="false" backingBean="#{ratedTransactionBean}"
+			column1Label="#{messages['ratedTransaction.usageDate']}"
+			column1="usageDate"
+			column2Label="#{messages['ratedTransaction.usageCode']}"
+			column2="usageCode"
+			column3Label="#{messages['ratedTransaction.description']}"
+			column3="prDescription"
+			column4Label="#{messages['ratedTransaction.usageQuantity']}"
+			column4="usageQuantity"
+			column5Label="#{messages['ratedTransaction.amount1WithoutTax']}"
+			column5="amount"
+			column6Label="#{messages['ratedTransaction.amount1WithTax']}"
+			column6="amountWithTax">
+		</hftl:entityPopup>
+
+		<p:dialog id="reloadPopup"
+			header="#{messages['dialog.reloadPopup.title']}"
+			widgetVar="dlg_reloadPopup" dynamic="false" width="400">
+			<p:outputPanel id="reloadPanel">
+				<hf:formPanel edit="true"
+					label="#{messages['dialog.reloadPopup.title']}"
+					backingBean="#{userAccountBean}"
+					entity="#{userAccountBean.reloadOperation}" styleClass="formPanel"
+					formId="reloadFrm" showFormButtons="false" useCustomIdParam="true"
+					columns="1">
+					<p:panelGrid columns="2">
+						<p:outputLabel for="operationDate"
+							value="#{messages['walletOperation.operationDate']}"></p:outputLabel>
+						<p:inputText id="operationDate" value=""></p:inputText>
+						<p:calendar
+							value="#{userAccountBean.reloadOperation.operationDate}"
+							pattern="dd/MM/yyyy HH:mm" required="true" />
+					</p:panelGrid>
+					<p:panelGrid columns="2">
+						<p:outputLabel for="amountWithoutTax"
+							value="#{messages['walletOperation.amountWithoutTax']}"></p:outputLabel>
+						<p:inputText id="amountWithoutTax"
+							value="#{userAccountBean.reloadOperation.amountWithoutTax}"></p:inputText>
+					</p:panelGrid>
+					<p:panelGrid columns="2">
+						<p:outputLabel for="amountWithTax"
+							value="#{messages['walletOperation.amountWithTax']}"></p:outputLabel>
+						<p:inputText id="amountWithTax"
+							value="#{userAccountBean.reloadOperation.amountWithTax}"></p:inputText>
+					</p:panelGrid>
+					<p:panel styleClass="form-panel-actions">
+						<p:commandButton action="#{userAccountBean.reload()}"
+							value="#{messages['button.terminateButton']}"
+							onclick="dlg_reloadPopup.hide()"
+							update=":#{p:component('userAccountFormPanel')}" />
+						<p:commandButton immediate="true" onclick="dlg_reloadPopup.hide()"
+							value="#{messages['management.close']}" />
+					</p:panel>
+				</hf:formPanel>
+			</p:outputPanel>
+		</p:dialog>
+
+		<p:panelGrid styleClass="col2-set">
+			<p:row>
+				<p:column styleClass="col1">
+					<hf:hierarchyPanel
+						treeValue="#{customerTreeBean.buildAccountsHierarchy(userAccountBean.entity)}"
+						entity="#{userAccountBean.entity}" />
+				</p:column>
+				<p:column styleClass="col2 tab-view-container">
+					<hf:formPanel id="userAccountFormPanel"
+						label="#{messages['userAccount.userAccountPanel']}"
+						backingBean="#{userAccountBean}" useCustomIdParam="true">
+						<p:tabView id="userAccountTab">
+							<p:tab title="#{messages['billingAccount.tab.account']}">
+								<hftl:panelGroup columns="1">
+									<hf:formEntityField id="billingAccountSelectId"
+										label="#{messages['userAccount.billingAccount']}"
+										field="billingAccount" childField="code" required="true"
+										popup="true" popupId="billingAccountPopup" />
+								</hftl:panelGroup>
+								<hftl:fieldset
+									name="#{messages['userAccount.userAccountPanel']}" columns="1">
+									<hftl:panelGroup columns="2">
+										<!--Creation window fields-->
+										<hf:formField label="#{messages['businessEntity.code']}"
+											field="code" maxlength="35" validateUnique="true" size="35"
+											required="true" />
+										<hf:formEntityField
+											label="#{messages['accountEntity.primaryContact']}"
+											field="primaryContact" childField="code" popup="false"
+											listBean="#{providerContactBean}" />
+									</hftl:panelGroup>
+									<hftl:panelGroup columns="1">
+										<hf:formField
+											label="#{messages['businessEntity.description']}"
+											field="description" id="description" showOnlyOnNew="true"
+											useConverter="false" size="70" maxlength="100"
+											required="true" />
+									</hftl:panelGroup>
+									<hftl:panelGroup columns="1">
+										<p:panelGrid columns="2">
+											<p:outputLabel for="title_select"
+												value="#{messages['name.title']}" />
+											<p:selectOneMenu id="title_select"
+												value="#{userAccountBean.entity.name.title}"
+												rendered="#{userAccountBean.edit}">
+												<f:selectItem itemLabel="" itemValue="" />
+												<f:selectItems value="#{titleBean.listAll()}" var="t"
+													itemLabel="#{t.description}" />
+												<s:objectConverter />
+												<p:ajax event="valueChange"
+													update=":userAccountFormPanel:formId:userAccountTab:userNamePanel :userAccountFormPanel:formId:userAccountTab:countryPanel" />
+											</p:selectOneMenu>
+											<h:outputText
+												rendered="#{!userAccountBean.edit and userAccountBean.entity.name.title != null}"
+												value="#{userAccountBean.entity.name.title.description}"
+												style="font-weight:bold;" />
+										</p:panelGrid>
+									</hftl:panelGroup>
+
+									<h:panelGroup id="userNamePanel">
+										<h:panelGrid columns="2" columnClasses="twoColGrid">
+											<hf:formEntityField label="#{messages['name.lastName']}"
+												field="name" childField="lastName" popup="false"
+												maxlength="50" />
+											<hf:formEntityField label="#{messages['name.firstName']}"
+												field="name" childField="firstName" popup="false"
+												show="#{userAccountBean.entity.name.title == null or !userAccountBean.entity.name.title.isCompany}"
+												maxlength="50" />
+											<hf:emtyFormField
+												show="#{userAccountBean.entity.name.title == null or !userAccountBean.entity.name.title.isCompany}" />
+										</h:panelGrid>
+									</h:panelGroup>
+
+									<hftl:panelGroup columns="1">
+										<hf:formField
+											label="#{messages['accountEntity.defaultLevel']}"
+											field="defaultLevel" isMessage="true" />
+									</hftl:panelGroup>
+								</hftl:fieldset>
+							</p:tab>
+
+							<p:tab title="#{messages['billingAccount.tab.information']}">
+								<hftl:fieldset name="#{messages['commons.contacts']}"
+									columns="1">
+									<hftl:panelGroup columns="1">
+										<hf:formEntityField label="#{messages['address.address1']}"
+											field="address" childField="address1" popup="false" size="80"
+											maxlength="80" />
+										<hf:formEntityField label="#{messages['address.address2']}"
+											field="address" childField="address2" popup="false" size="80"
+											maxlength="80" />
+										<hf:formEntityField label="#{messages['address.address3']}"
+											field="address" childField="address3" popup="false" size="80"
+											maxlength="80" />
+									</hftl:panelGroup>
+									<hftl:panelGroup columns="2">
+										<hf:formEntityField label="#{messages['address.zipCode']}"
+											field="address" childField="zipCode" popup="false"
+											maxlength="10" size="10" />
+										<hf:formEntityField label="#{messages['address.city']}"
+											field="address" childField="city" popup="false"
+											maxlength="50" />
+										<hf:formEntityField id="countryPanel"
+											label="#{messages['address.country']}" embedded="true"
+											field="address" childField="country"
+											labelField="descriptionEn" valueField="countryCode"
+											listBean="#{countryBean}"></hf:formEntityField>
+
+									</hftl:panelGroup>
+								</hftl:fieldset>
+							</p:tab>
+
+							<p:tab title="#{messages['customFieldTemplate.panel']}">
+								<hf:customFields />
+							</p:tab>
+
+							<c:forEach items="#{userAccountBean.entity.prepaidWallets}"
+								var="wallet">
+								<p:tab title="Wallet #{wallet.key}"
+									id="tab_panelWallet_#{wallet.key}">
+									<p:panel id="panelWallet_#{wallet.key}"
+										styleClass="form-panel-fields">
+										<p:panelGrid columns="1">
+											<p:panelGrid columns="6">
+												<p:outputLabel value="#{messages['chargeInstance.code']}" />
+												<h:outputText value="#{wallet.value.code}" />
+												<p:outputLabel
+													value="#{messages['BusinessEntity.description']}" />
+												<h:outputText value="#{wallet.value.description}" />
+												<p:outputLabel value="#{messages['chargeTemplate.type']}" />
+												<h:outputText
+													value="#{wallet.value.walletTemplate.walletType}" />
+											</p:panelGrid>
+
+											<p:panelGrid columns="5">
+												<p:panelGrid columns="2">
+													<f:facet name="header">
+														<h:outputText style="font-size:13px"
+															value="#{messages['walletOperationStatus.open']}" />
+													</f:facet>
+													<h:outputText rendered="#{wallet.key!='PREPAID'}"
+														style="font-weight:bold; !important"
+														value="#{messages['pricePlanMatrix.amountWithTax']} :" />
+													<h:outputText rendered="#{wallet.key!='PREPAID'}"
+														value="#{userAccountBean.getOpenBalanceWithTax(userAccountBean.getCurrentProvider(),userAccountBean.entity.billingAccount.customerAccount.customer.seller.code,userAccountBean.entity.code,null,null)}" />
+													<h:outputText rendered="#{wallet.key!='PREPAID'}"
+														style="font-weight:bold; !important"
+														value="#{messages['pricePlanMatrix.amountWithoutTax']} :" />
+													<h:outputText rendered="#{wallet.key!='PREPAID'}"
+														value="#{userAccountBean.getOpenBalanceWithoutTax(userAccountBean.getCurrentProvider(),userAccountBean.entity.billingAccount.customerAccount.customer.seller.code
+													,userAccountBean.entity.code,null,null)}" />
+												</p:panelGrid>
+												<p:spacer width="40" />
+												<p:panelGrid columns="2">
+													<f:facet name="header">
+														<h:outputText style="font-size:13px"
+															value="#{messages['walletOperationStatus.reserved']}" />
+													</f:facet>
+													<h:outputText rendered="#{wallet.key!='PREPAID'}"
+														style="font-weight:bold; !important"
+														value="#{messages['pricePlanMatrix.amountWithTax']} :" />
+													<h:outputText rendered="#{wallet.key!='PREPAID'}"
+														value="#{userAccountBean.getReservedBalanceWithTax(userAccountBean.getCurrentProvider(),userAccountBean.entity.billingAccount.customerAccount.customer.seller.code
+													,userAccountBean.entity.code,null,null)}" />
+													<h:outputText rendered="#{wallet.key!='PREPAID'}"
+														style="font-weight:bold; !important"
+														value="#{messages['pricePlanMatrix.amountWithoutTax']} :" />
+													<h:outputText rendered="#{wallet.key!='PREPAID'}"
+														value="#{userAccountBean.getReservedBalanceWithoutTax(userAccountBean.getCurrentProvider(),userAccountBean.entity.billingAccount.customerAccount.customer.seller.code
+													,userAccountBean.entity.code,null,null)}" />
+												</p:panelGrid>
+												<p:spacer width="40" />
+												<p:panelGrid columns="2">
+													<f:facet name="header">
+														<h:outputText style="font-size:13px"
+															value="#{messages['walletOperationStatus.current']}" />
+													</f:facet>
+													<h:outputText rendered="#{wallet.key!='PREPAID'}"
+														style="font-weight:bold; !important"
+														value="#{messages['pricePlanMatrix.amountWithTax']} :" />
+													<h:outputText rendered="#{wallet.key!='PREPAID'}"
+														value="#{userAccountBean.getCurrentBalanceWithTax(userAccountBean.getCurrentProvider(),userAccountBean.entity.billingAccount.customerAccount.customer.seller.code
+													,userAccountBean.entity.code,null,null)}" />
+
+													<h:outputText rendered="#{wallet.key!='PREPAID'}"
+														style="font-weight:bold; !important"
+														value="#{messages['pricePlanMatrix.amountWithoutTax']} :" />
+													<h:outputText rendered="#{wallet.key!='PREPAID'}"
+														value="#{userAccountBean.getCurrentBalanceWithoutTax(userAccountBean.getCurrentProvider(),userAccountBean.entity.billingAccount.customerAccount.customer.seller.code
+													,userAccountBean.entity.code,null,null)}" />
+												</p:panelGrid>
+
+											</p:panelGrid>
+											
+											<p:panelGrid columns="4">
+											<p:outputLabel rendered="#{wallet.key!='PRINCIPAL'}"
+												value="#{messages['userAccount.cachedBalance']} :" />
+											<h:outputText
+												value="#{userAccountBean.getBalance(wallet.value)}" />
+											<p:outputLabel rendered="#{wallet.key!='PRINCIPAL'}" style="width:180px;"
+												value="#{messages['userAccount.cachedReservedBalance']} :" />
+											<h:outputText
+												value="#{userAccountBean.getReservedBalance(wallet.value)}" />
+												</p:panelGrid>
+										</p:panelGrid>
+										
+										<p:dataTable id="wallet#{wallet.key}datatable" var="e"
+											paginator="true"
+											value="#{userAccountBean.getWalletOperations(wallet.key)}"
+											rows="10" rowKey="#{e.id}" widget="walletOperationsTable">
+											<p:column>
+												<f:facet name="header">
+													<h:outputText
+														value="#{messages['walletOperation.operationDate']}" />
+												</f:facet>
+												<c:set var="converter1"
+													value="#{getConverter.forType(e[operationDate], 'date')}"></c:set>
+												<h:outputText value="#{e.operationDate}"
+													converter="#{converter1}" />
+											</p:column>
+											<p:column>
+												<f:facet name="header">
+													<h:outputText
+														value="#{messages['walletOperation.endDate']}" />
+												</f:facet>
+												<c:set var="converter2"
+													value="#{getConverter.forType(e[endDate], 'date')}"></c:set>
+												<h:outputText value="#{e.endDate}" converter="#{converter2}" />
+											</p:column>
+											<p:column filterBy="#{e.chargeInstance.code}"
+												footerText="contains" filterMatchMode="contains">
+												<f:facet name="header">
+													<h:outputText value="#{messages['chargeInstance.code']}" />
+												</f:facet>
+												<h:outputText value="#{e.chargeInstance.code}" />
+											</p:column>
+											<p:column>
+												<f:facet name="header">
+													<h:outputText
+														value="#{messages['walletOperation.quantity']}" />
+												</f:facet>
+												<c:set var="converter4"
+													value="#{getConverter.forType(e[quantity], '4digits')}"></c:set>
+												<h:outputText value="#{e.quantity}"
+													converter="#{converter4}" />
+											</p:column>
+
+											<p:column>
+												<f:facet name="header">
+													<h:outputText
+														value="#{messages['walletOperation.amountWithoutTax']}" />
+												</f:facet>
+												<c:set var="converter5"
+													value="#{getConverter.forType(e[amountWithoutTax], '4digits')}"></c:set>
+												<h:outputText value="#{e.amountWithoutTax}"
+													converter="#{converter5}" />
+											</p:column>
+
+											<p:column>
+												<f:facet name="header">
+													<h:outputText
+														value="#{messages['walletOperation.amountWithTax']}" />
+												</f:facet>
+												<c:set var="converter6"
+													value="#{getConverter.forType(e[amountWithTax], '4digits')}"></c:set>
+												<h:outputText value="#{e.amountWithTax}"
+													converter="#{converter6}" />
+											</p:column>
+											<p:column filterBy="#{e.status}"
+												headerText="#{messages['walletOperation.status']}"
+												footerText="exact" filterMatchMode="exact"
+												filterOptions="#{userAccountBean.walletOperationStatusList}">
+												<h:outputText value="#{messages[e.status.label]}" />
+											</p:column>
+										</p:dataTable>
+										<!-- <p:commandButton rendered="#{wallet.key!='PRINCIPAL'}"
+											value="#{messages['action.reload']}"
+											update=":#{p:component('reloadPopup')}"
+											actionListener="#{userAccountBean.setSelectedWalletCode(wallet.key)}"
+											oncomplete="dlg_reloadPopup.show()" /> -->
+									</p:panel>
+								</p:tab>
+							</c:forEach>
+
+							<p:tab title="#{messages['counterPeriod.title']}"
+								rendered="#{!userAccountBean.edit or userAccountBean.entity.id!=null}">
+								<hftl:panelGroup>
+									<p:panelGrid columns="2">
+										<p:outputLabel for="counterPeriod"
+											value="#{messages['counterInstance.title']}" />
+										<p:selectOneMenu id="counterPeriod"
+											converter="omnifaces.SelectItemsConverter"
+											value="#{userAccountBean.selectedCounterInstance}">
+											<f:selectItems value="#{userAccountBean.entity.counters}" />
+											<p:ajax event="valueChange"
+												update=":userAccountFormPanel:formId:userAccountTab:counters" />
+										</p:selectOneMenu>
+									</p:panelGrid>
+								</hftl:panelGroup>
+								<p:panel id="counters">
+									<hftl:panelGroup>
+										<p:panelGrid columns="13">
+											<p:outputLabel
+												value="#{messages['businessEntity.description']} :" />
+											<h:outputText
+												value="#{userAccountBean.selectedCounterInstance.description}" />
+											<p:outputLabel
+												value="#{messages['subscription.userAccount']} :" />
+											<h:outputText
+												value="#{userAccountBean.selectedCounterInstance.userAccount.description}" />
+											<p:outputLabel value="#{messages['counterTemplate.title']} :" />
+											<h:outputText
+												value="#{userAccountBean.selectedCounterInstance.counterTemplate.description}" />
+											<p:outputLabel
+												value="#{messages['counterTemplate.counterType']} :" />
+											<h:outputText
+												value="#{userAccountBean.selectedCounterInstance.counterTemplate.counterType}" />
+											<p:outputLabel
+												value="#{messages['counterTemplate.counterLevel']} :" />
+											<h:outputText
+												value="#{userAccountBean.selectedCounterInstance.counterTemplate.counterLevel}" />
+										</p:panelGrid>
+									</hftl:panelGroup>
+									<hftl:dataList resultsId="datatable_counters"
+										backingBean="#{counterPeriodBean}"
+										dataModel="#{counterPeriodBean.getCounterPeriods(userAccountBean.selectedCounterInstance)}"
+										checkMany="false" sortBy="periodStartDate"
+										sortOrder="DESCENDING">
+										<hftl:column label="#{messages['businessEntity.code']}"
+											field="code" />
+										<hftl:column label="#{messages['businessEntity.description']}"
+											field="description" />
+										<hftl:column
+											label="#{messages['counterTemplate.counterType']}"
+											field="counterType" childField="label" isMessage="true" />
+										<hftl:column
+											label="#{messages['counterPeriod.periodStartDate']}"
+											field="periodStartDate" isDate="true" />
+										<hftl:column
+											label="#{messages['counterPeriod.periodEndDate']}"
+											field="periodEndDate" isDate="true" />
+										<hftl:column label="#{messages['counterPeriod.level']}"
+											field="level" converterParam="4digits" wrapHeader="true" />
+										<hftl:column label="#{messages['counterPeriod.value']}"
+											field="value" converterParam="4digits" wrapHeader="true" />
+									</hftl:dataList>
+								</p:panel>
+							</p:tab>
+						</p:tabView>
+
+					</hf:formPanel>
+
+					<h:form id="operationsForm" rendered="#{!userAccountBean.edit}">
+						<!-- 							<custom:listPanel label="#{messages['customerAccount.operations']}"> -->
+						<div class="action-buttons">
+							<p:button outcome="addNewSubscription"
+								value="#{messages['userAccount.addNewSubscription']}"
+								disabled="#{userAccountBean.entity.status.toString() != 'ACTIVE'}">
+								<!-- 								<f:param name="cid" value="#{javax.enterprise.context.conversation.id}" /> -->
+							</p:button>
+							<p:commandButton value="#{messages['button.terminateButton']}"
+								oncomplete="dlg_userAccountTerminationPopup.show()"
+								disabled="#{userAccountBean.entity.status.toString() != 'ACTIVE'}" />
+							<p:commandButton action="#{userAccountBean.cancelAccount()}"
+								value="#{messages['button.cancelButton']}"
+								onclick="if(confirm('#{messages['confirmationMessage.confirmCancellation']}')){return true;}else{return false;}"
+								disabled="#{userAccountBean.entity.status.toString() != 'ACTIVE'}" />
+							<p:commandButton action="#{userAccountBean.reactivateAccount()}"
+								value="#{messages['button.reactivateButton']}"
+								onclick="if(confirm('#{messages['confirmationMessage.confirmReactivation']}')){return true;}else{return false;}"
+								disabled="#{userAccountBean.entity.status.toString() != 'TERMINATED' or userAccountBean.entity.status.toString()!='ACTIVE'}" />
+							<!--<p:commandButton type="button"
+								value="#{messages['walletOperationPopup.button']}"
+								onclick="dlg_walletOperationPopup.show();" />
+							 <p:commandButton type="button"
+							value="#{messages['ratedTransactionInvoiced.button']}"
+							onclick="dlg_ratedTransactionsInvoicedPopup.show();" /> -->
+							<!-- 							</custom:listPanel> -->
+						</div>
+					</h:form>
+
+				</p:column>
+			</p:row>
+		</p:panelGrid>
+
+		<p:dialog id="userAccountTerminationPopup"
+			header="#{messages['userAccount.accountTermination']}"
+			widgetVar="dlg_userAccountTerminationPopup" dynamic="false"
+			width="400">
+			<hf:formPanel edit="true" backingBean="#{userAccountBean}"
+				styleClass="formPanel" formId="termFrm" showFormButtons="false"
+				useCustomIdParam="true">
+				<p:panelGrid columns="1">
+					<hf:formField label="#{messages['serviceInstance.code']}"
+						field="code" size="50" edit="false" />
+					<hf:formField
+						label="#{messages['serviceInstance.terminationDate']}"
+						field="terminationDate" required="true" edit="true" />
+					<hf:formEntityField label="Motifs " field="terminationReason"
+						childField="description" required="true" popup="false" edit="true"
+						listElements="#{subscriptionTerminationReasonService.listReasons()}" />
+					<p:panel styleClass="action-buttons">
+						<p:commandButton action="#{userAccountBean.terminateAccount()}"
+							value="#{messages['button.terminateButton']}" ajax="true"
+							onsuccess="dlg_userAccountTerminationPopup.hide()"
+							update=":#{p:component('operationsForm')} :userAccountFormPanel:formId:messages">
+						</p:commandButton>
+						<p:commandButton immediate="true"
+							onclick="dlg_userAccountTerminationPopup.hide()"
+							value="#{messages['management.close']}" />
+					</p:panel>
+				</p:panelGrid>
+			</hf:formPanel>
+		</p:dialog>
+
+	</ui:define>
+
+</ui:composition>

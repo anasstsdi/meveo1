@@ -1,0 +1,13 @@
+<ui:composition template="/layout/errorTemplate.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+	
+	<ui:define name="contentTitle">Database operation error.</ui:define>
+	
+	<ui:define name="errorContent">
+		<p>
+			<a href="#{request.contextPath}">#{messages['message.backToHome']}</a>
+		</p>
+	</ui:define>
+	
+</ui:composition>

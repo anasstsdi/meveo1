@@ -1,0 +1,81 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:rich="http://richfaces.org/rich"
+	xmlns:s="http://jboss.org/seam/faces"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:c="http://java.sun.com/jstl/core"
+	xmlns:a="http://richfaces.org/a4j" xmlns:hftl="http://hftl.org"
+	xmlns:hf="http://java.sun.com/jsf/composite/tags"
+	template="/layout/template.xhtml">
+
+	<ui:define name="navigation">
+		<ui:include src="/layout/navigation.xhtml" />
+	</ui:define>
+
+	<ui:define name="body">
+
+		<hf:formPanel edit="#{providerContactBean.edit}"
+			label="#{messages['providerContact.title']}"
+			backingBean="#{providerContactBean}" columns="1">
+
+			<p:fieldset legend="#{messages['billingAccount.tab.account']}">
+				<hf:formField label="#{messages['businessEntity.code']}"
+					field="code" useConverter="false" size="50" maxlength="50"
+					required="true" />
+				<hf:formField label="#{messages['name.firstName']}"
+					field="firstName" />
+				<hf:formField label="#{messages['name.lastName']}" field="lastName" />
+				<hf:formField label="#{messages['businessEntity.description']}"
+					field="description" useConverter="false" size="50" maxlength="50"
+					required="true" />
+			</p:fieldset>
+
+			<p:fieldset legend="#{messages['commons.contacts']}">
+				<hf:formField label="#{messages['contactInformation.email']}"
+					field="email" size="50" maxlength="100" useConverter="false"
+					required="true" validateEmail="true" />
+				<hf:formField label="#{messages['contactInformation.genericMail']}"
+					field="genericMail" size="50" maxlength="100" useConverter="false"
+					required="true" validateEmail="true" />
+				<hf:formField label="#{messages['contactInformation.phone']}"
+					field="phone" size="50" maxlength="15" />
+				<hf:formField label="#{messages['contactInformation.mobile']}"
+					field="mobile" size="50" maxlength="15" />
+			</p:fieldset>
+
+			<p:fieldset legend="#{messages['commons.address']}">
+				<p:panelGrid columns="2">
+					<hf:formEntityField label="#{messages['address.address1']}"
+						field="address" id="address1" childField="address1" popup="false"
+						size="80" maxlength="80" />
+
+					<hf:formEntityField label="#{messages['address.address2']}"
+						field="address" id="address2" childField="address2" popup="false"
+						size="80" maxlength="80" />
+
+					<hf:formEntityField label="#{messages['address.address3']}"
+						field="address" id="address3" childField="address3" popup="false"
+						size="80" maxlength="80" />
+
+					<hf:formEntityField label="#{messages['address.zipCode']}" size="10"
+						required="true" id="zipCode" field="address" childField="zipCode"
+						length="10" popup="false" maxlength="10" />
+
+					<hf:formEntityField label="#{messages['address.city']}"
+						required="true" id="city" field="address" childField="city"
+						popup="false" maxlength="50" />
+
+					<hf:formEntityField label="#{messages['address.country']}"
+						embedded="true" field="address" childField="country"
+						labelField="descriptionEn" valueField="countryCode"
+						listBean="#{countryBean}"></hf:formEntityField>
+				</p:panelGrid>
+			</p:fieldset>
+
+		</hf:formPanel>
+
+	</ui:define>
+
+</ui:composition>

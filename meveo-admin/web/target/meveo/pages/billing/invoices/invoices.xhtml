@@ -1,0 +1,76 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:s="http://jboss.com/products/seam/taglib"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:rich="http://richfaces.org/rich"
+	xmlns:a="http://richfaces.org/a4j" xmlns:hftl="http://hftl.org"
+	xmlns:hf="http://java.sun.com/jsf/composite/tags"
+	xmlns:c="http://java.sun.com/jstl/core"
+	template="/layout/template.xhtml">
+
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:event type="preRenderView"
+                listener="#{invoiceListBean.preRenderView}" />
+        </f:metadata>
+    </ui:define>
+    
+	<ui:define name="navigation">
+		<ui:include src="/layout/navigation.xhtml" />
+	</ui:define>
+
+	<ui:define name="body">
+
+		<hf:searchPanel label="#{messages['invoice.search']}"
+			backingBean="#{invoiceListBean}" columns="3">
+			<hf:searchField listBean=""
+				label="#{messages['invoice.billingAccount']}" field="billingAccount"
+				childField="code" popup="true" popupId="searchBillingAccountPopup"
+				clearButton="true" />
+			<hf:searchField label="#{messages['invoice.invoiceNumber']}"
+				field="invoiceNumber" />
+			<hf:searchField label="#{messages['invoice.productDate']}"
+				field="productDate" />
+			<hf:searchField label="#{messages['invoice.invoiceDate']}"
+				field="invoiceDate" />
+			<hf:searchField label="#{messages['invoice.dueDate']}"
+				field="dueDate" />
+			<hf:searchField label="#{messages['invoice.amount']}" field="amount" />
+			<hf:searchField label="#{messages['invoice.discount']}"
+				field="discount" />
+			<hf:searchField label="#{messages['invoice.amountWithoutTax']}"
+				field="amountWithoutTax" />
+			<hf:searchField label="#{messages['invoice.amountTax']}"
+				field="amountTax" />
+			<hf:searchField label="#{messages['invoice.amountWithTax']}"
+				field="amountWithTax" />
+			<hf:searchField label="#{messages['invoice.paymentMethod']}"
+				field="paymentMethod" childField="label" isMessage="true" />
+			<hf:searchField label="#{messages['invoice.iban']}" field="iban" />
+			<hf:searchField label="#{messages['invoice.alias']}" field="alias" />
+		</hf:searchPanel>
+
+		<hftl:dataList label="#{messages['invoices.title']}"
+			backingBean="#{invoiceListBean}">
+			<hftl:column label="#{messages['invoice.billingAccount']}"
+				field="billingAccount" childField="code" isMessage="true"
+				childFieldId="id"
+				view="/pages/billing/billingAccounts/billingAccountDetail.xhtml"
+				backView="invoices" />
+			<hftl:column label="#{messages['invoice.invoiceNumber']}"
+				field="invoiceNumber" />
+			<hftl:column label="#{messages['invoice.invoiceDate']}"
+				field="invoiceDate" />
+			<hftl:column label="#{messages['invoice.dueDate']}" field="dueDate" />
+			<hftl:column label="#{messages['invoice.amount']}" field="amount" />
+			<hftl:column label="#{messages['invoice.paymentMethod']}"
+				field="paymentMethod" childField="label" isMessage="true" />
+
+			<hftl:actionsColumn
+				permission="#{identity.hasPermission('billing','billingManagement')}" />
+		</hftl:dataList>
+
+	</ui:define>
+
+</ui:composition>

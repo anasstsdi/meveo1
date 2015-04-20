@@ -1,0 +1,48 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:s="http://jboss.com/products/seam/taglib"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:rich="http://richfaces.org/rich"
+	xmlns:a="http://richfaces.org/a4j" xmlns:hftl="http://hftl.org"
+	xmlns:hf="http://java.sun.com/jsf/composite/tags"
+	xmlns:c="http://java.sun.com/jstl/core"
+	template="/layout/template.xhtml">
+
+	<ui:define name="metadata">
+		<f:metadata>
+			<f:event type="preRenderView"
+				listener="#{tradingLanguageListBean.preRenderView}" />
+		</f:metadata>
+	</ui:define>
+
+	<ui:define name="navigation">
+		<ui:include src="/layout/navigation.xhtml" />
+	</ui:define>
+
+	<ui:define name="body">
+
+		<hf:searchPanel id="searchPanel" backingBean="#{tradingLanguageListBean}"
+			label="#{messages['tradingLanguage.search']}">
+			<hf:searchField id="language"
+				label="#{messages['tradingLanguage.languageCode']}" field="language"
+				childField="languageCode" />
+		</hf:searchPanel>
+
+		<hftl:dataList label="#{messages['comLanguage.title']}"
+			backingBean="#{tradingLanguageListBean}">
+			<hftl:column label="#{messages['tradingLanguage.languageCode']}"
+				field="language" childField="languageCode" width="10%" />
+			<hftl:column label="#{messages['tradingLanguage.prDescription']}"
+				field="prDescription" />
+			<hftl:column label="#{messages['enableEntity.active']}"
+				field="active" isMessage="true"
+				width="10%" />
+
+			<hftl:actionsColumn
+				permission="#{identity.hasPermission('administration','administrationManagement')}" />
+		</hftl:dataList>
+
+	</ui:define>
+
+</ui:composition>

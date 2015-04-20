@@ -1,0 +1,60 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:s="http://jboss.com/products/seam/taglib"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:rich="http://richfaces.org/rich"
+	xmlns:a="http://richfaces.org/a4j" xmlns:hftl="http://hftl.org"
+	xmlns:hf="http://java.sun.com/jsf/composite/tags"
+	xmlns:c="http://java.sun.com/jstl/core"
+	xmlns:p="http://primefaces.org/ui" template="/layout/template.xhtml">
+
+	<ui:define name="navigation">
+		<ui:include src="/layout/navigation.xhtml" />
+	</ui:define>
+
+	<ui:define name="body">
+	
+		<hf:formPanel label="#{messages['user.userPanel']}"
+			backingBean="#{userBean}" columns="1">
+			<hf:formField label="#{messages['user.userName']}" field="userName"
+				required="true" validateUnique="true" useConverter="false" />
+			<hf:formField label="#{messages['contactInformation.email']}"
+				field="email" required="true" useConverter="false"
+				validatorId="emailValidator" />
+			<p:commandLink value="#{messages['menutop.changePassword']}"
+				action="#{userBean.change()}" update="passwordPanel"
+				rendered="#{!(userBean.entity.id==null) and userBean.edit}"
+				style="text-align:right;" />
+
+			<h:outputLabel value="" rendered="#{!(userBean.entity.id==null)}"></h:outputLabel>
+
+			<p:outputPanel id="passwordPanel">
+				<hftl:panelGroup columns="2" id="passwordPanel"
+					rendered="#{(userBean.show or userBean.entity.id==null) and userBean.edit}">
+					<p:outputLabel for="password" value="#{messages['user.password']}"></p:outputLabel>
+					<p:password autocomplete="off" id="password" feedback="true"
+						value="#{userBean.password}" required="true"
+						match="repeatedPassword">
+					</p:password>
+					<p:outputLabel for="repeatedPassword"
+						value="#{messages['user.repeatedPassword']}">
+					</p:outputLabel>
+					<p:password id="repeatedPassword"
+						value="#{userBean.repeatedPassword}" autocomplete="off"></p:password>
+				</hftl:panelGroup>
+			</p:outputPanel>
+
+			<hf:formField label="#{messages['user.roles']}" field="roles"
+				listType="pickUpList" childField="name" required="true"
+				dualListModel="#{userBean.dualListModel}" />
+
+			<hf:formField label="#{messages['user.providers']}"
+				rendered="#{identity.hasPermission('superAdmin','superAdminManagement')}"
+				field="providers" listType="pickUpList" childField="code"
+				required="true" dualListModel="#{userBean.providersDualListModel}" />
+		</hf:formPanel>
+		
+	</ui:define>
+
+</ui:composition>

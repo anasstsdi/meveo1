@@ -1,0 +1,238 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:s="http://jboss.com/products/seam/taglib"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:rich="http://richfaces.org/rich"
+	xmlns:a="http://richfaces.org/a4j" xmlns:hftl="http://hftl.org"
+	xmlns:hf="http://java.sun.com/jsf/composite/tags"
+	template="/layout/template.xhtml"
+	xmlns:e="http://jboss.com/products/seam/excel"
+	xmlns:p="http://primefaces.org/ui">
+
+	<ui:define name="navigation">
+		<ui:include src="/layout/navigation.xhtml" />
+	</ui:define>
+
+	<ui:define name="body">
+
+		<hf:formPanel formId="form3" edit="false"
+			label="#{messages['postInvoicingReport.title']}"
+			backingBean="#{billingRunBean}" showFormButtons="false">
+			<hftl:panelGroup columns="2">
+				<hftl:panelGroup columns="1">
+					<hf:formEntityField
+						label="#{messages['postInvoicingReport.globalAmountHT']}"
+						field="postInvoicingReports" childField="globalAmount"
+						popup="false" />
+					<hf:formEntityField
+						label="#{messages['postInvoicingReport.invoicesNumber']}"
+						field="postInvoicingReports" childField="invoicesNumber"
+						popup="false" />
+					<hf:formEntityField
+						label="#{messages['postInvoicingReport.positiveInvoicesNumber']}"
+						field="postInvoicingReports" childField="positiveInvoicesNumber"
+						popup="false" />
+					<hf:formEntityField
+						label="#{messages['postInvoicingReport.positiveInvoicesAmountHT']}"
+						field="postInvoicingReports" childField="positiveInvoicesAmountHT"
+						popup="false" />
+					<hf:formEntityField
+						label="#{messages['postInvoicingReport.positiveInvoicesAmount']}"
+						field="postInvoicingReports" childField="positiveInvoicesAmount"
+						popup="false" />
+
+					<hf:formEntityField id="emptyInvoicesNumber"
+						label="#{messages['postInvoicingReport.emptyInvoicesNumber']}"
+						field="postInvoicingReports" childField="emptyInvoicesNumber"
+						popup="false" />
+				</hftl:panelGroup>
+
+				<hftl:panelGroup columns="1">
+
+					<hf:formEntityField
+						label="#{messages['postInvoicingReport.positiveInvoicesTaxAmount']}"
+						field="postInvoicingReports"
+						childField="positiveInvoicesTaxAmount" popup="false" />
+					<hf:formEntityField
+						label="#{messages['postInvoicingReport.negativeInvoicesAmountHT']}"
+						field="postInvoicingReports" childField="negativeInvoicesAmountHT"
+						popup="false" />
+					<hf:formEntityField
+						label="#{messages['postInvoicingReport.negativeInvoicesTaxAmount']}"
+						field="postInvoicingReports"
+						childField="negativeInvoicesTaxAmount" popup="false" />
+					<hf:formEntityField id="positiveInvoicesAmount"
+						label="#{messages['postInvoicingReport.negativeInvoicesAmount']}"
+						field="postInvoicingReports" childField="negativeInvoicesAmount"
+						popup="false" />
+					<hf:formEntityField id="electronicInvoicesNumber"
+						label="#{messages['postInvoicingReport.electronicInvoicesNumber']}"
+						field="postInvoicingReports" childField="electronicInvoicesNumber"
+						popup="false" />
+				</hftl:panelGroup>
+			</hftl:panelGroup>
+
+			<br />
+			<b>#{messages['postInvoicingReport.invoicesNumberPerPaymentMode']}</b>
+			<hftl:panelGroup columns="1">
+				<hf:formEntityField label="#{messages['paymentMethod.check']}"
+					field="postInvoicingReports" childField="checkInvoicesNumber"
+					popup="false" />
+			</hftl:panelGroup>
+			<hftl:panelGroup columns="1">
+				<hf:formEntityField label="#{messages['paymentMethod.directDebit']}"
+					field="postInvoicingReports" childField="directDebitInvoicesNumber"
+					popup="false" />
+			</hftl:panelGroup>
+			<hftl:panelGroup columns="1">
+				<hf:formEntityField label="#{messages['paymentMethod.tip']}"
+					field="postInvoicingReports" childField="tipInvoicesNumber"
+					popup="false" />
+			</hftl:panelGroup>
+			<hftl:panelGroup columns="1">
+				<hf:formEntityField
+					label="#{messages['paymentMethod.wiretransfer']}"
+					field="postInvoicingReports"
+					childField="wiretransferInvoicesNumber" popup="false" />
+			</hftl:panelGroup>
+
+			<b>#{messages['postInvoicingReport.amoutHtPerPaymentMode']}</b>
+			<hftl:panelGroup columns="1">
+				<hf:formEntityField label="#{messages['paymentMethod.check']}"
+					field="postInvoicingReports" childField="checkAmuontHT"
+					popup="false" />
+			</hftl:panelGroup>
+			<hftl:panelGroup columns="1">
+				<hf:formEntityField label="#{messages['paymentMethod.directDebit']}"
+					field="postInvoicingReports" childField="directDebitAmuontHT"
+					popup="false" />
+			</hftl:panelGroup>
+			<hftl:panelGroup columns="1">
+				<hf:formEntityField label="#{messages['paymentMethod.tip']}"
+					field="postInvoicingReports" childField="tipAmuontHT" popup="false" />
+			</hftl:panelGroup>
+			<hftl:panelGroup columns="1">
+				<hf:formEntityField
+					label="#{messages['paymentMethod.wiretransfer']}"
+					field="postInvoicingReports" childField="wiretransferAmuontHT"
+					popup="false" />
+			</hftl:panelGroup>
+
+			<b>#{messages['postInvoicingReport.amoutTtcPerPaymentMode']}</b>
+
+			<hftl:panelGroup columns="1">
+				<hf:formEntityField label="#{messages['paymentMethod.check']}"
+					field="postInvoicingReports" childField="checkAmuont" popup="false" />
+			</hftl:panelGroup>
+			<hftl:panelGroup columns="1">
+				<hf:formEntityField label="#{messages['paymentMethod.directDebit']}"
+					field="postInvoicingReports" childField="directDebitAmuont"
+					popup="false" />
+			</hftl:panelGroup>
+			<hftl:panelGroup columns="1">
+				<hf:formEntityField label="#{messages['paymentMethod.tip']}"
+					field="postInvoicingReports" childField="tipAmuont" popup="false" />
+			</hftl:panelGroup>
+			<hftl:panelGroup columns="1">
+				<hf:formEntityField
+					label="#{messages['paymentMethod.wiretransfer']}"
+					field="postInvoicingReports" childField="wiretransferAmuont"
+					popup="false" />
+			</hftl:panelGroup>
+
+		</hf:formPanel>
+
+		<br />
+		<h:outputText value="#{messages['postInvoicingReport.billableBA']}"
+			style="font-weight: bold;font-size=14;" />
+		<hftl:dataList dataModel="#{billingRunBean.entity.invoices}"
+			backingBean="#{invoiceBean}" checkMany="false">
+
+			<hftl:column label="#{messages['businessEntity.code']}"
+				field="billingAccount" childField="code" />
+			<rich:column width="100">
+				<f:facet name="header">
+					<h:outputText value="#{messages['name.title']}" />
+				</f:facet>
+				<e:cell>
+					<h:outputText
+						rendered="#{entity.billingAccount.name.title != null}"
+						value="#{entity.billingAccount.name.title.description}" />
+				</e:cell>
+			</rich:column>
+
+			<hftl:column label="#{messages['billingAccount.name']}"
+				field="billingAccount" childField="name" />
+			<hftl:column label="#{messages['invoice.amountWithoutTax']}"
+				field="amountWithoutTax" />
+			<hftl:column label="#{messages['invoice.amountTax']}"
+				field="amountTax" />
+			<hftl:column label="#{messages['invoice.amountWithTax']}"
+				field="amountWithTax" />
+
+		</hftl:dataList>
+
+		<br />
+		<br />
+		<h:outputText
+			value="#{messages['postInvoicingReport.rejectedBillingAccounts']}"
+			style="font-weight: bold;font-size=14;" />
+		<hftl:dataList resultsId="rejectedBA_results"
+			backingBean="#{billingAccountBean}"
+			dataModel="#{billingRunBean.entity.rejectedBillingAccounts}"
+			checkMany="false">
+
+			<hftl:column label="#{messages['businessEntity.code']}"
+				field="billingAccount" childField="code" />
+
+			<rich:column width="100">
+				<f:facet name="header">
+					<h:outputText value="#{messages['name.title']}" />
+				</f:facet>
+				<e:cell>
+					<h:outputText
+						rendered="#{entity.billingAccount.name.title != null}"
+						value="#{entity.billingAccount.name.title.description}" />
+				</e:cell>
+			</rich:column>
+
+			<hftl:column label="#{messages['billingAccount.name']}"
+				field="billingAccount" childField="name" />
+
+
+			<hftl:column
+				label="#{messages['RejectedBillingAccounts.rejectCause']}"
+				field="rejectCause" />
+
+		</hftl:dataList>
+		<br />
+		<p:panelGrid columns="2">
+			<p:outputLabel value="#{messages['billingRuns.launchInvoicing']}"
+				style="width:270px" />
+			<p:selectBooleanCheckbox
+				value="#{billingRunBean.launchInvoicingRejectedBA}" />
+		</p:panelGrid>
+		<br />
+		<h:form id="operationsForm2"
+			rendered="#{billingRun.getInvoices().size()>0}">
+			<h:commandButton action="#{billingRunBean.excludeBillingAccounts}"
+				value="Exclude" />
+		</h:form>
+
+		<br />
+		<h:form id="operationsForm" rendered="#{!edit}">
+			<div class="action-buttons">
+				<p:commandButton action="#{billingRunBean.validateInvoicing()}"
+					value="#{messages['action.validate']}" />
+				<!-- <h:commandButton
+				action="#{billingRunBean.rerateConfirmedInvoicing()}"
+				value="Rerate" /> -->
+				<p:commandButton
+					action="#{billingRunBean.cancelConfirmedInvoicing()}"
+					value="#{messages['action.cancel']}"
+					onclick="if(confirm('#{messages['commons.confirmCancelInvoiceProcess']}')){return true;}else{return false;}" />
+			</div>
+		</h:form>
+	</ui:define>
+</ui:composition>

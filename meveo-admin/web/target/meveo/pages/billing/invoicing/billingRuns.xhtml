@@ -1,0 +1,78 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:s="http://jboss.com/products/seam/taglib"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:rich="http://richfaces.org/rich"
+	xmlns:a="http://richfaces.org/a4j" xmlns:o="http://omnifaces.org/ui"
+	xmlns:e="http://jboss.com/products/seam/excel"
+	xmlns:p="http://primefaces.org/ui" xmlns:hftl="http://hftl.org"
+	xmlns:hf="http://java.sun.com/jsf/composite/tags"
+	template="/layout/template.xhtml">
+
+	<ui:define name="metadata">
+		<f:metadata>
+			<f:event type="preRenderView"
+				listener="#{billingRunListBean.preRenderView}" />
+		</f:metadata>
+
+		<o:importConstants type="org.meveo.model.billing.BillingRunStatusEnum" />
+	</ui:define>
+
+	<ui:define name="navigation">
+		<ui:include src="/layout/navigation.xhtml" />
+	</ui:define>
+
+	<ui:define name="body">
+
+		<hf:searchPanel backingBean="#{billingRunListBean}"
+			label="#{messages['billingRun.search']}" renderNewButton="false">
+			<hf:searchField label="#{messages['billingRun.status']}"
+				field="status" />
+			<hf:searchField label="#{messages['billingRun.processDate']}"
+				field="processDate" />
+		</hf:searchPanel>
+
+		<hftl:dataList label="#{messages['billingRuns.title']}"
+			backingBean="#{billingRunListBean}" checkMany="false" sortOrder="descending">
+			<hftl:column label="Id" field="id" />
+			<hftl:column label="#{messages['billingRun.status']}" field="status"
+				childField="label" isMessage="true" />
+			<hftl:column label="#{messages['billingRun.processDate']}"
+				field="processDate" />
+			<hftl:column label="#{messages['billingRun.processType']}"
+				field="processType" />
+			<hftl:column label="#{messages['billingRun.billingCycle']}"
+				field="billingCycle" childField="code" isMessage="false" />
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages['commons.actions']}" />
+				</f:facet>
+				<p:button id="preReportLink" outcome="preInvoicingReports"
+					rendered="#{entity.status.toString() == 'WAITING'}"
+					value="#{messages['button.preInvoicingRepport']}">
+					<f:param name="objectId" value="#{entity.id}" />
+					<f:param name="preReport" value="true" />
+					<f:param name="cid"
+						value="#{javax.enterprise.context.conversation.id}" />
+				</p:button>
+				<p:button id="postReportLink" outcome="postInvoicingReports"
+					rendered="#{entity.status.toString() == 'TERMINATED'}"
+					value="#{messages['button.postInvoicingRepport']}">
+					<f:param name="objectId" value="#{entity.id}" />
+					<f:param name="postReport" value="true" />
+					<f:param name="cid"
+						value="#{javax.enterprise.context.conversation.id}" />
+				</p:button>
+				<p:commandButton value="#{messages['action.cancel']}"
+					rendered="#{entity.status != BillingRunStatusEnum.TERMINATED and entity.status != BillingRunStatusEnum.CANCELED and entity.status != BillingRunStatusEnum.VALIDATED}"
+					action="#{billingRunBean.cancelInvoicing()}" update=":results_form">
+					<f:setPropertyActionListener target="#{billingRunBean.entity}"
+						value="#{entity}"></f:setPropertyActionListener>
+				</p:commandButton>
+			</p:column>
+		</hftl:dataList>
+
+	</ui:define>
+
+</ui:composition>

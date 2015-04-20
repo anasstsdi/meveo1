@@ -1,0 +1,6 @@
+ProviderApi.java		Line 127 at 129 and 394 at 412
+GetSellerCodeResponseDto.java	All
+ProviderRs.java			Line 74
+ProviderRsImpl.java		Line 156
+SettingsWs.java			Line 154
+SettingsWsImpl.java		Line 1124

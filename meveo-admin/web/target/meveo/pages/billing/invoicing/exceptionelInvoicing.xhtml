@@ -1,0 +1,74 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:s="http://jboss.com/products/seam/taglib"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:rich="http://richfaces.org/rich"
+	xmlns:e="http://jboss.com/products/seam/excel"
+	xmlns:p="http://primefaces.org/ui" xmlns:hftl="http://hftl.org"
+	xmlns:hf="http://java.sun.com/jsf/composite/tags"
+	template="/layout/template.xhtml">
+
+	<ui:define name="navigation">
+		<ui:include src="/layout/navigation.xhtml" />
+	</ui:define>
+
+	<ui:define name="body">
+
+		<ui:define name="metadata">
+			<f:metadata>
+				<f:event type="preRenderView"
+					listener="#{billingAccountBean.preRenderView}" />
+			</f:metadata>
+		</ui:define>
+
+		<hf:searchPanel label="#{messages['billingAccount.search']}"
+			backingBean="#{billingAccountBean}">
+			<hf:searchField label="#{messages['businessEntity.code']}"
+				field="code" />
+			<hf:searchField
+				label="#{messages['billingAccount.subscriptionDate']}"
+				field="subscriptionDate" />
+			<hf:searchField
+				label="#{messages['billingAccount.electronicBilling']}"
+				field="electronicBilling" />
+			<hf:searchField label="#{messages['billingAccount.nextInvoiceDate']}"
+				field="nextInvoiceDate" />
+		</hf:searchPanel>
+
+		<hftl:dataList label="#{messages['billingRun.exceptionelInvoicing']}"
+			backingBean="#{billingAccountBean}">
+			<hftl:column label="#{messages['businessEntity.code']}" field="code" />
+			<hftl:column label="#{messages['billingAccount.status']}"
+				field="status" childField="label" isMessage="true" />
+			<hftl:column label="#{messages['billingAccount.subscriptionDate']}"
+				field="subscriptionDate" />
+			<hftl:column label="#{messages['billingAccount.nextInvoiceDate']}"
+				field="nextInvoiceDate" />
+			<p:column>
+				<f:facet name="header">
+					<h:outputText value="#{messages['name.title']}" />
+				</f:facet>
+				<e:cell>
+					<h:outputText rendered="#{entity.name.title != null}"
+						value="#{entity.name.title.description}" />
+				</e:cell>
+			</p:column>
+			<hftl:column label="#{messages['billingAccount.name']}" field="name" />
+			<hftl:column label="#{messages['address.address1']}" field="address"
+				childField="address1" />
+
+			<hftl:actionsColumn
+				permission="#{identity.hasPermission('administration','administrationManagement')}"
+				renderEditLink="false" renderDeleteLink="false"
+				editView="billingAccountDetail" />
+
+			<ui:define name="add-on-buttons">
+				<p:commandButton
+					action="#{billingAccountBean.launchExceptionalInvoicing}"
+					ajax="false" value="#{messages['button.launchInvoicing']}" />
+			</ui:define>
+		</hftl:dataList>
+	</ui:define>
+
+</ui:composition>

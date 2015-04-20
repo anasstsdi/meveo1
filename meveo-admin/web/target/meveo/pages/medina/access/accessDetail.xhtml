@@ -1,0 +1,67 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:s="http://jboss.com/products/seam/taglib"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:h="http://java.sun.com/jsf/html" xmlns:hftl="http://hftl.org"
+	xmlns:hf="http://java.sun.com/jsf/composite/tags"
+	xmlns:c="http://java.sun.com/jstl/core"
+	xmlns:e="http://primefaces.org/extension"
+	xmlns:o="http://omnifaces.org/ui" template="/layout/template.xhtml">
+
+	<ui:define name="metadata">
+		<o:importConstants type="org.meveo.model.crm.CustomFieldTypeEnum" />
+	</ui:define>
+
+	<ui:define name="navigation">
+		<ui:include src="/layout/navigation.xhtml" />
+	</ui:define>
+
+	<ui:define name="body">
+
+		<hftl:entityPopup id="searchSubscriptionPopup"
+			header="#{messages['access.subscription']}"
+			updateField=":#{p:component('subscriptionId')}:subscriptionId"
+			selection="#{accessBean.entity.subscription}"
+			backingBean="#{subscriptionBean}"
+			searchField1Label="#{messages['subscription.code']}"
+			searchField1="code" column1Label="#{messages['subscription.code']}"
+			column1="code" column2Label="#{messages['subscription.description']}"
+			column2="description">
+		</hftl:entityPopup>
+
+		<p:panel styleClass="form-panel">
+			<f:facet name="header">
+				<h:outputText value="#{messages['access.accessPanel']}" />
+			</f:facet>
+
+			<hf:formPanel id="formPanel" backingBean="#{accessBean}" columns="2">
+
+				<p:tabView id="tabView">
+
+					<p:tab title="#{messages['customer.tab.information']}">
+						<p:panelGrid styleClass="form-panel-fields" columns="2">
+							<hf:formField label="#{messages['access.accessUserId']}"
+								field="accessUserId" required="true" />
+							<hf:formEntityField id="subscriptionId"
+								label="#{messages['access.subscription']}" field="subscription"
+								childField="code" popup="true" popupId="searchSubscriptionPopup"
+								required="true" />
+							<hf:formField label="#{messages['access.startDate']}"
+								field="startDate" />
+							<hf:formField label="#{messages['access.endDate']}"
+								field="endDate" />
+						</p:panelGrid>
+					</p:tab>
+
+					<p:tab title="#{messages['customFieldTemplate.panel']}">
+						<hf:customFields />
+					</p:tab>
+				</p:tabView>
+
+			</hf:formPanel>
+
+		</p:panel>
+	</ui:define>
+
+</ui:composition>

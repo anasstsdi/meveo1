@@ -1,0 +1,16 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:hf="http://java.sun.com/jsf/composite/tags"
+    template="/layout/template.xhtml">
+
+    <ui:define name="navigation">
+        <ui:include src="/layout/navigation.xhtml" />
+    </ui:define>
+
+    <ui:define name="body">
+
+        <hf:formPanel label="#{messages['title.panel']}" backingBean="#{titleBean}">
+            <hf:formField label="#{messages['title.code']}" field="code" required="true" validateUnique="true" />
+            <hf:formField label="#{messages['title.isCompany']}" field="isCompany" />
+            <hf:languageFields />
+        </hf:formPanel>
+    </ui:define>
+</ui:composition>
