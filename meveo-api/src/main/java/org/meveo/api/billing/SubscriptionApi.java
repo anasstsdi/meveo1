@@ -11,6 +11,8 @@ import javax.inject.Inject;
 import org.jboss.seam.international.status.builder.BundleKey;
 import org.meveo.admin.exception.BusinessException;
 import org.meveo.api.BaseApi;
+import org.meveo.api.MeveoApiErrorCode;
+import org.meveo.api.dto.ActionStatus;
 import org.meveo.api.dto.CustomFieldDto;
 import org.meveo.api.dto.account.ApplyOneShotChargeInstanceDto;
 import org.meveo.api.dto.billing.ActivateServicesDto;
@@ -22,6 +24,7 @@ import org.meveo.api.dto.billing.SubscriptionDto;
 import org.meveo.api.dto.billing.SubscriptionsDto;
 import org.meveo.api.dto.billing.TerminateSubscriptionDto;
 import org.meveo.api.dto.billing.TerminateSubscriptionServicesDto;
+import org.meveo.api.dto.billing.UpdateChargesPriceDto;
 import org.meveo.api.exception.EntityAlreadyExistsException;
 import org.meveo.api.exception.EntityDoesNotExistsException;
 import org.meveo.api.exception.MeveoApiException;
@@ -683,4 +686,66 @@ public class SubscriptionApi extends BaseApi {
 		return result;
 	}
 
+	@SuppressWarnings("unchecked")
+	public ActionStatus updateChargesPrice(UpdateChargesPriceDto updateChargesPrice, User currentUser) throws MeveoApiException {
+		ActionStatus result = new ActionStatus();
+
+		if (!StringUtils.isBlank(updateChargesPrice.getSubscriptionCode()) && updateChargesPrice.getChargeInstanceOverrides() != null
+				&& updateChargesPrice.getChargeInstanceOverrides().getChargeInstanceOverride() != null) {
+			Subscription subscription = subscriptionService.findByCode(updateChargesPrice.getSubscriptionCode(), currentUser.getProvider());
+			if (subscription == null) {
+				throw new EntityDoesNotExistsException(Subscription.class, updateChargesPrice.getSubscriptionCode());
+			}
+
+			for (ChargeInstanceOverrideDto chargeInstanceOverrideDto : updateChargesPrice.getChargeInstanceOverrides().getChargeInstanceOverride()) {
+				List<ChargeInstance> chargeInstances = chargeInstanceService.listByCodeAndSubscription(chargeInstanceOverrideDto.getChargeInstanceCode(), subscription,
+						currentUser.getProvider());
+				if (chargeInstances == null | chargeInstances.size() == 0) {
+					throw new EntityDoesNotExistsException(ChargeInstance.class, chargeInstanceOverrideDto.getChargeInstanceCode());
+				}
+				
+				if (chargeInstanceOverrideDto.getAmountWithoutTax() == null && chargeInstanceOverrideDto.getAmountWithTax() != null) {
+					throw new MeveoApiException(MeveoApiErrorCode.BUSINESS_API_EXCEPTION, "Amount without tax must not be null when amount with tax is not null.");
+				}
+
+				if (chargeInstanceOverrideDto.getAmountWithoutTax() != null && chargeInstanceOverrideDto.getAmountWithTax() == null && !currentUser.getProvider().isEntreprise()) {
+					throw new MeveoApiException(MeveoApiErrorCode.BUSINESS_API_EXCEPTION, "Amount with tax must not be null when provider.isEntreprise is false.");
+				}				
+
+				ChargeInstance chargeInstance = null;
+				if (chargeInstances.size() > 0) {
+					for (ChargeInstance ci : chargeInstances) {
+						if (ci.getStatus() != InstanceStatusEnum.CLOSED && ci.getStatus() != InstanceStatusEnum.TERMINATED) {
+							chargeInstance = ci;
+						}
+					}
+				} else {
+					chargeInstance = chargeInstances.get(0);
+				}
+
+				if (chargeInstance == null) {
+					throw new MeveoApiException(MeveoApiErrorCode.BUSINESS_API_EXCEPTION, "All ChargeInstances are either CLOSED or TERMINATED.");
+				}
+
+				if (chargeInstanceOverrideDto.getAmountWithoutTax() == null && chargeInstanceOverrideDto.getAmountWithTax() == null) {
+					chargeInstance.setAmountWithoutTax(null);
+					chargeInstance.setAmountWithTax(null);
+				}
+
+				chargeInstance.setAmountWithoutTax(chargeInstanceOverrideDto.getAmountWithoutTax());
+				chargeInstance.setAmountWithTax(chargeInstanceOverrideDto.getAmountWithTax());
+			}
+		} else {
+			if (StringUtils.isBlank(updateChargesPrice.getSubscriptionCode())) {
+				missingParameters.add("subscriptionCode");
+			}
+			if (updateChargesPrice.getChargeInstanceOverrides() == null || updateChargesPrice.getChargeInstanceOverrides().getChargeInstanceOverride() == null) {
+				missingParameters.add("chargeInstanceOverrides | chargeInstanceOverride");
+			}
+
+			throw new MissingParameterException(getMissingParametersExceptionMessage());
+		}
+
+		return result;
+	}
 }

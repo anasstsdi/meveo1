@@ -17,6 +17,7 @@
 package org.meveo.service.billing.impl;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -211,6 +212,21 @@ public class ChargeInstanceService<P extends ChargeInstance> extends BusinessSer
 
 		try {
 			return (P) qb.getQuery(getEntityManager()).getSingleResult();
+		} catch (NoResultException e) {
+			log.warn(e.getMessage());
+			return null;
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<P> listByCodeAndSubscription(String code, Subscription subscription, Provider provider) {
+		QueryBuilder qb = new QueryBuilder(ChargeInstance.class, "c");
+		qb.addCriterion("code", "=", code, true);
+		qb.addCriterionEntity("subscription", subscription);
+		qb.addCriterionEntity("provider", provider);
+
+		try {
+			return (List<P>) qb.getQuery(getEntityManager()).getResultList();
 		} catch (NoResultException e) {
 			log.warn(e.getMessage());
 			return null;
