@@ -91,8 +91,8 @@ public class BillingAccountApi extends AccountApi {
 			PaymentMethodEnum paymentMethod = null;
 			try {
 				paymentMethod = PaymentMethodEnum.valueOf(postData.getPaymentMethod());
-			} catch (IllegalArgumentException e) {
-				log.error(e.getMessage());
+			} catch (NullPointerException | IllegalArgumentException e) {
+				log.error("PaymentMethodEnum: " + e.getMessage());
 			}
 
 			BillingAccount billingAccount = new BillingAccount();
@@ -105,8 +105,8 @@ public class BillingAccountApi extends AccountApi {
 			billingAccount.setPaymentMethod(paymentMethod);
 			try {
 				billingAccount.setPaymentTerm(PaymentTermEnum.valueOf(postData.getPaymentTerms()));
-			} catch (IllegalArgumentException e) {
-				log.warn(e.getMessage());
+			} catch (NullPointerException | IllegalArgumentException e) {
+				log.warn("PaymentTermEnum: " + e.getMessage());
 			}
 			billingAccount.setNextInvoiceDate(postData.getNextInvoiceDate());
 			billingAccount.setSubscriptionDate(postData.getSubscriptionDate());
@@ -136,6 +136,8 @@ public class BillingAccountApi extends AccountApi {
 			if (StringUtils.isBlank(postData.getPaymentMethod())) {
 				missingParameters.add("paymentMethod");
 			}
+			
+			throw new MissingParameterException(getMissingParametersExceptionMessage());
 		}
 	}
 
@@ -178,8 +180,8 @@ public class BillingAccountApi extends AccountApi {
 			PaymentMethodEnum paymentMethod = null;
 			try {
 				paymentMethod = PaymentMethodEnum.valueOf(postData.getPaymentMethod());
-			} catch (IllegalArgumentException e) {
-				log.error(e.getMessage());
+			} catch (NullPointerException | IllegalArgumentException e) {
+				log.error("PaymentMethodEnum:" + e.getMessage());
 			}
 
 			updateAccount(billingAccount, postData, currentUser, AccountLevelEnum.BA);
@@ -191,8 +193,8 @@ public class BillingAccountApi extends AccountApi {
 			billingAccount.setPaymentMethod(paymentMethod);
 			try {
 				billingAccount.setPaymentTerm(PaymentTermEnum.valueOf(postData.getPaymentTerms()));
-			} catch (IllegalArgumentException e) {
-				log.warn(e.getMessage());
+			} catch (NullPointerException | IllegalArgumentException e) {
+				log.warn("PaymentTermEnum:" + e.getMessage());
 			}
 			billingAccount.setNextInvoiceDate(postData.getNextInvoiceDate());
 			billingAccount.setSubscriptionDate(postData.getSubscriptionDate());
@@ -222,6 +224,8 @@ public class BillingAccountApi extends AccountApi {
 			if (StringUtils.isBlank(postData.getPaymentMethod())) {
 				missingParameters.add("paymentMethod");
 			}
+			
+			throw new MissingParameterException(getMissingParametersExceptionMessage());
 		}
 	}
 
