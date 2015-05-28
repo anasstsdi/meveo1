@@ -29,6 +29,8 @@ public abstract class BaseApi {
 			sb.append(missingFields.get(0));
 		}
 		sb.append(".");
+		
+		missingParameters = new ArrayList<String>();
 
 		return sb.toString();
 	}
