@@ -121,6 +121,9 @@ public class UsageChargeInstanceCache implements Comparable<UsageChargeInstanceC
 			result = result.setScale(roundingUnityNbDecimal,
 					RoundingMode.HALF_UP);
 		}
+		else{
+			result=result.setScale(BaseEntity.NB_DECIMALS, RoundingMode.HALF_UP);
+		}
 		return result;
 	}
 	
