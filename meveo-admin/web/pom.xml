@@ -79,7 +79,7 @@
 				</executions>
 				<configuration>
 					<includes>
-<!-- 						<include>${project.build.directory}/**/persistence.xml</include> -->
+						<!-- <include>${project.build.directory}/**/persistence.xml</include> -->
 						<include>${project.build.directory}/**/layout/*.xhtml</include>
 					</includes>
 					<replacements>
@@ -169,7 +169,6 @@
 			<artifactId>omnifaces</artifactId>
 			<version>1.8.1</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.primefaces.extensions</groupId>
 			<artifactId>primefaces-extensions</artifactId> 
@@ -194,7 +193,6 @@
 			<groupId>org.reflections</groupId>
 			<artifactId>reflections-maven</artifactId>
 			<version>0.9.8</version>
-			<scope>provided</scope>
 			<exclusions>
 				<exclusion>
 					<groupId>xstream</groupId>
@@ -244,6 +242,7 @@
 		<dependency>
 			<groupId>org.jboss.resteasy</groupId>
 			<artifactId>jaxrs-api</artifactId>
+			<scope>provided</scope>
 			<version>3.0.6.Final</version>
 		</dependency>
 
