@@ -23,6 +23,7 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import javax.interceptor.Interceptors;
+import javax.persistence.DiscriminatorValue;
 
 import org.meveo.admin.exception.BusinessException;
 import org.meveo.admin.exception.ImportInvoiceException;
@@ -43,6 +44,7 @@ import org.meveo.model.crm.Provider;
 import org.meveo.model.jobs.JobExecutionResultImpl;
 import org.meveo.model.mediation.Access;
 import org.meveo.model.mediation.CDRRejectionCauseEnum;
+import org.meveo.model.payments.AccountOperation;
 import org.meveo.model.payments.MatchingStatusEnum;
 import org.meveo.model.payments.OCCTemplate;
 import org.meveo.model.payments.OperationCategoryEnum;
@@ -106,12 +108,13 @@ public class AdvancesImportJobBean {
 
 	@Interceptors({ JobLoggingInterceptor.class, PerformanceInterceptor.class })
 	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-	public void execute(JobExecutionResultImpl result, String parameter, User currentUser, File file, int dayOfMonth, String accountCode, int dueDateDelay) {
+	public void execute(JobExecutionResultImpl result, String parameter, User currentUser, File file, int dayOfMonth,
+			String accountCode, int dueDateDelay) {
 		Provider provider = currentUser.getProvider();
 
 		ParamBean parambean = ParamBean.getInstance();
-		String advancesDir = parambean.getProperty("providers.rootDir", "/tmp/meveo/") + File.separator + provider.getCode() + File.separator + "imports" + File.separator
-				+ "advances" + File.separator;
+		String advancesDir = parambean.getProperty("providers.rootDir", "/tmp/meveo/") + File.separator
+				+ provider.getCode() + File.separator + "imports" + File.separator + "advances" + File.separator;
 
 		outputDir = advancesDir + "output";
 		rejectDir = advancesDir + "reject";
@@ -157,7 +160,8 @@ public class AdvancesImportJobBean {
 						result.registerSucces();
 					} catch (ADRParsingException e) {
 						log.warn(e.getMessage());
-						result.registerError("file=" + file.getName() + ", line=" + processed + ": " + e.getRejectionCause().name());
+						result.registerError("file=" + file.getName() + ", line=" + processed + ": "
+								+ e.getRejectionCause().name());
 						rejectADR(e.getAdr(), e.getRejectionCause());
 					} catch (Exception e) {
 						log.error(e.getMessage());
@@ -222,28 +226,44 @@ public class AdvancesImportJobBean {
 	}
 
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	private void createAccountOperation(Subscription subscriptionInMemory, BigDecimal amountWithoutTax, String accountCode, int dueDateDelay, User currentUser)
-			throws ImportInvoiceException {
-		Subscription subscription = subscriptionService.findByCode(subscriptionInMemory.getCode(), currentUser.getProvider(),
-				Arrays.asList("userAccount", "userAccount.billingAccount"));
+	private void createAccountOperation(Subscription subscriptionInMemory, BigDecimal amountWithoutTax,
+			String accountCode, int dueDateDelay, User currentUser) throws ImportInvoiceException, BusinessException {
+		Date now = new Date();
+
+		// check if ao already exists
+		List<AccountOperation> accountOperations = accountOperationService.findByTypeAndDate(RecordedInvoice.class
+				.getAnnotation(DiscriminatorValue.class).value(), now, currentUser.getProvider());
+
+		RecordedInvoice recordedInvoice = new RecordedInvoice();
+		if (accountOperations != null && accountOperations.size() > 0) {
+			if (accountOperations.size() == 1) {
+				// update
+				recordedInvoice = (RecordedInvoice) accountOperations.get(0);
+			} else {
+				log.error("There are more than 1 accountOperations found for date={}", now);
+				throw new BusinessException("MORE_THAN_ONE_ACCOUNT_OPERATIONS_FOUND");
+			}
+		}
+
+		Subscription subscription = subscriptionService.findByCode(subscriptionInMemory.getCode(),
+				currentUser.getProvider(), Arrays.asList("userAccount", "userAccount.billingAccount"));
 
 		OCCTemplate invoiceTemplate = null;
 
 		try {
-			invoiceTemplate = oCCTemplateService.findByCode(paramBean.getProperty("accountOperationsGenerationJob.occCode", "FA_FACT"), currentUser.getProvider().getCode());
+			invoiceTemplate = oCCTemplateService.findByCode(
+					paramBean.getProperty("accountOperationsGenerationJob.occCode", "FA_FACT"),
+					currentUser.getProvider());
 		} catch (Exception e) {
 			log.error("occTemplate={}", e.getMessage());
-			throw new ImportInvoiceException("Cannot find OCC Template with code=" + paramBean.getProperty("accountOperationsGenerationJob.occCode", "FA_FACT") + " for invoice");
+			throw new ImportInvoiceException("Cannot find OCC Template with code="
+					+ paramBean.getProperty("accountOperationsGenerationJob.occCode", "FA_FACT") + " for invoice");
 		}
 
 		if (invoiceTemplate == null) {
-			throw new ImportInvoiceException("Cannot find OCC Template with code=" + paramBean.getProperty("accountOperationsGenerationJob.occCode", "FA_FACT") + " for invoice");
+			throw new ImportInvoiceException("Cannot find OCC Template with code="
+					+ paramBean.getProperty("accountOperationsGenerationJob.occCode", "FA_FACT") + " for invoice");
 		}
-
-		Date now = new Date();
-
-		// recordedInvoice
-		RecordedInvoice recordedInvoice = new RecordedInvoice();
 
 		// recordedInvoice.setReference(invoice.getInvoiceNumber());
 		recordedInvoice.setAccountCode(invoiceTemplate.getAccountCode());
@@ -295,18 +315,24 @@ public class AdvancesImportJobBean {
 			log.warn("rejectedType={}", e.getMessage());
 		}
 
-		accountOperationService.create(recordedInvoice, currentUser, currentUser.getProvider());
+		if (accountOperations != null && accountOperations.size() == 1) {
+			accountOperationService.update(recordedInvoice, currentUser);
+		} else {
+			accountOperationService.create(recordedInvoice, currentUser, currentUser.getProvider());
+		}
 	}
 
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	private EDR rateEdr(WalletOperation walletOperation, String line, User currentUser, int dayOfMonth) throws ADRParsingException, BusinessException {
+	private EDR rateEdr(WalletOperation walletOperation, String line, User currentUser, int dayOfMonth)
+			throws ADRParsingException, BusinessException {
 		EDR edr = aDRParsingService.getEDR(line, currentUser.getProvider(), dayOfMonth);
 		if (edr != null) {
 			log.debug("edr={}", edr);
 			createEdr(edr, currentUser);
 
 			try {
-				WalletOperation tempWalletOperation = usageRatingService.rateUsageWithinNewTransaction(edr, currentUser);
+				WalletOperation tempWalletOperation = usageRatingService
+						.rateUsageWithinNewTransaction(edr, currentUser);
 				walletOperation.setAmountWithTax(tempWalletOperation.getAmountWithTax());
 				if (edr.getStatus() == EDRStatusEnum.REJECTED) {
 					log.error("edr rejected={}", edr.getRejectReason());
@@ -391,8 +417,10 @@ public class AdvancesImportJobBean {
 			Access accessPoint = accessPointLookup(adr, provider);
 
 			EDRDAO edrDAO = adrParser.getADR(adr);
-			if ((accessPoint.getStartDate() == null || accessPoint.getStartDate().getTime() <= edrDAO.getEventDate().getTime())
-					&& (accessPoint.getEndDate() == null || accessPoint.getEndDate().getTime() > edrDAO.getEventDate().getTime())) {
+			if ((accessPoint.getStartDate() == null || accessPoint.getStartDate().getTime() <= edrDAO.getEventDate()
+					.getTime())
+					&& (accessPoint.getEndDate() == null || accessPoint.getEndDate().getTime() > edrDAO.getEventDate()
+							.getTime())) {
 				EDR edr = new EDR();
 				edr.setCreated(new Date());
 				edr.setEventDate(edrDAO.getEventDate());
@@ -413,9 +441,11 @@ public class AdvancesImportJobBean {
 			}
 		}
 
-		private Access accessPointLookup(Serializable adr, Provider provider) throws InvalidAdrAccessException, BusinessException {
+		private Access accessPointLookup(Serializable adr, Provider provider) throws InvalidAdrAccessException,
+				BusinessException {
 			String accessUserId = adrParser.getAccessUserId(adr);
-			List<Access> accesses = cdrEdrProcessingCacheContainerProvider.getAccessesByAccessUserId(provider.getId(), accessUserId);
+			List<Access> accesses = cdrEdrProcessingCacheContainerProvider.getAccessesByAccessUserId(provider.getId(),
+					accessUserId);
 			if (accesses == null || accesses.size() == 0) {
 				((IProvider) adr).setProvider(provider);
 				// TODO rejectededCdrEventProducer.fire(cdr);
@@ -558,8 +588,8 @@ public class AdvancesImportJobBean {
 			StringBuilder sb = new StringBuilder();
 			Formatter formatter = new Formatter(sb, Locale.US);
 
-			String s = formatter.format("%s;%d;%d;%s;%f;%s;%s;%s;", accessId, consumptionMonth, consumptionYear, tariffCode, quantity, oid, customerCategory, parameter1)
-					.toString();
+			String s = formatter.format("%s;%d;%d;%s;%f;%s;%s;%s;", accessId, consumptionMonth, consumptionYear,
+					tariffCode, quantity, oid, customerCategory, parameter1).toString();
 			formatter.close();
 
 			return s;

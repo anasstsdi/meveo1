@@ -96,4 +96,18 @@ public class AccountOperationService extends PersistenceService<AccountOperation
 
         super.create(aop, creator, provider);
     }
+
+	@SuppressWarnings("unchecked")
+	public List<AccountOperation> findByTypeAndDate(String type, Date now, Provider provider) {
+		QueryBuilder qb = new QueryBuilder(AccountOperation.class, "ao", null, provider);
+		qb.addCriterion("type", "=", type, true);
+		qb.addCriterionDateTruncatedToDay("created", now);
+
+		try {
+			return qb.getQuery(getEntityManager()).getResultList();
+		} catch (NoResultException e) {
+			return null;
+		}
+	}
+	
 }

@@ -128,7 +128,7 @@ public class AdvancesImportJob extends Job {
 			}
 
 		} catch (Exception e) {
-			log.error("Failed to run mediation", e);
+			log.error("Failed to run advancesImportJob", e);
 			result.registerError(e.getMessage());
 		}
 	}
