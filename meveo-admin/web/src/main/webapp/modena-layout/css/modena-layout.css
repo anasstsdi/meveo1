@@ -418,7 +418,7 @@ body {
 }
 /*Layout Menu */
 .layout-menu {
-  width: 94%;
+  width: 76% !important;
   margin: 0px auto 10px auto;
   padding: 0px;
   border-radius: 2px;

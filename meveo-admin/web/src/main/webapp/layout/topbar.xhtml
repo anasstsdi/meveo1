@@ -8,6 +8,8 @@
     
     <!-- TOPBAR START -->
     <div id="layout-topbar">
+    	<img src="/meveo/img/opencelllogo.jpeg" style="border:0px;" />
+    	
         <a id="mobile-menu-button">
             <span class="ButtonLine" id="ButtonLine1"></span>
             <span class="ButtonLine" id="ButtonLine2"></span>
@@ -23,8 +25,13 @@
         
         <ul id="top-menu">
         	
+        	<!-- <li>
+				<img src="/meveo/img/MeveoOpenCell.png" style="border:0px;">
+				<img src="/meveo/img/opencelllogo.jpeg" style="border:0px;" />
+			</li> -->
+			
         	<li>
-        		<h:link outcome="/home.xhtml" value="#{messages['menutop.home']}"
+        		<h:link id="home" outcome="/home.xhtml" value="#{messages['menutop.home']}"
                            styleClass="ripplelink">
 				<span class="ink animate" style="height: 42px; width: 42px; top: -1px; 
                                       left:2.109375px;">
@@ -37,14 +44,13 @@
         
         	<li>
         		<a class="ripplelink">
-			<span class="ink animate" style="height: 42px; width: 42px; top: -1px; left:  
-                              2.109375px;"></span>
+				<span class="ink animate" style="height: 42px; width: 42px; top: -1px; left: 2.109375px;"></span>
 
 				<i class="icon-archive"></i> 
         			<span class="ShowOnMobile"><div class="top-bar-pass"></div> </span>
         		</a>
 				
-				<h:link outcome="/changePassword.xhtml" value="#{messages['menutop.changePassword']}"
+				<h:link id="changePswrd" outcome="/changePassword.xhtml" value="#{messages['menutop.changePassword']}"
 					rendered="#{identity.loggedIn}" styleClass="headerLink" />
 			</li>
 
@@ -55,7 +61,7 @@
 
         			<span class="ShowOnMobile"> <div class="top-bar-logout"></div> </span>
         			<h:form>
-	        			<h:commandLink action="#{identity.logout}" value="#{messages['menutop.logout']}"
+	        			<h:commandLink id="logout" action="#{identity.logout}" value="#{messages['menutop.logout']}"
 							rendered="#{identity.loggedIn}" styleClass="headerLink" immediate="true" />
 					</h:form>
         		</a>
