@@ -1,7 +1,68 @@
-<ui:composition template="/layout/errorTemplate.xhtml"
-	xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:ui="http://java.sun.com/jsf/facelets">
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
 
-	<ui:define name="contentTitle">You got a RuntimeException! There's a BUG somewhere!</ui:define>
+    <h:head>
+        <f:facet name="first">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+            <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+            <meta name="apple-mobile-web-app-capable" content="yes" />
+        </f:facet>
+        <title>MEVEO | Open Source Billing Platform</title>
 
-</ui:composition>
+	<link rel="shortcut icon" href="#{request.contextPath}/favicon.ico" />
+		
+	<link rel="stylesheet" type="text/css"
+		href="#{request.contextPath}/modena-layout/css/animate.css" />
+			
+	<link rel="stylesheet" type="text/css"
+		href="#{request.contextPath}/modena-layout/css/core-layout.css" />
+		
+	<link rel="stylesheet" type="text/css"
+		href="#{request.contextPath}/modena-layout/css/font-awesome.css" />
+		
+	<link rel="stylesheet" type="text/css"
+		href="#{request.contextPath}/modena-layout/css/modena-font.css" />
+		
+	<link rel="stylesheet" type="text/css"
+		href="#{request.contextPath}/modena-layout/css/modena-layout.css" />
+		
+	<link rel="stylesheet" type="text/css"
+		href="#{request.contextPath}/modena-layout/css/perfect-scrollbar.css" />
+		
+	<link rel="stylesheet" type="text/css"
+		href="#{request.contextPath}/modena-layout/css/ripple-effect.css" />
+
+        <ui:insert name="head" />
+    </h:head>
+
+    <h:body styleClass="RedModena Geometry" style="height:auto;">
+        
+        <div class="Wid90 DispBlock MarAuto MarTopPerc10 TexAlCenter">
+            <div class="Wid33 MarAuto WidAutoOnMobile">
+                <div class="EmptyBox30"></div>
+                <div class="Card ShadowEffect">
+                    <div class="EmptyBox40"></div>
+                    <i class="icon-error Fs100 Red"></i>
+                    <div class="Wid100 OvHidden Fs30 Red">Error Exception Occured!</div>
+                    <div class="Wid100 OvHidden Fs20 BoldGray">Please contact system administrator.</div>
+                    <div class="EmptyBox20"></div>
+                    <div class="Separator"></div>
+                    <div class="EmptyBox10"></div>
+                    <div class="Wid100"><p:button value="Back To Login Page" icon="fa fa-dashboard" styleClass="RedButton Wid60 Fs18 White RaisedButton" href="404.xhtml"/></div>
+                    <div class="EmptyBox20"></div>
+                </div>
+                <div class="Wid100 TexAlCenter MarTop20 Fs14 FontRobotoRegular Gray">
+                        <i class="fa fa-copyright"></i>  
+			MEVEO @VERSION_NUMBER@ @BUILD_NUMBER@
+                </div>
+            </div>
+        </div>
+        
+    </h:body>
+
+</html>

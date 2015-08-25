@@ -9,7 +9,7 @@
 	<ui:define name="navigation">
 	</ui:define>
 
-	<ui:define name="body">
+	<ui:define name="body" styleClass="GrayModena Geometry" style="height:auto;">
 
 		<h:form id="loginForm">
 
@@ -22,28 +22,57 @@
 						errorClass="errormsg" infoClass="infomsg" warnClass="warnmsg"
 						rendered="#{!identity.loggedIn}" />
 
-					<div class="dialog">
-						<h:panelGrid columns="3" rowClasses="prop"
-							columnClasses="name,value">
-							<p:outputLabel for="username">#{messages['login.username']}</p:outputLabel>
-							<p:inputText id="username" value="#{credentials.username}"
-								style="widtp:170px;" />
-							<p:tooltip for="username">#{help['login.username']}</p:tooltip>
+					<div class="Wid90 DispBlock MarAuto MarTopPerc5 TexAlCenter">
+						<div class="Wid33 MarAuto WidAutoOnMobile">
 
-							<p:outputLabel for="password">#{messages['login.password']}</p:outputLabel>
-							<p:password id="password" value="#{credentials.password}"
-								style="widtp:170px;" />
-							<p:tooltip for="password">#{help['login.password']}</p:tooltip>
-							<!-- <p:outputLabel for="rememberMe">#{messages['login.rememberMe']}</p:outputLabel>
-	                    <p:selectBooleanCheckbox id="rememberMe"
-	                                          value="#{rememberMe.enabled}"/> -->
-						</h:panelGrid>
-					</div>
-					<div class="actionButtons">
-						<p:commandButton id="submit" value="#{messages['action.login']}"
-							action="#{identity.login}" ajax="false" />
-					</div>
+							<img src="/meveo/img/MeveoOpenCell.png" style="border:0px;" />
 
+	
+							<div class="EmptyBox30"></div>
+							<div class="Card ShadowEffect">
+
+								<div class="EmptyBox30"></div>
+							    
+								<div class="Wid100 OvHidden BigTopic Fs30">
+									Login
+								</div>
+
+								<div class="EmptyBox30"></div>
+							    	
+								<div class="Wid100">
+									<!--<p:outputLabel for="username">#{messages['login.username']}</p:outputLabel> -->
+									<p:inputText id="username" placeholder="Username"
+									value="#{credentials.username}" 
+									styleClass="Wid80 TexAlCenter Fs18" />
+									<p:tooltip for="username">#{help['login.username']}</p:tooltip>
+								</div>
+
+								<div class="EmptyBox30"></div>
+							    
+								<div class="Wid100">
+									<!-- <p:outputLabel for="password">#{messages['login.password']}</p:outputLabel> -->
+									<p:inputText type="password"
+ 									id="password" placeholder="Password"
+									value="#{credentials.password}"
+									styleClass="Wid80 TexAlCenter Fs18" />
+
+									<p:tooltip for="password">#{help['login.password']}</p:tooltip>
+		
+								</div>
+
+								<div class="EmptyBox30"></div>
+
+							    	<div class="Wid50 Fleft Responsive50">
+								    	<p:commandButton id="submit" 
+									value="#{messages['action.login']}"
+			 						action="#{identity.login}"
+	 								ajax="false" />
+							    	</div>
+							    
+							    	<div class="EmptyBox30"></div>
+						    	</div>
+						</div>
+					</div>
 				</p:panel>
 			</p:outputPanel>
 
