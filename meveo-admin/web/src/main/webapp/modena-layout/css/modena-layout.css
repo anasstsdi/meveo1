@@ -50,7 +50,8 @@ body {
   background-image: none;
 }
 .GrayModena #layout-topbar {
-  background-color: #37474F;
+  /*background-color: #37474F;*/
+  background-color: #0277BD;
 }
 /* Blue Theme*/
 .BlueModena.Geometry {
@@ -111,7 +112,8 @@ body {
   height: 40px;
   position: fixed;
   z-index: 1000;
-  background-color: #37474F;
+  /*background-color: #37474F;*/
+  background-color: #0277BD;
   padding: 10px 1%;
   -webkit-box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.3);
   -moz-box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.3);
