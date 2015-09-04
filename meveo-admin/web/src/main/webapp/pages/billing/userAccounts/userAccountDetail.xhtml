@@ -128,7 +128,7 @@
 						backingBean="#{userAccountBean}" useCustomIdParam="true">
 						<p:tabView id="userAccountTab" activeTab="#{userAccountbean.activeTab}">
 							<p:ajax event="tabChange" listener="#{userAccountBean.onTabChange}"/>
-							<p:tab title="#{messages['billingAccount.tab.account']}" id="tab0">
+							<p:tab title="#{messages['userAccount.userAccountPanel']}" id="tab0">
 									<hf:formField id="billingAccountSelectId"
 										label="#{messages['userAccount.billingAccount']}"
 										field="billingAccount" valueLabelField="code" required="true"
