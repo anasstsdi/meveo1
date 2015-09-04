@@ -110,12 +110,11 @@ public abstract class AccountEntity extends BusinessEntity implements ICustomFie
 	}
 
 	public Name getName() {
-		if (name != null) {
+        if (name == null) {
+            name = new Name();
+        }
 			return name;
 		}
-
-		return new Name();
-	}
 
 	public boolean isNameNull() {
 		return name == null ? true : false;
