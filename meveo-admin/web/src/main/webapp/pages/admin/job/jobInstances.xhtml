@@ -1,13 +1,13 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:s="http://jboss.com/products/seam/taglib" xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:hftl="http://hftl.org" xmlns:hf="http://java.sun.com/jsf/composite/tags"
-    xmlns:e="http://jboss.com/products/seam/excel" xmlns:p="http://primefaces.org/ui" template="/layout/template.xhtml">
+    xmlns:e="http://jboss.com/products/seam/excel" xmlns:p="http://primefaces.org/ui" template="/WEB-INF/template.xhtml">
 
     <f:metadata>
         <f:event type="preRenderView" listener="#{jobInstanceListBean.preRenderView}" />
     </f:metadata>
 
     <ui:define name="navigation">
-        <ui:include src="/layout/navigation.xhtml" />
+        <ui:include src="/WEB-INF/layoutmenu.xhtml" />
     </ui:define>
 
 

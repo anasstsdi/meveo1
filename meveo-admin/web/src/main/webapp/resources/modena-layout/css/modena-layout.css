@@ -1429,6 +1429,22 @@ width: 100%;
 
 
 
+.ui-submenu-link:before {
+    content: "›";
+    font-size: 27px;
+    left: 8px;
+    margin: 0;
+    position: absolute;
+    top: 13px;
+}
+
+.ui-menuitem-text:before {
+    content: "›";
+    float: left;
+    font-size: 16px;
+    margin: 0 7px 0 0;
+}
+
 
 
 

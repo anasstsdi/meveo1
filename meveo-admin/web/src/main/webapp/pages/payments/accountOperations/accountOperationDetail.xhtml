@@ -6,7 +6,7 @@
 	
 	
 	xmlns:hftl="http://hftl.org" xmlns:hf="http://java.sun.com/jsf/composite/tags"
-	template="/layout/template.xhtml">
+	template="/WEB-INF/template.xhtml">
 
 	<f:metadata>
 		<f:viewParam name="customerAccountId" value="#{customerAccountBean.objectId}" />
@@ -14,7 +14,7 @@
 	</f:metadata>
 
 	<ui:define name="navigation">
-		<ui:include src="/layout/navigation.xhtml" />
+		<ui:include src="/WEB-INF/layoutmenu.xhtml" />
 	</ui:define>
 
 	<ui:define name="body">
