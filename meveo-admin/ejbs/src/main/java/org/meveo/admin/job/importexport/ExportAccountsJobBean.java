@@ -57,6 +57,7 @@ public class ExportAccountsJobBean {
 		}
 
 		String timestamp = sdf.format(new Date());
+		billingAccountService.setProvider(provider);
 		List<org.meveo.model.billing.BillingAccount> bas = billingAccountService.list();
 		billingAccounts = new BillingAccounts(bas, param.getProperty("connectorCRM.dateFormat", "yyyy-MM-dd"));
 		try {

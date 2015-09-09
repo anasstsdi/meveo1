@@ -51,6 +51,7 @@ public class ExportSubscriptionsJobBean {
 		}
 
 		String timestamp = sdf.format(new Date());
+		subscriptionService.setProvider(provider);
 		List<org.meveo.model.billing.Subscription> subs = subscriptionService.list();
 		subscriptions = new Subscriptions(subs, param.getProperty("connectorCRM.dateFormat", "yyyy-MM-dd"));
 		try {
