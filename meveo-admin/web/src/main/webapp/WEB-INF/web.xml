@@ -107,11 +107,7 @@
 
 
 	<!-- web fonts -->
-	<mime-mapping>
-	    <extension>eot</extension>
-	    <mime-type>application/vnd.ms-fontobject</mime-type>
-	</mime-mapping>
-
+	
 	<mime-mapping>  
 	    <extension>otf</extension>  
 	    <mime-type>font/opentype</mime-type>  
@@ -131,6 +127,40 @@
 	    <extension>woff2</extension>  
 	    <mime-type>application/font-woff2</mime-type>  
 	</mime-mapping>
+	
+	<mime-mapping>
+        <extension>eot</extension>
+        <mime-type>application/vnd.ms-fontobject</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>eot?#iefix</extension>
+        <mime-type>application/vnd.ms-fontobject</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>svg</extension>
+        <mime-type>image/svg+xml</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>svg#exosemibold</extension>
+        <mime-type>image/svg+xml</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>svg#exobolditalic</extension>
+        <mime-type>image/svg+xml</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>svg#exomedium</extension>
+        <mime-type>image/svg+xml</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>svg#exoregular</extension>
+        <mime-type>image/svg+xml</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>svg#fontawesomeregular</extension>
+        <mime-type>image/svg+xml</mime-type>
+    </mime-mapping>
+    
 
 
 	<!-- <filter> -->

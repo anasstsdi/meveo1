@@ -1407,6 +1407,113 @@ width: 100%;
 
 
 
+.formFieldGroup {
+    vertical-align: middle;
+    box-sizing: border-box;
+    /* clear: both;*/
+    display: table;
+    float: left;
+    margin-top: 0px;
+    margin-bottom: 5px;
+    width: 100%;
+}
+
+.formFieldGroup label {
+    /* line-height: 25px;*/
+    padding-top: 3px;
+    float: left;
+    position: relative;
+    padding-right: 15px;
+    /*padding-left: 15px;*/
+    display: inline-block;
+    box-sizing: border-box;
+}
+
+
+
+.formFieldGroup .formFieldItem {
+    /* line-height: 25px;*/
+    float: left;
+    position: relative;
+    padding-right: 15px;
+    /*padding-left: 15px;*/
+    display: block;
+    box-sizing: border-box;
+    padding-top: 3px;
+}
+
+.formFieldGroup .formFieldItem2Lines {
+    /* line-height: 25px;*/
+    float: left;
+    clear: left;
+    position: relative;
+    padding-right: 15px;
+    /*padding-left: 15px;*/
+    display: block;
+    box-sizing: border-box;
+    margin-top: 2px;
+}
+
+.clearLeft {
+	clear: left;	
+}
+
+.clearRight {
+	clear: right;	
+}
+
+.clearBoth {
+	clear: both;	
+}
+
+
+.form-panel {
+    clear: both;
+    margin-left: 1em;
+}
+
+.form-panel-fields {
+	clear: both;
+}
+
+.form-panel-actions{
+	padding-top: 1em;
+	clear: both;
+}
+
+.form-panel-actions button { margin-right: 3px; }
+.panelGrid-column{
+vertical-align:top !important;
+}
+
+.panelGrid-column50{
+	vertical-align:top !important;
+	width:50% !important;
+}
+.panelGrid-column100{
+	width:100% !important;
+}
+
+
+.search-panel {
+    margin-top: 10px;
+    margin-bottom: 20px;
+    clear: both;
+    margin-left: 1em;
+}
+
+.search-panel-fields {
+	clear: both;
+}
+
+.search-panel-actions {
+	padding-top: 1em;
+	clear: both;
+}
+
+
+
+
 .ui-spinner .ui-spinner-button  .ui-icon-triangle-1-s { background-image : url(../img/ui-icons_616161_256x240.png) !Important; }
 .ui-spinner .ui-spinner-button:hover  .ui-icon-triangle-1-s,
 .ui-spinner .ui-spinner-button:hover  .ui-icon-triangle-1-n { background-image : url(../img/ui-icons_616161_256x240-2.png) !Important; }
@@ -1444,10 +1551,5 @@ width: 100%;
     font-size: 16px;
     margin: 0 7px 0 0;
 }
-
-
-
-
-
 
 
