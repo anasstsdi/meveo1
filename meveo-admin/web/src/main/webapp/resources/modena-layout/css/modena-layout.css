@@ -1348,8 +1348,11 @@ vertical-align:top !important;
 }
 
 
-.ui-widget-content {
+.ui-widget-content .ui-corner-bottom {
 	border-color: #d6d6d6;
+	float: left;
+	width: 100%;
+	box-sizing: border-box;	
 }
 
 .headerImage {
