@@ -1355,6 +1355,10 @@ vertical-align:top !important;
 	box-sizing: border-box;	
 }
 
+.ui-widget-content .ui-corner-all {
+	width: auto !important;
+}
+
 .headerImage {
 	height: 43px !important;
 }
