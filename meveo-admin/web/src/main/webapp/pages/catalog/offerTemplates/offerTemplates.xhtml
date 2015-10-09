@@ -3,7 +3,7 @@
     xmlns:f="http://java.sun.com/jsf/core"
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:hftl="http://hftl.org" xmlns:hf="http://java.sun.com/jsf/composite/tags"
-    template="/WEB-INF/template.xhtml">
+    template="/layout/template.xhtml">
     
     <ui:define name="metadata">
 		<f:metadata>
@@ -12,7 +12,7 @@
 		</f:metadata>
 	</ui:define>
     <ui:define name="navigation">
-   		<ui:include src="/WEB-INF/layoutmenu.xhtml" />
+   		<ui:include src="/layout/navigation.xhtml" />
    	</ui:define>
 
 	<ui:define name="body">
@@ -24,7 +24,7 @@
 
 		</hf:searchPanel>
 
-		<hftl:dataList label="#{messages['offerTemplate.title']}" checkMany="false" noClose="false" backingBean="#{offerTemplateListBean}">
+		<hftl:dataList label="#{messages['offerTemplate.title']}" noClose="false" backingBean="#{offerTemplateListBean}">
 			<hftl:column label="#{messages['offerTemplate.code']}" field="code" />
 			<hftl:column label="#{messages['offerTemplate.description']}" field="description" />
 			<hftl:column label="#{messages['offerTemplate.serviceTemplates']}" field="serviceTemplates" isList="true" valueLabelField="code" valueIdField="id"

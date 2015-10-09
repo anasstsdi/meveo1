@@ -27,7 +27,6 @@ import org.meveo.service.base.PersistenceService;
 import org.meveo.service.base.local.IPersistenceService;
 import org.meveo.service.catalog.impl.ChargeTemplateServiceAll;
 import org.omnifaces.cdi.ViewScoped;
-import org.primefaces.context.RequestContext;
 
 /**
  * Standard backing bean for {@link ChargeInstance} (extends {@link BaseBean}
@@ -46,7 +45,7 @@ public class ChargeTemplateBean extends BaseBean<ChargeTemplate> {
 	 */
 	@Inject
 	private ChargeTemplateServiceAll chargeTemplateService;
-
+	
 	/**
 	 * Constructor. Invokes super constructor and provides class type of this
 	 * bean for {@link BaseBean}.
@@ -76,4 +75,5 @@ public class ChargeTemplateBean extends BaseBean<ChargeTemplate> {
 		return chargeTemplateService;
 	}
 
+	
 }

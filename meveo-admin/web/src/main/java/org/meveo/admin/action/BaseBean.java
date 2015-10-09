@@ -17,13 +17,11 @@
 package org.meveo.admin.action;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.enterprise.context.Conversation;
@@ -48,14 +46,15 @@ import org.meveo.model.MultilanguageEntity;
 import org.meveo.model.admin.User;
 import org.meveo.model.billing.CatMessages;
 import org.meveo.model.billing.TradingLanguage;
-import org.meveo.model.crm.AccountLevelEnum;
 import org.meveo.model.crm.CustomFieldTemplate;
 import org.meveo.model.crm.Provider;
+import org.meveo.model.filter.Filter;
 import org.meveo.security.MeveoUser;
 import org.meveo.service.base.local.IPersistenceService;
 import org.meveo.service.catalog.impl.CatMessagesService;
 import org.meveo.service.crm.impl.CustomFieldInstanceService;
 import org.meveo.service.crm.impl.CustomFieldTemplateService;
+import org.meveo.service.filter.FilterService;
 import org.primefaces.component.datatable.DataTable;
 import org.primefaces.context.RequestContext;
 import org.primefaces.event.SelectEvent;
@@ -98,9 +97,9 @@ public abstract class BaseBean<T extends IEntity> implements Serializable {
     @Inject
     private CatMessagesService catMessagesService;
     
-//    @Inject
-//    private CustomFieldJob customFieldJob;
-
+    @Inject
+    private FilterService filterService;
+    
     /** Search filters. */
     protected Map<String, Object> filters = new HashMap<String, Object>();
 
@@ -110,19 +109,6 @@ public abstract class BaseBean<T extends IEntity> implements Serializable {
     /** Class of backing bean. */
     private Class<T> clazz;
 
-//    private CustomFieldTemplate customFieldSelectedTemplate;
-//    /**
-//     * New custom field period
-//     */
-//    private CustomFieldPeriod customFieldNewPeriod;
-//
-//    private boolean customFieldPeriodMatched;
-//
-//    /**
-//     * Custom field templates
-//     */
-//    protected List<CustomFieldTemplate> customFieldTemplates = new ArrayList<CustomFieldTemplate>();
-    
     /**
      * Request parameter. Should form be displayed in create/edit or view mode
      */
@@ -155,9 +141,6 @@ public abstract class BaseBean<T extends IEntity> implements Serializable {
     /** Helper field to enter language related field values. */
     protected Map<String, String> languageMessagesMap = new HashMap<String, String>();
 
-    /** Helper field to enter values for HashMap<String,String> type fields */
-    protected Map<String, List<HashMap<String, String>>> mapTypeFieldValues = new HashMap<String, List<HashMap<String, String>>>();
-
     /**
      * Datamodel for lazy dataloading in datatable.
      */
@@ -173,10 +156,10 @@ public abstract class BaseBean<T extends IEntity> implements Serializable {
      */
     private List<T> selectedEntities;
     
+    private Filter listFilter;
     
-//    @Inject
-//    private CustomEntitySearchService cfSearchService;
-//    
+    private boolean listFiltered = false;
+    
     /**
      * Constructor
      */
@@ -254,8 +237,6 @@ public abstract class BaseBean<T extends IEntity> implements Serializable {
             }
         }
 
-//        initCustomFields();
-
         return entity;
     }
 
@@ -318,8 +299,6 @@ public abstract class BaseBean<T extends IEntity> implements Serializable {
 
     public String saveOrUpdate(boolean killConversation) throws BusinessException {
         String outcome = null;
-
-//        updateCustomFieldsInEntity();
 
         if (!isMultilanguageEntity()) {
             outcome = saveOrUpdate(entity);
@@ -385,6 +364,8 @@ public abstract class BaseBean<T extends IEntity> implements Serializable {
             getPersistenceService().update(entity);
             messages.info(new BundleKey("messages", "update.successful"));
         }
+
+        objectIdFromSet = (Long) entity.getId();
 
         return back();
     }
@@ -574,6 +555,7 @@ public abstract class BaseBean<T extends IEntity> implements Serializable {
     public void clean() {
         dataModel = null;
         filters = new HashMap<String, Object>();
+        listFilter = null;
     }
 
     /**
@@ -698,7 +680,7 @@ public abstract class BaseBean<T extends IEntity> implements Serializable {
      * @return LazyDataModel implementation.
      */
     public LazyDataModel<T> getLazyDataModel() {
-        return getLazyDataModel(filters, false);
+        return getLazyDataModel(filters, listFiltered);
     }
 
     public LazyDataModel<T> getLazyDataModel(Map<String, Object> inputFilters, boolean forceReload) {
@@ -752,15 +734,10 @@ public abstract class BaseBean<T extends IEntity> implements Serializable {
                 }
             };
         }
+        
+        listFiltered = false;
+        
         return dataModel;
-    }
-
-    public Map<String, List<HashMap<String, String>>> getMapTypeFieldValues() {
-        return mapTypeFieldValues;
-    }
-
-    public void setMapTypeFieldValues(Map<String, List<HashMap<String, String>>> mapTypeFieldValues) {
-        this.mapTypeFieldValues = mapTypeFieldValues;
     }
 
     /**
@@ -853,13 +830,33 @@ public abstract class BaseBean<T extends IEntity> implements Serializable {
         return currentProvider;
     }
 
-    protected String getDefaultSort() {
-        return "id";
-    }
+	protected String getDefaultSort() {
+		if (listFilter != null && listFilter.getOrderCondition() != null) {
+			StringBuffer sb = new StringBuffer();
+			for (String field : listFilter.getOrderCondition().getFieldNames()) {
+				if (field.indexOf(".") == -1) {
+					sb.append(listFilter.getPrimarySelector().getAlias() + "." + field + ",");
+				} else {
+					sb.append(field + ",");
+				}
+			}
+			sb.deleteCharAt(sb.length() - 1);
 
-    protected SortOrder getDefaultSortOrder() {
-        return SortOrder.DESCENDING;
-    }
+			return StringUtils.join(listFilter.getOrderCondition().getFieldNames(), ",");
+		}
+
+		return "id";
+	}
+
+	protected SortOrder getDefaultSortOrder() {
+		if (listFilter != null && listFilter.getOrderCondition() != null) {
+			if (listFilter.getOrderCondition().isAscending()) {
+				return SortOrder.ASCENDING;
+			}
+		}
+
+		return SortOrder.DESCENDING;
+	}
 
     public String getBackView() {
         return backView.get();
@@ -872,353 +869,6 @@ public abstract class BaseBean<T extends IEntity> implements Serializable {
     public void setBackViewSave(String backViewSave) {
         this.backViewSave = backViewSave;
     }
-
-    /**
-     * Remove a value from a map type field attribute used to gather field values in GUI
-     * 
-     * @param fieldName Field name
-     * @param valueInfo Value to remove
-     */
-    public void removeMapTypeFieldValue(String fieldName, Map<String, String> valueInfo) {
-        mapTypeFieldValues.get(fieldName).remove(valueInfo);
-    }
-
-    /**
-     * Add a value to a map type field attribute used to gather field values in GUI
-     * 
-     * @param fieldName Field name
-     */
-    public void addMapTypeFieldValue(String fieldName) {
-        if (!mapTypeFieldValues.containsKey(fieldName)) {
-            mapTypeFieldValues.put(fieldName, new ArrayList<HashMap<String, String>>());
-        }
-        mapTypeFieldValues.get(fieldName).add(new HashMap<String, String>());
-    }
-
-    /**
-     * Extract values from a Map type field in an entity to mapTypeFieldValues attribute used to gather field values in GUI
-     * 
-     * @param entityField Entity field
-     * @param fieldName Field name
-     */
-    public void extractMapTypeFieldFromEntity(Map<String, String> entityField, String fieldName) {
-
-        mapTypeFieldValues.remove(fieldName);
-
-        if (entityField != null) {
-            List<HashMap<String, String>> fieldValues = new ArrayList<HashMap<String, String>>();
-            mapTypeFieldValues.put(fieldName, fieldValues);
-            for (Entry<String, String> setInfo : entityField.entrySet()) {
-                HashMap<String, String> value = new HashMap<String, String>();
-                value.put("key", setInfo.getKey());
-                value.put("value", setInfo.getValue());
-                fieldValues.add(value);
-            }
-        }
-    }
-
-    /**
-     * Update Map type field in an entity from mapTypeFieldValues attribute used to gather field values in GUI
-     * 
-     * @param entityField Entity field
-     * @param fieldName Field name
-     */
-    public void updateMapTypeFieldInEntity(Map<String, String> entityField, String fieldName) {
-        entityField.clear();
-
-        if (mapTypeFieldValues.get(fieldName) != null) {
-            for (HashMap<String, String> valueInfo : mapTypeFieldValues.get(fieldName)) {
-                if (valueInfo.get("key") != null && !valueInfo.get("key").isEmpty()) {
-                    entityField.put(valueInfo.get("key"), valueInfo.get("value") == null ? "" : valueInfo.get("value"));
-                }
-            }
-        }
-    }
-
-    /**
-     * Load available custom fields (templates) and their values
-     */
-//    @SuppressWarnings("unchecked")
-//	protected void initCustomFields() {
-//
-//        if (!this.getClass().isAnnotationPresent(CustomFieldEnabledBean.class)) {
-//            return;
-//        }
-//
-//        customFieldTemplates = getApplicateCustomFieldTemplates();
-//
-//        if (customFieldTemplates != null && customFieldTemplates.size() > 0) {
-//            for (CustomFieldTemplate cf : customFieldTemplates) {
-//                CustomFieldInstance cfi = ((ICustomFieldEntity) entity).getCustomFields().get(cf.getCode());
-//                if (cfi == null) {
-//                    cf.setInstance(CustomFieldInstance.fromTemplate(cf));
-//                } else {
-//                    if(CustomFieldStorageTypeEnum.SINGLE.equals(cf.getStorageType())){
-//               	 		if(CustomFieldTypeEnum.ENTITY.equals(cf.getFieldType())){
-//               	 			cfi.setBusinessEntity(SerializableUtil.decodeSingle(cfSearchService,cf.getEntityClazz(),cfi.getEntityValue()));
-//               	 		}
-//               	 	}else{
-//               	 		if(cf.isVersionable()){
-//               	 			for(CustomFieldPeriod cfp: cfi.getValuePeriods()){
-//               	 				if(CustomFieldTypeEnum.ENTITY.equals(cf.getFieldType())){
-//               	 					cfp.setBusinessEntity(SerializableUtil.decodeSingle(cfSearchService,cf.getEntityClazz(),cfp.getEntityValue()));
-//               	 				}
-//               	 			}
-//               	 		}else{
-//               	 			if(CustomFieldStorageTypeEnum.LIST.equals(cf.getStorageType())){
-//               	 				if(CustomFieldTypeEnum.ENTITY.equals(cf.getFieldType())){
-//               	 					cfi.setEntityList(SerializableUtil.decodeList(cfSearchService,cf.getEntityClazz(),cfi.getEntityValue()));
-//               	 				}else if(CustomFieldTypeEnum.STRING.equals(cf.getFieldType())){
-//               	 					cfi.setStringList((Set<String>)SerializableUtil.decode(cfi.getEntityValue()));
-//               	 				}else if(CustomFieldTypeEnum.LONG.equals(cf.getFieldType())){
-//               	 					cfi.setLongList((Set<Long>)SerializableUtil.decode(cfi.getEntityValue()));
-//               	 				}else if(CustomFieldTypeEnum.DOUBLE.equals(cf.getFieldType())){
-//               	 					cfi.setDoubleList((Set<Double>)SerializableUtil.decode(cfi.getEntityValue()));
-//               	 				}else if(CustomFieldTypeEnum.DATE.equals(cf.getFieldType())){
-//               	 					cfi.setDateList((Set<Date>)SerializableUtil.decode(cfi.getEntityValue()));
-//               	 				}
-//               	 			}else if(CustomFieldStorageTypeEnum.MAP.equals(cf.getStorageType())){
-//               	 				if(CustomFieldTypeEnum.ENTITY.equals(cf.getFieldType())){
-//               	 					cfi.setEntityMap((Map<String,BusinessEntity>)SerializableUtil.decodeMap(cfSearchService,cf.getEntityClazz(),cfi.getEntityValue()));
-//               	 				}else if(CustomFieldTypeEnum.STRING.equals(cf.getFieldType())){
-//               	 					cfi.setStringMap((Map<String,String>)SerializableUtil.decode(cfi.getEntityValue()));
-//               	 				}else if(CustomFieldTypeEnum.LONG.equals(cf.getFieldType())){
-//               	 					cfi.setLongMap((Map<String,Long>)SerializableUtil.decode(cfi.getEntityValue()));
-//               	 				}else if(CustomFieldTypeEnum.DOUBLE.equals(cf.getFieldType())){
-//               	 					cfi.setDoubleMap((Map<String,Double>)SerializableUtil.decode(cfi.getEntityValue()));
-//               	 				}else if(CustomFieldTypeEnum.DATE.equals(cf.getFieldType())){
-//               	 					cfi.setDateMap((Map<String,Date>)SerializableUtil.decode(cfi.getEntityValue()));
-//               	 				}
-//               	 			}
-//               	 		}
-//               	 	}
-//                    cf.setInstance(cfi);
-//                }
-//            }
-//        }
-//    }
-//
-//    private void updateCustomFieldsInEntity(){
-//    	
-//
-//        if (!this.getClass().isAnnotationPresent(CustomFieldEnabledBean.class) || customFieldTemplates == null || customFieldTemplates.isEmpty()) {
-//            return;
-//        }
-//
-//        for (CustomFieldTemplate cf : customFieldTemplates) {
-//            CustomFieldInstance cfi = cf.getInstance();
-//       	 	if(CustomFieldStorageTypeEnum.SINGLE.equals(cf.getStorageType())){
-//       	 		if(CustomFieldTypeEnum.ENTITY.equals(cf.getFieldType())){
-//       	 			BusinessEntity temp=cfi.getBusinessEntity();
-//       	 			BusinessEntity result=new BusinessEntity();
-//       	 			result.setId(temp.getId());
-//       	 			cfi.setEntityValue(SerializableUtil.encode(result));
-//       	 		}
-//       	 	}else {
-//       	 		if(cf.isVersionable()){
-//       	 			for(CustomFieldPeriod cfp: cfi.getValuePeriods()){
-//       	 				if(CustomFieldTypeEnum.ENTITY.equals(cf.getFieldType())){
-//       	 					BusinessEntity temp=cfp.getBusinessEntity();
-//       	 					if(temp!=null){
-//       	 						BusinessEntity result=new BusinessEntity();
-//       	 						result.setId(temp.getId());
-//       	 						cfp.setEntityValue(SerializableUtil.encode(result));
-//       	 					}
-//       	 				}
-//       	 			}
-//       	 		}else if(CustomFieldStorageTypeEnum.LIST.equals(cf.getStorageType())){
-//	 				if(CustomFieldTypeEnum.ENTITY.equals(cf.getFieldType())){
-//	 					Set<BusinessEntity> result=new HashSet<BusinessEntity>();
-//	 					BusinessEntity temp=null;
-//	 					for(BusinessEntity list:cfi.getEntityList()){
-//	 						temp=new BusinessEntity();
-//	 						temp.setId(list.getId());
-//	 						result.add(temp);
-//	 					}
-//	 					cfi.setEntityValue(cfi.getEntityList().size()==0?null:SerializableUtil.encode(result));
-//	 				}else if(CustomFieldTypeEnum.STRING.equals(cf.getFieldType())){
-//	 					cfi.setEntityValue(cfi.getStringList().size()==0?null:SerializableUtil.encode(cfi.getStringList()));
-//	 					cfi.setStringValue(null);
-//	 				}else if(CustomFieldTypeEnum.LONG.equals(cf.getFieldType())){
-//	 					cfi.setEntityValue(cfi.getLongList().size()==0?null:SerializableUtil.encode(cfi.getLongList()));
-//	 					cfi.setLongValue(null);
-//	 				}else if(CustomFieldTypeEnum.DOUBLE.equals(cf.getFieldType())){
-//	 					cfi.setEntityValue(cfi.getDoubleList().size()==0?null:SerializableUtil.encode(cfi.getDoubleList()));
-//	 					cfi.setDoubleValue(null);
-//	 				}else if(CustomFieldTypeEnum.DATE.equals(cf.getFieldType())){
-//	 					cfi.setEntityValue(cfi.getDateList().size()==0?null:SerializableUtil.encode(cfi.getDateList()));
-//	 					cfi.setDateValue(null);
-//	 				}
-//	 			}else if(CustomFieldStorageTypeEnum.MAP.equals(cf.getStorageType())){
-//	 				if(CustomFieldTypeEnum.ENTITY.equals(cf.getFieldType())){
-//	 					Map<String,BusinessEntity> result=new HashMap<String,BusinessEntity>();
-//	 					BusinessEntity temp=null;
-//	 					for(Map.Entry<String, BusinessEntity> entry:cfi.getEntityMap().entrySet()){
-//	 						temp=new BusinessEntity();
-//	 						temp.setId(entry.getValue().getId());
-//	 						result.put(entry.getKey(),temp);
-//	 					}
-//	 					cfi.setEntityValue(cfi.getEntityMap().size()==0?null:SerializableUtil.encode(result));
-//	 				}else if(CustomFieldTypeEnum.STRING.equals(cf.getFieldType())){
-//	 					cfi.setEntityValue(cfi.getStringMap().size()==0?null:SerializableUtil.encode(cfi.getStringMap()));
-//	 					cfi.setStringValue(null);
-//	 				}else if(CustomFieldTypeEnum.LONG.equals(cf.getFieldType())){
-//	 					cfi.setEntityValue(cfi.getLongMap().size()==0?null:SerializableUtil.encode(cfi.getLongMap()));
-//	 					cfi.setLongValue(null);
-//	 				}else if(CustomFieldTypeEnum.DOUBLE.equals(cf.getFieldType())){
-//	 					cfi.setEntityValue(cfi.getDoubleMap().size()==0?null:SerializableUtil.encode(cfi.getDoubleMap()));
-//	 					cfi.setDoubleValue(null);
-//	 				}else if(CustomFieldTypeEnum.DATE.equals(cf.getFieldType())){
-//	 					cfi.setEntityValue(cfi.getDateMap().size()==0?null:SerializableUtil.encode(cfi.getDateMap()));
-//	 					cfi.setDateValue(null);
-//	 				}
-//	 			}
-//       	 	}
-//       	     // Not saving empty values
-//            if (cfi.isValueEmpty()) {
-//                if (!cfi.isTransient()) {
-//                    ((ICustomFieldEntity) entity).getCustomFields().remove(cfi.getCode());
-//                    log.debug("remove cfi {}",cfi.getCode());
-//                }
-//                // Existing value update
-//            } else{
-//            	if (!cfi.isTransient()) {
-//            		cfi.updateAudit(getCurrentUser());
-//                // Create a new instance from a template value
-//            	} else {
-//            		cfi.updateAudit(getCurrentUser()); 
-//            		IEntity entity = getEntity();
-//            		if (entity instanceof AccountEntity) {
-//            			cfi.setAccount((AccountEntity) getEntity());
-//            		} else if (entity instanceof Subscription) {
-//            			cfi.setSubscription((Subscription) entity);
-//            		} else if (entity instanceof Access) {
-//            			cfi.setAccess((Access) entity);
-//            		} else if (entity instanceof ChargeTemplate) {
-//            			cfi.setChargeTemplate((ChargeTemplate) entity);
-//            		} else if (entity instanceof ServiceTemplate) {
-//            			cfi.setServiceTemplate((ServiceTemplate) entity);
-//            		} else if (entity instanceof OfferTemplate) {
-//            			cfi.setOfferTemplate((OfferTemplate) entity);
-//            		} else if (entity instanceof JobInstance) {
-//            			cfi.setJobInstance((JobInstance) entity);
-//            		}else if (entity instanceof Provider) {
-//            			cfi.setProvider((Provider)entity);
-//            		}
-//            	}
-//            	((ICustomFieldEntity) entity).getCustomFields().put(cfi.getCode(), cfi);
-//            }
-//        }
-//        }
-
-    // protected void setAndSaveCustomFields() {
-    // if (customFieldTemplates != null && customFieldTemplates.size() > 0) {
-    // for (CustomFieldTemplate cf : customFieldTemplates) {
-    // CustomFieldInstance cfi = customFieldInstanceService.findByCodeAndAccount(cf.getCode(), getEntity(),getCurrentProvider());
-    // if (cfi != null) {
-    // if (cf.isValueEmpty()) {
-    // customFieldInstanceService.remove(cfi);
-    //
-    // } else {
-    // if (cf.getFieldType() == CustomFieldTypeEnum.DATE) {
-    // cfi.setDateValue(cf.getDateValue());
-    // } else if (cf.getFieldType() == CustomFieldTypeEnum.DOUBLE) {
-    // cfi.setDoubleValue(cf.getDoubleValue());
-    // } else if (cf.getFieldType() == CustomFieldTypeEnum.LONG) {
-    // cfi.setLongValue(cf.getLongValue());
-    // } else if (cf.getFieldType() == CustomFieldTypeEnum.STRING
-    // || cf.getFieldType() == CustomFieldTypeEnum.LIST) {
-    // cfi.setStringValue(cf.getStringValue());
-    // }
-    // }
-    //
-    // } else if (!cf.isValueEmpty()) {
-    // // create
-    // cfi = new CustomFieldInstance();
-    // cfi.setCode(cf.getCode());
-    // IEntity entity = getEntity();
-    // if (entity instanceof AccountEntity) {
-    // cfi.setAccount((AccountEntity) getEntity());
-    // } else if (entity instanceof Subscription) {
-    // cfi.setSubscription((Subscription) entity);
-    // } else if (entity instanceof Access) {
-    // cfi.setAccess((Access) entity);
-    // }else if (entity instanceof ChargeTemplate) {
-    // cfi.setChargeTemplate((ChargeTemplate) entity);
-    // } else if (entity instanceof ServiceTemplate) {
-    // cfi.setServiceTemplate((ServiceTemplate) entity);
-    // } else if (entity instanceof OfferTemplate) {
-    // cfi.setOfferTemplate((OfferTemplate) entity);
-    // }else if (entity instanceof JobInstance) {
-    // cfi.setJobInstance((JobInstance) entity);
-    // }
-    //
-    // if (cf.getFieldType() == CustomFieldTypeEnum.DATE) {
-    // cfi.setDateValue(cf.getDateValue());
-    // } else if (cf.getFieldType() == CustomFieldTypeEnum.DOUBLE) {
-    // cfi.setDoubleValue(cf.getDoubleValue());
-    // } else if (cf.getFieldType() == CustomFieldTypeEnum.LONG) {
-    // cfi.setLongValue(cf.getLongValue());
-    // } else if (cf.getFieldType() == CustomFieldTypeEnum.STRING
-    // || cf.getFieldType() == CustomFieldTypeEnum.LIST) {
-    // cfi.setStringValue(cf.getStringValue());
-    // }
-    //
-    // customFieldInstanceService.create(cfi, getCurrentUser(), getCurrentProvider());
-    // }
-    // }
-    // }
-    // }
-    //
-    // protected void deleteCustomFields() {
-    // if (customFieldTemplates != null && customFieldTemplates.size() > 0) {
-    // for (CustomFieldTemplate cf : customFieldTemplates) {
-    // CustomFieldInstance cfi = customFieldInstanceService.findByCodeAndAccount(cf.getCode(), getEntity(),getCurrentProvider());
-    // if (cfi != null) {
-    // customFieldInstanceService.remove(cfi);
-    // }
-    // }
-    // }
-    // }
-
-//    public List<CustomFieldTemplate> getCustomFieldTemplates() {
-//    	if(customFieldTemplates==null||customFieldTemplates.size()==0){
-//    		if(entity!=null){
-//    			initCustomFields();
-//    		}else{
-//    			initEntity();
-//    		}
-//    	}
-//        return customFieldTemplates;
-//    }
-//
-//    public void setCustomFieldTemplates(List<CustomFieldTemplate> customFieldTemplates) {
-//        this.customFieldTemplates = customFieldTemplates;
-//    }
-//
-//    public CustomFieldPeriod getCustomFieldNewPeriod() {
-//        return customFieldNewPeriod;
-//    }
-//
-//    public void setCustomFieldNewPeriod(CustomFieldPeriod customFieldNewPeriod) {
-//        this.customFieldNewPeriod = customFieldNewPeriod;
-//    }
-//
-//    public void setCustomFieldSelectedTemplate(CustomFieldTemplate customFieldSelectedTemplate) {
-//        this.customFieldSelectedTemplate = customFieldSelectedTemplate;
-//        this.customFieldPeriodMatched = false;
-//        // Set a default value for new period data entry
-//        this.customFieldNewPeriod = new CustomFieldPeriod();
-//        this.customFieldNewPeriod.setValue(customFieldSelectedTemplate.getDefaultValueConverted(), customFieldSelectedTemplate.getFieldType());
-//    }
-//
-//    public CustomFieldTemplate getCustomFieldSelectedTemplate() {
-//        return customFieldSelectedTemplate;
-//    }
-
-//    public boolean isCustomFieldPeriodMatched() {
-//        return customFieldPeriodMatched;
-//    }
 
     public int getDataTableFirstAttribute() {
         return dataTableFirstAttribute;
@@ -1278,79 +928,6 @@ public abstract class BaseBean<T extends IEntity> implements Serializable {
         requestContext.addCallbackParam("result", result);
         return null;
     }
-
-    /**
-     * Add a new customField period with a previous validation that matching period does not exists
-     */
-//    public void addNewCustomFieldPeriod() {
-//
-//        // Check that two dates are one after another
-//        if (customFieldNewPeriod.getPeriodStartDate() != null && customFieldNewPeriod.getPeriodEndDate() != null
-//                && customFieldNewPeriod.getPeriodStartDate().compareTo(customFieldNewPeriod.getPeriodEndDate()) >= 0) {
-//            messages.error(new BundleKey("messages", "customFieldTemplate.periodIntervalIncorrect"));
-//            FacesContext.getCurrentInstance().validationFailed();
-//            return;
-//        }
-//
-//        CustomFieldPeriod period = null;
-//        // First check if any period matches the dates
-//        if (!customFieldPeriodMatched) {
-//            if (customFieldSelectedTemplate.getInstance().getCalendar() != null) {
-//                period = customFieldSelectedTemplate.getInstance().getValuePeriod(customFieldNewPeriod.getPeriodStartDate(), false);
-//            } else {
-//                period = customFieldSelectedTemplate.getInstance().getValuePeriod(customFieldNewPeriod.getPeriodStartDate(), customFieldNewPeriod.getPeriodEndDate(), false, false);
-//            }
-//
-//            if (period != null) {
-//                customFieldPeriodMatched = true;
-//                ParamBean paramBean = ParamBean.getInstance();
-//                String datePattern = paramBean.getProperty("meveo.dateFormat", "dd/MM/yyyy");
-//
-//                if (customFieldSelectedTemplate.getInstance().getCalendar() != null) {
-//                    messages.error(new BundleKey("messages", "customFieldTemplate.matchingPeriodFound.noNew"),
-//                        DateUtils.formatDateWithPattern(period.getPeriodStartDate(), datePattern), DateUtils.formatDateWithPattern(period.getPeriodEndDate(), datePattern));
-//                } else {
-//                    messages.warn(new BundleKey("messages", "customFieldTemplate.matchingPeriodFound"), DateUtils.formatDateWithPattern(period.getPeriodStartDate(), datePattern),
-//                        DateUtils.formatDateWithPattern(period.getPeriodEndDate(), datePattern));
-//                }
-//                FacesContext.getCurrentInstance().validationFailed();
-//                customFieldPeriodMatched = true;
-//                return;
-//            }
-//        }
-//
-//        // Create period if passed period check or if user decided to create it anyway
-//        if (customFieldSelectedTemplate.getInstance().getCalendar() != null) {
-//            period = customFieldSelectedTemplate.getInstance().addValuePeriod(customFieldNewPeriod.getPeriodStartDate(), customFieldNewPeriod.getValue(),
-//                customFieldSelectedTemplate.getFieldType(),customFieldNewPeriod.getLabel(),customFieldSelectedTemplate.getStorageType());
-//        } else {
-//            period = customFieldSelectedTemplate.getInstance().addValuePeriod(customFieldNewPeriod.getPeriodStartDate(), customFieldNewPeriod.getPeriodEndDate(),
-//                customFieldNewPeriod.getValue(), customFieldSelectedTemplate.getFieldType(),customFieldNewPeriod.getLabel(),customFieldSelectedTemplate.getStorageType());
-//        }
-//        
-//        if (customFieldSelectedTemplate.isVersionable()
-//				&& customFieldSelectedTemplate.getCalendar() != null
-//				&& customFieldSelectedTemplate.isTriggerEndPeriodEvent()) {
-//			// create a timer
-//			customFieldJob.triggerEndPeriodEvent(customFieldSelectedTemplate.getInstance(),
-//					customFieldNewPeriod.getPeriodEndDate());
-//		}
-//        
-//        customFieldNewPeriod = null;
-//        customFieldPeriodMatched = false;
-//    }
-
-    /**
-     * Get a list of custom field templates applicable to an entity.
-     * 
-     * @return A list of custom field templates
-     */
-    protected List<CustomFieldTemplate> getApplicateCustomFieldTemplates() {
-        AccountLevelEnum accountLevel = this.getClass().getAnnotation(CustomFieldEnabledBean.class).accountLevel();
-        List<CustomFieldTemplate> result= customFieldTemplateService.findByAccountLevel(accountLevel);
-        log.debug("find {} by fieldType={} for {}",result.size(),accountLevel,this.getClass());
-        return result;
-    }
     
     public CSVExportOptions csvOptions(){
 	    ParamBean param = ParamBean.getInstance();
@@ -1364,4 +941,29 @@ public abstract class BaseBean<T extends IEntity> implements Serializable {
     public List<CustomFieldTemplate> getCustomFieldTemplates() {
     	return null;
     }
+
+	public Filter getListFilter() {
+		return listFilter;
+	}
+
+	public void setListFilter(Filter listFilter) {
+		this.listFilter = listFilter;
+	}
+	
+	public List<Filter> getListFilters() {
+		return filterService.findByPrimaryTargetClass(clazz.getName());
+	}
+	
+	public void runListFilter() {
+		if (listFilter != null) {
+			dataModel = null;
+			filters = new HashMap<String, Object>();
+
+			filters.put("$FILTER", listFilter);
+
+			listFiltered = true;
+		} else {
+			filters.remove("$FILTER");
+		}
+	}    
 }

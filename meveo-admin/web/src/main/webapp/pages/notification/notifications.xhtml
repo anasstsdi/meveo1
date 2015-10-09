@@ -23,10 +23,10 @@
    		
 			<!-- ===================================== SEARCH CRITERIA ZONE ================================= -->
 
-			<hf:searchPanel label="#{messages['menu.notifications']}" columns="3" backingBean="#{notificationListBean}">
-			<hf:searchField label="#{messages['entity.code']}" field="code" />
-			<hf:searchField label="#{messages['entity.notification.classNameFilter']}" field="classNameFilter" size="50" autocompleteMethod="#{notificationBean.autocompleteClassNames}" isAutocomplete="true"/>
-            <hf:searchField label="#{messages['entity.notification.eventTypeFilter']}" field="eventTypeFilter" />
+			<hf:searchPanel label="#{messages['menu.notifications']}" columns="3" backingBean="#{notificationListBean}" ajaxUpdateIds="notifications_panel">
+				<hf:searchField label="#{messages['entity.code']}" field="code" />
+				<hf:searchField label="#{messages['entity.notification.classNameFilter']}" field="classNameFilter" size="50" autocompleteMethod="#{notificationBean.autocompleteClassNames}" isAutocomplete="true"/>
+	            <hf:searchField label="#{messages['entity.notification.eventTypeFilter']}" field="eventTypeFilter" />
 			</hf:searchPanel>
 
 			<!-- ===================================== SEARCH USERS RESULTS ================================= -->
@@ -41,9 +41,9 @@
 					label="#{messages['entity.notification.elFilter']}"
 					field="elFilter" />
 				<hftl:column label="#{messages['enableEntity.active']}" field="active" isMessage="true" />	
-				<hftl:column style="display:none"
-					label="#{messages['entity.notification.elAction']}"
-					field="elAction" />	
+				<hftl:column 
+					label="#{messages['entity.notification.scriptInstance']}"
+					field="scriptInstance" />	
 				<hftl:column
 					label="#{messages['entity.notification.eventTypeFilter']}"
 					field="eventTypeFilter" />

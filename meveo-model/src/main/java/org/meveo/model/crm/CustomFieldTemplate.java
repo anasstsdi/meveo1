@@ -12,6 +12,8 @@ import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -25,6 +27,7 @@ import org.meveo.model.catalog.Calendar;
 @ExportIdentifier({ "code", "accountLevel", "provider" })
 @Table(name = "CRM_CUSTOM_FIELD_TMPL", uniqueConstraints = @UniqueConstraint(columnNames = { "CODE", "ACCOUNT_TYPE", "PROVIDER_ID" }))
 @SequenceGenerator(name = "ID_GENERATOR", sequenceName = "CRM_CUSTOM_FLD_TMP_SEQ")
+@NamedQueries({ @NamedQuery(name = "CustomFieldTemplate.getCFTForCache", query = "SELECT cft from CustomFieldTemplate cft  where cft.disabled=false and cft.versionable=true and cacheValueTimeperiod is not null") })
 public class CustomFieldTemplate extends BusinessEntity {
 
     private static final long serialVersionUID = -1403961759495272885L;
@@ -51,18 +54,21 @@ public class CustomFieldTemplate extends BusinessEntity {
     @JoinColumn(name = "CALENDAR_ID")
     private Calendar calendar;
 
+    @Column(name = "CACHE_VALUE_FOR")
+    private Integer cacheValueTimeperiod;
+
     @Column(name = "DEFAULT_VALUE", length = 50)
     private String defaultValue;
-    
-    @Column(name="ENTITY_CLAZZ")
+
+    @Column(name = "ENTITY_CLAZZ")
     private String entityClazz;
-    
-    @Column(name="STORAGE_TYPE")
+
+    @Column(name = "STORAGE_TYPE")
     @Enumerated(EnumType.STRING)
-    private CustomFieldStorageTypeEnum storageType=CustomFieldStorageTypeEnum.SINGLE;
-    
+    private CustomFieldStorageTypeEnum storageType = CustomFieldStorageTypeEnum.SINGLE;
+
     @Column(name = "TRIGGER_END_PERIOD_EVENT", nullable = false)
-	private boolean triggerEndPeriodEvent;
+    private boolean triggerEndPeriodEvent;
 
     @Transient
     private CustomFieldInstance instance;
@@ -101,9 +107,6 @@ public class CustomFieldTemplate extends BusinessEntity {
 
     public void setVersionable(boolean versionable) {
         this.versionable = versionable;
-        if(versionable){
-        	this.valueRequired=true;
-        }
     }
 
     public boolean isVersionable() {
@@ -126,25 +129,31 @@ public class CustomFieldTemplate extends BusinessEntity {
         this.defaultValue = defaultValue;
     }
 
-	public String getEntityClazz() {
-		return entityClazz;
-	}
+    public String getEntityClazz() {
+        return entityClazz;
+    }
 
-	public void setEntityClazz(String entityClazz) {
-		this.entityClazz = entityClazz;
-	}
+    public void setEntityClazz(String entityClazz) {
+        this.entityClazz = entityClazz;
+    }
 
-	public Object getDefaultValueConverted() {
+    public Object getDefaultValueConverted() {
         if (defaultValue != null) {
-            if (fieldType == CustomFieldTypeEnum.DOUBLE) {
-                return Double.parseDouble(defaultValue);
-            } else if (fieldType == CustomFieldTypeEnum.LONG) {
-                return Long.parseLong(defaultValue);
-            } else if (fieldType == CustomFieldTypeEnum.DATE) {
-                return null; // TODO implement deserialization from a date
+            try {
+                if (fieldType == CustomFieldTypeEnum.DOUBLE) {
+                    return Double.parseDouble(defaultValue);
+                } else if (fieldType == CustomFieldTypeEnum.LONG) {
+                    return Long.parseLong(defaultValue);
+                } else if (fieldType == CustomFieldTypeEnum.STRING || fieldType == CustomFieldTypeEnum.LIST || fieldType == CustomFieldTypeEnum.TEXT_AREA) {
+                    return defaultValue;
+                } else if (fieldType == CustomFieldTypeEnum.DATE) {
+                    return null; // TODO implement deserialization from a date
+                }
+            } catch (Exception e) {
+                return null;
             }
         }
-        return defaultValue;
+        return null;
     }
 
     public void setInstance(CustomFieldInstance instance) {
@@ -155,23 +164,27 @@ public class CustomFieldTemplate extends BusinessEntity {
         return instance;
     }
 
-	public CustomFieldStorageTypeEnum getStorageType() {
-		return storageType;
-	}
+    public CustomFieldStorageTypeEnum getStorageType() {
+        return storageType;
+    }
 
-	public void setStorageType(CustomFieldStorageTypeEnum storageType) {
-		this.storageType = storageType;
-		if(storageType==CustomFieldStorageTypeEnum.LIST||storageType==CustomFieldStorageTypeEnum.MAP){
-			valueRequired=true;
-		}
-	}
+    public void setStorageType(CustomFieldStorageTypeEnum storageType) {
+        this.storageType = storageType;
+    }
 
-	public boolean isTriggerEndPeriodEvent() {
-		return triggerEndPeriodEvent;
-	}
+    public boolean isTriggerEndPeriodEvent() {
+        return triggerEndPeriodEvent;
+    }
 
-	public void setTriggerEndPeriodEvent(boolean triggerEndPeriodEvent) {
-		this.triggerEndPeriodEvent = triggerEndPeriodEvent;
-	}
-    
+    public void setTriggerEndPeriodEvent(boolean triggerEndPeriodEvent) {
+        this.triggerEndPeriodEvent = triggerEndPeriodEvent;
+    }
+
+    public Integer getCacheValueTimeperiod() {
+        return cacheValueTimeperiod;
+    }
+
+    public void setCacheValueTimeperiod(Integer cacheValueTimeperiod) {
+        this.cacheValueTimeperiod = cacheValueTimeperiod;
+    }
 }

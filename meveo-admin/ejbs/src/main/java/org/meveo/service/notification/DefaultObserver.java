@@ -18,6 +18,7 @@ import org.meveo.cache.NotificationCacheContainerProvider;
 import org.meveo.commons.utils.ParamBean;
 import org.meveo.commons.utils.StringUtils;
 import org.meveo.event.CFEndPeriodEvent;
+import org.meveo.event.communication.InboundCommunicationEvent;
 import org.meveo.event.logging.LoggedEvent;
 import org.meveo.event.monitoring.BusinessExceptionEvent;
 import org.meveo.event.qualifier.Created;
@@ -37,8 +38,6 @@ import org.meveo.model.IEntity;
 import org.meveo.model.IProvider;
 import org.meveo.model.admin.User;
 import org.meveo.model.billing.WalletInstance;
-import org.meveo.model.communication.MeveoInstance;
-import org.meveo.model.jobs.ScriptInstance;
 import org.meveo.model.notification.EmailNotification;
 import org.meveo.model.notification.InboundRequest;
 import org.meveo.model.notification.InstantMessagingNotification;
@@ -48,12 +47,12 @@ import org.meveo.model.notification.NotificationEventTypeEnum;
 import org.meveo.model.notification.NotificationHistory;
 import org.meveo.model.notification.NotificationHistoryStatusEnum;
 import org.meveo.model.notification.WebHook;
-import org.meveo.script.JavaCompilerManager;
-import org.meveo.script.ScriptInterface;
+import org.meveo.model.scripts.ScriptInstance;
 import org.meveo.service.base.ValueExpressionWrapper;
 import org.meveo.service.billing.impl.CounterInstanceService;
 import org.meveo.service.billing.impl.CounterValueInsufficientException;
-import org.meveo.service.communication.impl.MeveoInstanceService;
+import org.meveo.service.script.ScriptInstanceService;
+import org.meveo.service.script.ScriptInterface;
 import org.slf4j.Logger;
 
 @Singleton
@@ -89,13 +88,11 @@ public class DefaultObserver {
     private RemoteInstanceNotifier remoteInstanceNotifier;
     
     @Inject
-    private JavaCompilerManager javaCompilerManager;
+    private ScriptInstanceService scriptInstanceService;
     
     @Inject
     private JobTriggerLauncher jobTriggerLauncher;
     
-    @Inject
-    private MeveoInstanceService meveoInstanceService;
 
     private boolean matchExpression(String expression, Object o) throws BusinessException {
         Boolean result = true;
@@ -114,42 +111,38 @@ public class DefaultObserver {
         return result;
     }
 
-    private String executeAction(String expression, Object o) throws BusinessException {
-        log.debug("execute notification action: {}", expression);
-        if (StringUtils.isBlank(expression)) {
-            return "";
+    private void executeScript(ScriptInstance scriptInstance, Object o, Map<String, String> params) throws BusinessException {
+        log.debug("execute notification script: {}", scriptInstance.getCode());
+        Class<ScriptInterface> scriptInterfaceClass = scriptInstanceService.getScriptInterface(scriptInstance.getProvider(),scriptInstance.getCode());
+        try{
+        	ScriptInterface scriptInterface = scriptInterfaceClass.newInstance();
+        	Map<String, Object> paramsEvaluated = new HashMap<String, Object>();
+            Map<Object, Object> userMap = new HashMap<Object, Object>();
+            userMap.put("event", o);
+            userMap.put("manager", manager);
+        	for (@SuppressWarnings("rawtypes") Map.Entry entry : params.entrySet()) {
+        	    paramsEvaluated.put((String) entry.getKey(), ValueExpressionWrapper.evaluateExpression( (String)entry.getValue(), userMap, Object.class));
+        	}        	
+        	scriptInterface.init(paramsEvaluated, scriptInstance.getProvider());
+	    	scriptInterface.execute(paramsEvaluated,scriptInstance.getProvider());
+	    	scriptInterface.finalize(paramsEvaluated, scriptInstance.getProvider());
+        } catch(Exception e){
+        	log.error("failed script execution",e);
         }
-        Map<Object, Object> userMap = new HashMap<Object, Object>();
-        userMap.put("event", o);
-        userMap.put("manager", manager);
-        return (String) ValueExpressionWrapper.evaluateExpression(expression, userMap, String.class);
-    }
-    
-    
-    private void executeScript(ScriptInstance scriptInstance, Object o) throws BusinessException {
-        log.debug("execute notification script: {}", scriptInstance.getScript());
-        ScriptInterface scriptInterface = javaCompilerManager.getAllScriptInterfaces().get(scriptInstance.getCode());
-        Map<String, Object> userMap = new HashMap<String, Object>();
-        userMap.put("event", o);
-    	scriptInterface.execute(userMap);
     }    
 
     private void fireNotification(Notification notif, IEntity e) {
         log.debug("Fire Notification for notif with {} and entity with id={}", notif, e.getId());
         try {
             if (!matchExpression(notif.getElFilter(), e)) {
+            	log.debug("Expression {} does not match", notif.getElFilter());
                 return;
             }
-
-            // we first perform the EL actions
-            if (!(notif instanceof WebHook)) {
-                executeAction(notif.getElAction(), e);
+            if (notif.getScriptInstance()!=null) {
+            	ScriptInstance script = (ScriptInstance) scriptInstanceService.attach(notif.getScriptInstance());
+                executeScript(script, e,notif.getParams());
             }
             
-            if(notif.getScriptInstance() != null){
-            	executeScript(notif.getScriptInstance(), e);
-            }
-
             boolean sendNotify = true;
             // Check if the counter associated to notification was not exhausted
             // yet
@@ -199,8 +192,8 @@ public class DefaultObserver {
     private void fireCdrNotification(Notification notif, IProvider cdr) {
         log.debug("Fire Cdr Notification for notif {} and  cdr {}", notif, cdr);
         try {
-            if (!StringUtils.isBlank(notif.getElAction()) && matchExpression(notif.getElFilter(), cdr)) {
-                executeAction(notif.getElAction(), cdr);
+            if (!StringUtils.isBlank(notif.getScriptInstance()) && matchExpression(notif.getElFilter(), cdr)) {
+                executeScript(notif.getScriptInstance(), cdr,notif.getParams());
             }
         } catch (BusinessException e1) {
             log.error("Error while firing notification {} for provider {}: {} ", notif.getCode(), notif.getProvider().getCode(), e1);
@@ -283,11 +276,11 @@ public class DefaultObserver {
        log.info("Defaut observer : BusinessExceptionEvent {} ", bee);
        StringWriter errors = new StringWriter();
        bee.getBusinessException().printStackTrace(new PrintWriter(errors));
-       MeveoInstance meveoInstance = meveoInstanceService.getThis();
+	   String meveoInstanceCode = ParamBean.getInstance().getProperty("monitoring.instanceCode","");
        int bodyMaxLegthByte = Integer.parseInt(ParamBean.getInstance().getProperty("meveo.notifier.stackTrace.lengthInBytes", "9999"));
        String stackTrace = errors.toString();
        String input = "{"+
-				"	  #meveoInstanceCode#: #"+(meveoInstance == null?"-":meveoInstance.getCode())+"#,"+
+				"	  #meveoInstanceCode#: #"+meveoInstanceCode+"#,"+
 				"	  #subject#: #"+bee.getBusinessException().getMessage()+"#,"+
 				"	  #body#: #"+StringUtils.truncate(stackTrace, bodyMaxLegthByte, true)+"#,"+
 				"	  #additionnalInfo1#: #"+LogExtractionService.getLogs(new Date(System.currentTimeMillis()-Integer.parseInt(ParamBean.getInstance().
@@ -306,6 +299,10 @@ public class DefaultObserver {
    
 	public void customFieldEndPeriodEvent(@Observes CFEndPeriodEvent event) {
 		log.debug("DefaultObserver.customFieldEndPeriodEvent : {}", event);
+	}
+	
+	public void knownMeveoInstance(@Observes InboundCommunicationEvent event) {
+		log.debug("DefaultObserver.knownMeveoInstance" + event);
 	}
    
 }

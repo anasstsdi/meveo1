@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 import javax.enterprise.inject.Produces;
+import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -33,7 +34,6 @@ import javax.inject.Named;
 import org.jboss.seam.international.status.builder.BundleKey;
 import org.meveo.admin.action.AccountBean;
 import org.meveo.admin.action.BaseBean;
-import org.meveo.admin.action.CustomFieldEnabledBean;
 import org.meveo.admin.exception.BusinessException;
 import org.meveo.admin.exception.DuplicateDefaultAccountException;
 import org.meveo.cache.WalletCacheContainerProvider;
@@ -45,7 +45,6 @@ import org.meveo.model.billing.UserAccount;
 import org.meveo.model.billing.WalletInstance;
 import org.meveo.model.billing.WalletOperation;
 import org.meveo.model.billing.WalletOperationStatusEnum;
-import org.meveo.model.crm.AccountLevelEnum;
 import org.meveo.model.crm.Provider;
 import org.meveo.service.base.PersistenceService;
 import org.meveo.service.base.local.IPersistenceService;
@@ -66,7 +65,6 @@ import org.primefaces.model.LazyDataModel;
  */
 @Named
 @ViewScoped
-@CustomFieldEnabledBean(accountLevel=AccountLevelEnum.UA)
 public class UserAccountBean extends AccountBean<UserAccount> {
 
 	private static final long serialVersionUID = 1L;
@@ -163,8 +161,13 @@ public class UserAccountBean extends AccountBean<UserAccount> {
 			
 			super.saveOrUpdate(killConversation);
 
-			return "/pages/billing/userAccounts/userAccountDetail.xhtml?edit=true&userAccountId=" + entity.getId()
-					+ "&faces-redirect=true&includeViewParams=true";
+			if (FacesContext.getCurrentInstance().getPartialViewContext().isAjaxRequest()){
+	            return null;
+	        } else {
+    			return "/pages/billing/userAccounts/userAccountDetail.xhtml?edit=true&userAccountId=" + entity.getId()
+    					+ "&faces-redirect=true&includeViewParams=true";
+	        }
+			
 		} catch (DuplicateDefaultAccountException e1) {
 			messages.error(new BundleKey("messages", "error.account.duplicateDefautlLevel"));
 		} catch (Exception e) {
@@ -190,7 +193,8 @@ public class UserAccountBean extends AccountBean<UserAccount> {
 	 * @see
 	 * org.meveo.admin.action.BaseBean#saveOrUpdate(org.meveo.model.IEntity)
 	 */
-	@Override
+	@Override 
+	// TODO this has to be removed as BaseBean has identical method. Only need to take care of userAccountService.createUserAccount method call
 	protected String saveOrUpdate(UserAccount entity) {
 		try {
 			if (entity.isTransient()) {
@@ -204,6 +208,7 @@ public class UserAccountBean extends AccountBean<UserAccount> {
 			log.error("error generated while saving or updating user account ",e);
 			messages.error(e.getMessage());
 		}
+        setObjectId((Long) entity.getId());
 
 		return back();
 	}

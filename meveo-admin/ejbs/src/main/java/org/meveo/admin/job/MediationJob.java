@@ -3,7 +3,9 @@ package org.meveo.admin.job;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -55,15 +57,15 @@ public class MediationJob extends Job {
 		try {
 			Long nbRuns = new Long(1);
 			Long waitingMillis = new Long(0);
-			String mappingConf = null;
-			try {
-				nbRuns = jobInstance.getLongCustomValue("MediationJob_nbRuns").longValue();
-				waitingMillis = jobInstance.getLongCustomValue("MediationJob_waitingMillis").longValue();
-				//mappingConf = jobInstance.getStringCustomValue("MediationJob_mappingConf");
+            try {
+                nbRuns = (Long) jobInstance.getCFValue("MediationJob_nbRuns");
+                waitingMillis = (Long) jobInstance.getCFValue("MediationJob_waitingMillis");
 				if (nbRuns == -1) {
 					nbRuns = (long) Runtime.getRuntime().availableProcessors();
 				}
 			} catch (Exception e) {
+				nbRuns = new Long(1);
+				waitingMillis = new Long(0);
 				log.warn("Cant get customFields for " + jobInstance.getJobTemplate());
 			}
 
@@ -126,8 +128,8 @@ public class MediationJob extends Job {
 	}
 
 	@Override
-	public List<CustomFieldTemplate> getCustomFields() {
-		List<CustomFieldTemplate> result = new ArrayList<CustomFieldTemplate>();
+	public Map<String, CustomFieldTemplate> getCustomFields() {
+        Map<String, CustomFieldTemplate> result = new HashMap<String, CustomFieldTemplate>();
 
 		CustomFieldTemplate nbRuns = new CustomFieldTemplate();
 		nbRuns.setCode("MediationJob_nbRuns");
@@ -137,7 +139,7 @@ public class MediationJob extends Job {
 		nbRuns.setFieldType(CustomFieldTypeEnum.LONG);
 		nbRuns.setDefaultValue("1");
 		nbRuns.setValueRequired(false);
-		result.add(nbRuns);
+		result.put("MediationJob_nbRuns", nbRuns);
 
 		CustomFieldTemplate waitingMillis = new CustomFieldTemplate();
 		waitingMillis.setCode("MediationJob_waitingMillis");
@@ -147,17 +149,7 @@ public class MediationJob extends Job {
 		waitingMillis.setFieldType(CustomFieldTypeEnum.LONG);
 		waitingMillis.setDefaultValue("0");
 		waitingMillis.setValueRequired(false);
-		result.add(waitingMillis);
-
-//		CustomFieldTemplate mappingConf = new CustomFieldTemplate();
-//		mappingConf.setCode("MediationJob_mappingConf");
-//		mappingConf.setAccountLevel(AccountLevelEnum.TIMER);
-//		mappingConf.setActive(true);
-//		mappingConf.setDescription(resourceMessages.getString("mediation.mappingConfiguration"));
-//		mappingConf.setFieldType(CustomFieldTypeEnum.TEXT_AREA);
-//		mappingConf.setDefaultValue("");
-//		mappingConf.setValueRequired(true);
-//		result.add(mappingConf);
+		result.put("MediationJob_waitingMillis", waitingMillis);
 
 		return result;
 	}

@@ -329,23 +329,24 @@ public class ServiceInstanceService extends BusinessService<ServiceInstance> {
 			Date storedNextChargeDate = recurringChargeInstance.getNextChargeDate();
 
 			if (recurringChargeInstance.getRecurringChargeTemplate().getApplyInAdvance() != null
-					&& recurringChargeInstance.getRecurringChargeTemplate().getApplyInAdvance()) {
+					&& !recurringChargeInstance.getRecurringChargeTemplate().getApplyInAdvance()) {
 				nextChargeDate = recurringChargeInstance.getChargeDate();
 			}
+			
 
-			if (applyAgreement) {
-				Date endAgrementDate = serviceInstance.getEndAgrementDate();
-				if (endAgrementDate != null && terminationDate.before(endAgrementDate)) {
-					if (endAgrementDate.after(nextChargeDate)) {
-						walletOperationService.applyChargeAgreement(recurringChargeInstance,
-								recurringChargeInstance.getRecurringChargeTemplate(), user);
-					}
-
-				}
+			Date endDate = terminationDate;
+			
+			if (applyAgreement && serviceInstance.getEndAgrementDate() != null 
+					&& terminationDate.before(serviceInstance.getEndAgrementDate())) {
+					endDate = serviceInstance.getEndAgrementDate();
 			}
-
-			if (applyReimbursment) {
+			log.debug("chargeDate={}, storedNextChargeDate={}, enDate {}", chargeDate,storedNextChargeDate,endDate);
+			if (endDate.after(nextChargeDate)) {
+				walletOperationService.applyChargeAgreement(recurringChargeInstance,
+						recurringChargeInstance.getRecurringChargeTemplate(),endDate, user);
+			} else if (applyReimbursment) {
 				Date endAgrementDate = recurringChargeInstance.getServiceInstance().getEndAgrementDate();
+				log.debug("terminationDate={}, endAgrementDate={}, nextChargeDate={}", terminationDate,endAgrementDate,nextChargeDate);
 				if (applyAgreement && endAgrementDate != null && terminationDate.before(endAgrementDate)) {
 					if (endAgrementDate.before(nextChargeDate)) {
 						recurringChargeInstance.setTerminationDate(endAgrementDate);
@@ -358,9 +359,6 @@ public class ServiceInstanceService extends BusinessService<ServiceInstance> {
 				}
 
 			}
-
-			recurringChargeInstance.setChargeDate(chargeDate);
-			recurringChargeInstance.setNextChargeDate(storedNextChargeDate);
 			recurringChargeInstance.setStatus(InstanceStatusEnum.TERMINATED);
 			recurringChargeInstance.setStatusDate(new Date());
 			recurringChargeInstanceService.update(recurringChargeInstance);
@@ -529,6 +527,26 @@ public class ServiceInstanceService extends BusinessService<ServiceInstance> {
 		} catch (NoResultException e) {
 			return null;
 		}
+	}
+	
+	public ServiceInstance findActivatedByCodeAndSubscription(String code, Subscription subscription) {
+		ServiceInstance serviceInstance = null;
+		try {
+			log.debug("start of find {} by code (code={}) ..", "ServiceInstance", code);
+			QueryBuilder qb = new QueryBuilder(ServiceInstance.class, "c");
+			qb.addCriterion("c.code", "=", code, true);
+			qb.addCriterion("c.subscription", "=", subscription, true);
+			qb.addCriterion("c.status", "=", InstanceStatusEnum.ACTIVE, true);
+			serviceInstance = (ServiceInstance) qb.getQuery(getEntityManager()).getSingleResult();
+			log.debug("end of find {} by code (code={}). Result found={}.", new Object[] { "ServiceInstance", code,
+					serviceInstance != null });
+		} catch (NoResultException nre) {
+			log.debug("findByCodeAndSubscription : no service has been found");
+		} catch (Exception e) {
+			log.error("findByCodeAndSubscription error={} ", e.getMessage());
+		}
+
+		return serviceInstance;
 	}
 
 }

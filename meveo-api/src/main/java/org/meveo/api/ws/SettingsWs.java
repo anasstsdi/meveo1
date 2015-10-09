@@ -9,12 +9,14 @@ import org.meveo.api.dto.BillingCycleDto;
 import org.meveo.api.dto.CalendarDto;
 import org.meveo.api.dto.CountryDto;
 import org.meveo.api.dto.CurrencyDto;
+import org.meveo.api.dto.CustomFieldTemplateDto;
 import org.meveo.api.dto.InvoiceCategoryDto;
 import org.meveo.api.dto.InvoiceSubCategoryCountryDto;
 import org.meveo.api.dto.InvoiceSubCategoryDto;
 import org.meveo.api.dto.LanguageDto;
 import org.meveo.api.dto.OccTemplateDto;
 import org.meveo.api.dto.ProviderDto;
+import org.meveo.api.dto.ScriptInstanceDto;
 import org.meveo.api.dto.SellerDto;
 import org.meveo.api.dto.TaxDto;
 import org.meveo.api.dto.UserDto;
@@ -22,6 +24,7 @@ import org.meveo.api.dto.response.GetBillingCycleResponse;
 import org.meveo.api.dto.response.GetCalendarResponse;
 import org.meveo.api.dto.response.GetCountryResponse;
 import org.meveo.api.dto.response.GetCurrencyResponse;
+import org.meveo.api.dto.response.GetCustomFieldTemplateReponseDto;
 import org.meveo.api.dto.response.GetCustomerAccountConfigurationResponseDto;
 import org.meveo.api.dto.response.GetCustomerConfigurationResponseDto;
 import org.meveo.api.dto.response.GetInvoiceCategoryResponse;
@@ -31,6 +34,7 @@ import org.meveo.api.dto.response.GetInvoicingConfigurationResponseDto;
 import org.meveo.api.dto.response.GetLanguageResponse;
 import org.meveo.api.dto.response.GetOccTemplateResponseDto;
 import org.meveo.api.dto.response.GetProviderResponse;
+import org.meveo.api.dto.response.GetScriptInstanceResponseDto;
 import org.meveo.api.dto.response.GetSellerResponse;
 import org.meveo.api.dto.response.GetTaxResponse;
 import org.meveo.api.dto.response.GetTradingConfigurationResponseDto;
@@ -54,7 +58,10 @@ public interface SettingsWs extends IBaseWs {
 
 	@WebMethod
 	public ActionStatus updateProvider(@WebParam(name = "provider") ProviderDto postData);
-
+	
+	@WebMethod
+	public ActionStatus createOrUpdateProvider(@WebParam(name = "provider") ProviderDto postData);
+	
 	// user
 
 	@WebMethod
@@ -68,7 +75,10 @@ public interface SettingsWs extends IBaseWs {
 
 	@WebMethod
 	public GetUserResponse findUser(@WebParam(name = "username") String username);
-
+	
+	@WebMethod
+	public ActionStatus createOrUpdateUser(@WebParam(name = "user") UserDto postData);
+	
 	// seller
 
 	@WebMethod
@@ -89,6 +99,8 @@ public interface SettingsWs extends IBaseWs {
 	@WebMethod
 	SellerCodesResponseDto listSellerCodes();
 
+	@WebMethod
+	public ActionStatus createOrUpdateSeller(@WebParam(name = "seller") SellerDto postData);
 	// language
 
 	@WebMethod
@@ -102,6 +114,9 @@ public interface SettingsWs extends IBaseWs {
 
 	@WebMethod
 	public ActionStatus updateLanguage(@WebParam(name = "language") LanguageDto postData);
+	
+	@WebMethod
+	public ActionStatus createOrUpdateLanguage(@WebParam(name = "language") LanguageDto postData);
 
 	// country
 
@@ -112,10 +127,14 @@ public interface SettingsWs extends IBaseWs {
 	GetCountryResponse findCountry(@WebParam(name = "countryCode") String countryCode);
 
 	@WebMethod
-	ActionStatus removeCountry(@WebParam(name = "countryCode") String countryCode, @WebParam(name = "currencyCode") String currencyCode);
+	ActionStatus removeCountry(@WebParam(name = "countryCode") String countryCode,
+			@WebParam(name = "currencyCode") String currencyCode);
 
 	@WebMethod
 	ActionStatus updateCountry(@WebParam(name = "country") CountryDto countryDto);
+	
+	@WebMethod
+	ActionStatus createOrUpdateCountry(@WebParam(name = "country") CountryDto countryDto);
 
 	// currency
 
@@ -131,6 +150,8 @@ public interface SettingsWs extends IBaseWs {
 	@WebMethod
 	ActionStatus updateCurrency(@WebParam(name = "currency") CurrencyDto postData);
 
+	@WebMethod
+	ActionStatus createOrUpdateCurrency(@WebParam(name = "currency") CurrencyDto postData);
 	// tax
 
 	@WebMethod
@@ -144,6 +165,9 @@ public interface SettingsWs extends IBaseWs {
 
 	@WebMethod
 	public ActionStatus removeTax(@WebParam(name = "taxCode") String taxCode);
+	
+	@WebMethod
+	public ActionStatus createOrUpdateTax(@WebParam(name = "tax") TaxDto postData);
 
 	// invoice category
 
@@ -154,11 +178,15 @@ public interface SettingsWs extends IBaseWs {
 	public ActionStatus updateInvoiceCategory(@WebParam(name = "invoiceCategory") InvoiceCategoryDto postData);
 
 	@WebMethod
-	public GetInvoiceCategoryResponse findInvoiceCategory(@WebParam(name = "invoiceCategoryCode") String invoiceCategoryCode);
+	public GetInvoiceCategoryResponse findInvoiceCategory(
+			@WebParam(name = "invoiceCategoryCode") String invoiceCategoryCode);
 
 	@WebMethod
 	public ActionStatus removeInvoiceCategory(@WebParam(name = "invoiceCategoryCode") String invoiceCategoryCode);
-
+	
+	@WebMethod
+	public ActionStatus createOrUpdateInvoiceCategory(@WebParam(name = "invoiceCategory") InvoiceCategoryDto postData);
+	
 	// invoice sub category
 
 	@WebMethod
@@ -168,26 +196,37 @@ public interface SettingsWs extends IBaseWs {
 	public ActionStatus updateInvoiceSubCategory(@WebParam(name = "invoiceSubCategory") InvoiceSubCategoryDto postData);
 
 	@WebMethod
-	public GetInvoiceSubCategoryResponse findInvoiceSubCategory(@WebParam(name = "invoiceSubCategoryCode") String invoiceSubCategoryCode);
+	public GetInvoiceSubCategoryResponse findInvoiceSubCategory(
+			@WebParam(name = "invoiceSubCategoryCode") String invoiceSubCategoryCode);
 
 	@WebMethod
-	public ActionStatus removeInvoiceSubCategory(@WebParam(name = "invoiceSubCategoryCode") String invoiceSubCategoryCode);
+	public ActionStatus removeInvoiceSubCategory(
+			@WebParam(name = "invoiceSubCategoryCode") String invoiceSubCategoryCode);
 
 	// invoice sub category country
 
 	@WebMethod
-	public ActionStatus createInvoiceSubCategoryCountry(@WebParam(name = "invoiceSubCategoryCountry") InvoiceSubCategoryCountryDto postData);
+	public ActionStatus createInvoiceSubCategoryCountry(
+			@WebParam(name = "invoiceSubCategoryCountry") InvoiceSubCategoryCountryDto postData);
 
 	@WebMethod
-	public ActionStatus updateInvoiceSubCategoryCountry(@WebParam(name = "invoiceSubCategoryCountry") InvoiceSubCategoryCountryDto postData);
+	public ActionStatus updateInvoiceSubCategoryCountry(
+			@WebParam(name = "invoiceSubCategoryCountry") InvoiceSubCategoryCountryDto postData);
 
 	@WebMethod
-	public GetInvoiceSubCategoryCountryResponse findInvoiceSubCategoryCountry(@WebParam(name = "invoiceSubCategoryCode") String invoiceSubCategoryCode,
+	public GetInvoiceSubCategoryCountryResponse findInvoiceSubCategoryCountry(
+			@WebParam(name = "invoiceSubCategoryCode") String invoiceSubCategoryCode,
 			@WebParam(name = "country") String country);
 
 	@WebMethod
-	public ActionStatus removeInvoiceSubCategoryCountry(@WebParam(name = "invoiceSubCategoryCode") String invoiceSubCategoryCode, @WebParam(name = "country") String country);
-
+	public ActionStatus removeInvoiceSubCategoryCountry(
+			@WebParam(name = "invoiceSubCategoryCode") String invoiceSubCategoryCode,
+			@WebParam(name = "country") String country);
+	
+	@WebMethod
+	public ActionStatus createOrUpdateInvoiceSubCategoryCountry(
+			@WebParam(name = "invoiceSubCategoryCountry") InvoiceSubCategoryCountryDto postData);
+	
 	// calendar
 
 	@WebMethod
@@ -201,6 +240,9 @@ public interface SettingsWs extends IBaseWs {
 
 	@WebMethod
 	public ActionStatus removeCalendar(@WebParam(name = "calendarCode") String calendarCode);
+	
+	@WebMethod
+	public ActionStatus createOrUpdateCalendar(@WebParam(name = "calendar") CalendarDto postData);
 
 	// billing cycle
 
@@ -215,6 +257,9 @@ public interface SettingsWs extends IBaseWs {
 
 	@WebMethod
 	public ActionStatus removeBillingCycle(@WebParam(name = "billingCycleCode") String billingCycleCode);
+	
+	@WebMethod
+	public ActionStatus createOrUpdateBillingCycle(@WebParam(name = "billingCycle") BillingCycleDto postData);
 
 	// configuration
 
@@ -229,7 +274,7 @@ public interface SettingsWs extends IBaseWs {
 
 	@WebMethod
 	GetCustomerAccountConfigurationResponseDto findCustomerAccountConfiguration();
-	
+
 	// OccTemplate
 
 	@WebMethod
@@ -243,6 +288,43 @@ public interface SettingsWs extends IBaseWs {
 
 	@WebMethod
 	ActionStatus removeOccTemplate(@WebParam(name = "occTemplateCode") String occTemplateCode);
+	
+	@WebMethod
+	ActionStatus createOrUpdateOccTemplate(@WebParam(name = "occTemplate") OccTemplateDto postData);
 
+	// custom field
+	@WebMethod
+	ActionStatus createCustomFieldTemplate(@WebParam(name = "customField") CustomFieldTemplateDto postData);
+
+	@WebMethod
+	ActionStatus updateCustomFieldTemplate(@WebParam(name = "customField") CustomFieldTemplateDto postData);
+
+	@WebMethod
+	ActionStatus removeCustomFieldTemplate(@WebParam(name = "customFieldTemplateCode") String customFieldTemplateCode,
+			@WebParam(name = "accountLevel") String accountLevel);
+
+	@WebMethod
+	GetCustomFieldTemplateReponseDto findCustomFieldTemplate(
+			@WebParam(name = "customFieldTemplateCode") String customFieldTemplateCode,
+			@WebParam(name = "accountLevel") String accountLevel);
+	
+	@WebMethod
+	ActionStatus createOrUpdateCustomFieldTemplate(@WebParam(name = "customField") CustomFieldTemplateDto postData);
+	
+	// scriptInstance
+	@WebMethod
+	ActionStatus createScriptInstance(@WebParam(name = "scriptInstance") ScriptInstanceDto postData);
+
+	@WebMethod
+	ActionStatus updateScriptInstance(@WebParam(name = "scriptInstance") ScriptInstanceDto postData);
+
+	@WebMethod
+	ActionStatus removeScriptInstance(@WebParam(name = "scriptInstanceCode") String scriptInstanceCode);
+
+	@WebMethod
+	GetScriptInstanceResponseDto findScriptInstance(@WebParam(name = "scriptInstanceCode") String scriptInstanceCode);
+	
+	@WebMethod
+	ActionStatus createOrUpdateScriptInstance(@WebParam(name = "scriptInstance") ScriptInstanceDto postData);
 
 }

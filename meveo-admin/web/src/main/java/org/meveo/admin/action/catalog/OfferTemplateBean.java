@@ -27,12 +27,10 @@ import javax.inject.Named;
 
 import org.meveo.admin.action.BaseBean;
 import org.meveo.admin.action.CustomFieldBean;
-import org.meveo.admin.action.CustomFieldEnabledBean;
 import org.meveo.admin.exception.BusinessException;
 import org.meveo.admin.util.pagination.PaginationConfiguration;
 import org.meveo.model.catalog.OfferTemplate;
 import org.meveo.model.catalog.ServiceTemplate;
-import org.meveo.model.crm.AccountLevelEnum;
 import org.meveo.model.crm.CustomFieldInstance;
 import org.meveo.service.base.PersistenceService;
 import org.meveo.service.base.local.IPersistenceService;
@@ -51,7 +49,6 @@ import org.primefaces.model.DualListModel;
  */
 @Named
 @ViewScoped
-@CustomFieldEnabledBean(accountLevel = AccountLevelEnum.OFFER)
 public class OfferTemplateBean extends CustomFieldBean<OfferTemplate> {
 
 	private static final long serialVersionUID = 1L;
@@ -76,18 +73,19 @@ public class OfferTemplateBean extends CustomFieldBean<OfferTemplate> {
 	 * bean for {@link BaseBean}.
 	 */
 
-	public DualListModel<ServiceTemplate> getDualListModel() {
-		if (perks == null) {
-			List<ServiceTemplate> perksSource = serviceTemplateService.listActive();
-			List<ServiceTemplate> perksTarget = new ArrayList<ServiceTemplate>();
-			if (getEntity().getCode() != null) {
-				perksTarget.addAll(getEntity().getServiceTemplates());
-			}
-			perksSource.removeAll(perksTarget);
-			perks = new DualListModel<ServiceTemplate>(perksSource, perksTarget);
-		}
-		return perks;
-	}
+    public DualListModel<ServiceTemplate> getDualListModel() {
+
+        if (perks == null) {
+            List<ServiceTemplate> perksSource = serviceTemplateService.listActive();
+            List<ServiceTemplate> perksTarget = new ArrayList<ServiceTemplate>();
+            if (getEntity().getServiceTemplates() != null) {
+                perksTarget.addAll(getEntity().getServiceTemplates());
+            }
+            perksSource.removeAll(perksTarget);
+            perks = new DualListModel<ServiceTemplate>(perksSource, perksTarget);
+        }
+        return perks;
+    }
 
 	public OfferTemplateBean() {
 		super(OfferTemplate.class);
@@ -117,6 +115,7 @@ public class OfferTemplateBean extends CustomFieldBean<OfferTemplate> {
 
 	public void setDualListModel(DualListModel<ServiceTemplate> perks) {
 		getEntity().setServiceTemplates((List<ServiceTemplate>) perks.getTarget());
+		this.perks = perks;
 	}
 
 	public List<OfferTemplate> listActive() {

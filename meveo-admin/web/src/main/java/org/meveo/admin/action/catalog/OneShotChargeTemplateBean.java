@@ -28,11 +28,9 @@ import javax.inject.Named;
 import org.jboss.seam.international.status.builder.BundleKey;
 import org.meveo.admin.action.BaseBean;
 import org.meveo.admin.action.CustomFieldBean;
-import org.meveo.admin.action.CustomFieldEnabledBean;
 import org.meveo.admin.exception.BusinessException;
 import org.meveo.model.catalog.OneShotChargeTemplate;
 import org.meveo.model.catalog.TriggeredEDRTemplate;
-import org.meveo.model.crm.AccountLevelEnum;
 import org.meveo.model.crm.CustomFieldInstance;
 import org.meveo.service.base.PersistenceService;
 import org.meveo.service.base.local.IPersistenceService;
@@ -52,7 +50,6 @@ import org.primefaces.model.DualListModel;
  */
 @Named
 @ViewScoped
-@CustomFieldEnabledBean(accountLevel = AccountLevelEnum.CHARGE)
 public class OneShotChargeTemplateBean extends CustomFieldBean<OneShotChargeTemplate> {
 	private static final long serialVersionUID = 1L;
 
@@ -140,7 +137,8 @@ public class OneShotChargeTemplateBean extends CustomFieldBean<OneShotChargeTemp
 			return null;
 		}
 
-		return super.saveOrUpdate(killConversation);
+		String outcome = super.saveOrUpdate(killConversation);
+        return outcome;
 	}
 
 	/**
@@ -169,8 +167,9 @@ public class OneShotChargeTemplateBean extends CustomFieldBean<OneShotChargeTemp
 		return edrTemplates;
 	}
 
-	public void setEdrTemplatesModel(DualListModel<TriggeredEDRTemplate> temp) {
-		getEntity().setEdrTemplates(temp.getTarget());
+	public void setEdrTemplatesModel(DualListModel<TriggeredEDRTemplate> edrTemplates) {
+		getEntity().setEdrTemplates(edrTemplates.getTarget());
+		this.edrTemplates = edrTemplates;
 	}
 
 	@Override

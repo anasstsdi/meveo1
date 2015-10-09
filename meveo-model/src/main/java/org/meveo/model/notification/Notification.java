@@ -1,6 +1,11 @@
 package org.meveo.model.notification;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -21,7 +26,7 @@ import org.meveo.model.BusinessEntity;
 import org.meveo.model.ExportIdentifier;
 import org.meveo.model.billing.CounterInstance;
 import org.meveo.model.catalog.CounterTemplate;
-import org.meveo.model.jobs.ScriptInstance;
+import org.meveo.model.scripts.ScriptInstance;
 import org.meveo.validation.constraint.ClassName;
 
 @Entity
@@ -49,10 +54,6 @@ public class Notification extends BusinessEntity {
     @Size(max = 1000)
     private String elFilter;
 
-    @Column(name = "ACTION_EXPRESSION", length = 2000)
-    @Size(max = 2000)
-    private String elAction;
-
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "COUNTER_TEMPLATE_ID")
     private CounterTemplate counterTemplate;
@@ -64,6 +65,10 @@ public class Notification extends BusinessEntity {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "SCRIPT_INSTANCE_ID")
     private ScriptInstance scriptInstance;
+    
+	@ElementCollection(fetch = FetchType.EAGER)
+	@CollectionTable(name = "ADM_NOTIFICATION_PARAMS") 
+	private Map<String, String> params = new HashMap<String, String>();
 
     public String getClassNameFilter() {
         return classNameFilter;
@@ -87,14 +92,6 @@ public class Notification extends BusinessEntity {
 
     public void setElFilter(String elFilter) {
         this.elFilter = elFilter;
-    }
-
-    public String getElAction() {
-        return elAction;
-    }
-
-    public void setElAction(String elAction) {
-        this.elAction = elAction;
     }
 
     public CounterTemplate getCounterTemplate() {
@@ -127,11 +124,26 @@ public class Notification extends BusinessEntity {
 	public void setScriptInstance(ScriptInstance scriptInstance) {
 		this.scriptInstance = scriptInstance;
 	}
+	
+
+	/**
+	 * @return the params
+	 */
+	public Map<String, String> getParams() {
+		return params;
+	}
+
+	/**
+	 * @param params the params to set
+	 */
+	public void setParams(Map<String, String> params) {
+		this.params = params;
+	}
 
 	@Override
     public String toString() {
-        return String.format("Notification [%s, classNameFilter=%s, eventTypeFilter=%s, elFilter=%s, elAction=%s, counterTemplate=%s, counterInstance=%s]", super.toString(),
-            classNameFilter, eventTypeFilter, elFilter, elAction, counterTemplate != null ? counterTemplate.getId() : null, counterInstance != null ? counterInstance.getId()
+        return String.format("Notification [%s, classNameFilter=%s, eventTypeFilter=%s, elFilter=%s, scriptInstance=%s, counterTemplate=%s, counterInstance=%s]", super.toString(),
+            classNameFilter, eventTypeFilter, elFilter, scriptInstance, counterTemplate != null ? counterTemplate.getId() : null, counterInstance != null ? counterInstance.getId()
                     : null);
     }
 }

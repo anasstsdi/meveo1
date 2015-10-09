@@ -28,11 +28,9 @@ import javax.inject.Named;
 import org.jboss.seam.international.status.builder.BundleKey;
 import org.meveo.admin.action.BaseBean;
 import org.meveo.admin.action.CustomFieldBean;
-import org.meveo.admin.action.CustomFieldEnabledBean;
 import org.meveo.admin.exception.BusinessException;
 import org.meveo.model.catalog.RecurringChargeTemplate;
 import org.meveo.model.catalog.TriggeredEDRTemplate;
-import org.meveo.model.crm.AccountLevelEnum;
 import org.meveo.model.crm.CustomFieldInstance;
 import org.meveo.service.base.PersistenceService;
 import org.meveo.service.base.local.IPersistenceService;
@@ -52,7 +50,6 @@ import org.primefaces.model.DualListModel;
  */
 @Named
 @ViewScoped
-@CustomFieldEnabledBean(accountLevel = AccountLevelEnum.CHARGE)
 public class RecurringChargeTemplateBean extends
 		CustomFieldBean<RecurringChargeTemplate> {
 	private static final long serialVersionUID = 1L;
@@ -109,8 +106,8 @@ public class RecurringChargeTemplateBean extends
 			return null;
 		}
 
-		return super.saveOrUpdate(killConversation);
-
+        String outcome = super.saveOrUpdate(killConversation);
+        return outcome;
 	}
 
 	/**
@@ -141,22 +138,21 @@ public class RecurringChargeTemplateBean extends
 	}
 
 	public DualListModel<TriggeredEDRTemplate> getEdrTemplatesModel() {
-		if (edrTemplates == null) {
-			List<TriggeredEDRTemplate> source = triggeredEDRTemplateService
-					.list();
-			List<TriggeredEDRTemplate> target = new ArrayList<TriggeredEDRTemplate>();
-			if (getEntity().getEdrTemplates() != null) {
-				target.addAll(getEntity().getEdrTemplates());
-			}
-			source.removeAll(target);
-			edrTemplates = new DualListModel<TriggeredEDRTemplate>(source,
-					target);
-		}
-		return edrTemplates;
+        if (edrTemplates == null) {
+            List<TriggeredEDRTemplate> source = triggeredEDRTemplateService.list();
+            List<TriggeredEDRTemplate> target = new ArrayList<TriggeredEDRTemplate>();
+            if (getEntity().getEdrTemplates() != null) {
+                target.addAll(getEntity().getEdrTemplates());
+            }
+            source.removeAll(target);
+            edrTemplates = new DualListModel<TriggeredEDRTemplate>(source, target);
+        }
+        return edrTemplates;
 	}
 
-	public void setEdrTemplatesModel(DualListModel<TriggeredEDRTemplate> temp) {
-		getEntity().setEdrTemplates(temp.getTarget());
+	public void setEdrTemplatesModel(DualListModel<TriggeredEDRTemplate> edrTemplates) {
+		getEntity().setEdrTemplates(edrTemplates.getTarget());
+		this.edrTemplates = edrTemplates;
 	}
 	
 	@Inject

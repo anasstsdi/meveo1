@@ -25,13 +25,13 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
+import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.jboss.seam.international.status.builder.BundleKey;
 import org.meveo.admin.action.BaseBean;
 import org.meveo.admin.action.CustomFieldBean;
-import org.meveo.admin.action.CustomFieldEnabledBean;
 import org.meveo.admin.exception.BusinessException;
 import org.meveo.admin.util.pagination.EntityListDataModelPF;
 import org.meveo.commons.utils.StringUtils;
@@ -48,7 +48,6 @@ import org.meveo.model.catalog.OneShotChargeTemplate;
 import org.meveo.model.catalog.ServiceChargeTemplateSubscription;
 import org.meveo.model.catalog.ServiceTemplate;
 import org.meveo.model.catalog.WalletTemplate;
-import org.meveo.model.crm.AccountLevelEnum;
 import org.meveo.model.mediation.Access;
 import org.meveo.service.base.PersistenceService;
 import org.meveo.service.base.local.IPersistenceService;
@@ -72,7 +71,6 @@ import org.slf4j.Logger;
  */
 @Named
 @ViewScoped
-@CustomFieldEnabledBean(accountLevel=AccountLevelEnum.SUB)
 public class SubscriptionBean extends CustomFieldBean<Subscription> {
 
 	private static final long serialVersionUID = 1L;
@@ -240,29 +238,17 @@ public class SubscriptionBean extends CustomFieldBean<Subscription> {
 				return null;
 			}
 		}
-
+		boolean isNew = entity.isTransient();
 		super.saveOrUpdate(killConversation);
-
-		return "/pages/billing/subscriptions/subscriptionDetail?edit=false&subscriptionId=" + entity.getId()
-				+ "&faces-redirect=true&includeViewParams=true";
-	}
-
-	@Override
-	protected String saveOrUpdate(Subscription entity) throws BusinessException {
-
-		if (entity.isTransient()) {
-			log.debug("SubscriptionBean save, # of service templates={}", entity.getOffer().getServiceTemplates()
-					.size());
-			subscriptionService.create(entity);
-			serviceTemplates.addAll(entity.getOffer().getServiceTemplates());
-			messages.info(new BundleKey("messages", "save.successful"));
-		} else {
-			log.debug("SubscriptionBean update");
-			subscriptionService.update(entity);
-			messages.info(new BundleKey("messages", "update.successful"));
+		if (isNew){
+		    serviceTemplates.addAll(entity.getOffer().getServiceTemplates());
 		}
 
-		return back();
+        if (FacesContext.getCurrentInstance().getPartialViewContext().isAjaxRequest()) {
+            return null;
+        } else {
+            return "/pages/billing/subscriptions/subscriptionDetail?edit=false&subscriptionId=" + entity.getId() + "&faces-redirect=true&includeViewParams=true";
+        }
 	}
 
 	public void newOneShotChargeInstance() {

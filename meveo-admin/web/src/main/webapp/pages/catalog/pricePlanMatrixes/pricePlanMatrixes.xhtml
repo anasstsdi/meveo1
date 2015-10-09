@@ -113,7 +113,7 @@
 
 		<hftl:dataList label="#{messages['pricePlanMatrix.title']}"
 			editable="true" editMode="cell" scrollable="#{pricePlanMatrixListBean.lazyDataModel.size==0?'true':'false'}"
-			exportButton="false" exportXlsxButton="true" checkMany="false"
+			exportButton="false" exportXlsxButton="true"
 			backingBean="#{pricePlanMatrixListBean}">
 
 			<p:ajax event="cellEdit"
@@ -488,7 +488,7 @@
 				</p:cellEditor>
 			</p:column>
 
-			<hftl:actionsColumn renderEditLink="true"
+			<hftl:actionsColumn renderEditLink="true" renderDuplicateLink="true"
 				permission="#{identity.hasPermission('catalog','catalogManagement')}" />
 		</hftl:dataList>
 	</ui:define>

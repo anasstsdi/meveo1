@@ -5,10 +5,10 @@
 	xmlns:hftl="http://hftl.org"
 	xmlns:c="http://java.sun.com/jsp/jstl/core"
 	xmlns:hf="http://java.sun.com/jsf/composite/tags"
-	xmlns:p="http://primefaces.org/ui" template="/WEB-INF/template.xhtml">
+	xmlns:p="http://primefaces.org/ui" template="/layout/template.xhtml">
 
 	<ui:define name="navigation">
-		<ui:include src="/WEB-INF/layoutmenu.xhtml" />
+		<ui:include src="/layout/navigation.xhtml" />
 	</ui:define>
 
 	<ui:define name="body">
@@ -111,7 +111,7 @@
 					<h:panelGroup id="invoiceSubCategoryCountries_panel">
 						<hftl:dataList backingBean="#{invoiceSubCategoryCountryBean}"
 							dataModel="#{invoiceSubCategoryBean.entity.invoiceSubcategoryCountries}"
-							resultsId="invoiceSubCategoryCountries_results" checkMany="false">
+							resultsId="invoiceSubCategoryCountries_results" exportToXml="false">
 							<hftl:column
 								label="#{messages['invoiceSubCategoryCountry.countryCode']}"
 								field="tradingCountry.countryCode" />
@@ -136,7 +136,7 @@
 									hideEffect="slide" />
 								<p:commandButton id="editSubCategoryCountrydeletelink"
 									action="#{invoiceSubCategoryBean.deleteInvoiceSubcategoryCountry(entity)}"
-									icon="ui-icon-trash" ajax="true"
+									icon="ui-icon-trash"
 									update=":tabView:invoiceSubCategoryCountries_panel,:tabView:formPanelTax:formTax" />
 							</p:column>
 						</hftl:dataList>

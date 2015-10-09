@@ -20,6 +20,7 @@ import org.meveo.api.dto.account.UserAccountDto;
 import org.meveo.api.dto.payment.AccountOperationDto;
 import org.meveo.api.dto.payment.DunningInclusionExclusionDto;
 import org.meveo.api.dto.response.CustomerListResponse;
+import org.meveo.api.dto.response.TitleDto;
 import org.meveo.api.dto.response.account.AccessesResponseDto;
 import org.meveo.api.dto.response.account.BillingAccountsResponseDto;
 import org.meveo.api.dto.response.account.CustomerAccountsResponseDto;
@@ -30,6 +31,7 @@ import org.meveo.api.dto.response.account.GetBillingAccountResponseDto;
 import org.meveo.api.dto.response.account.GetCustomerAccountResponseDto;
 import org.meveo.api.dto.response.account.GetCustomerResponseDto;
 import org.meveo.api.dto.response.account.GetUserAccountResponseDto;
+import org.meveo.api.dto.response.account.TitleResponseDto;
 import org.meveo.api.dto.response.account.UserAccountsResponseDto;
 import org.meveo.api.dto.response.payment.AccountOperationsResponseDto;
 
@@ -68,6 +70,9 @@ public interface AccountWs extends IBaseWs {
 	@WebMethod
 	ActionStatus removeCustomerCategory(@WebParam(name = "categoryCode") String categoryCode);
 
+	@WebMethod
+	ActionStatus createOrUpdateCustomer(@WebParam(name = "customer") CustomerDto postData);
+
 	// customer account
 
 	@WebMethod
@@ -91,6 +96,9 @@ public interface AccountWs extends IBaseWs {
 	@WebMethod
 	ActionStatus removeCreditCategory(@WebParam(name = "creditCategoryCode") String creditCategoryCode);
 
+	@WebMethod
+	ActionStatus createOrUpdateCustomerAccount(@WebParam(name = "customerAccount") CustomerAccountDto postData);
+
 	// billing account
 
 	@WebMethod
@@ -107,6 +115,9 @@ public interface AccountWs extends IBaseWs {
 
 	@WebMethod
 	BillingAccountsResponseDto listByCustomerAccount(@WebParam(name = "customerAccountCode") String customerAccountCode);
+
+	@WebMethod
+	ActionStatus createOrUpdateBillingAccount(@WebParam(name = "billingAccount") BillingAccountDto postData);
 
 	// user account
 
@@ -125,6 +136,9 @@ public interface AccountWs extends IBaseWs {
 	@WebMethod
 	UserAccountsResponseDto listByBillingAccount(@WebParam(name = "billingAccountCode") String billingAccountCode);
 
+	@WebMethod
+	ActionStatus createOrUpdateUserAccount(@WebParam(name = "userAccount") UserAccountDto postData);
+
 	// access
 
 	@WebMethod
@@ -134,13 +148,18 @@ public interface AccountWs extends IBaseWs {
 	ActionStatus updateAccess(@WebParam(name = "access") AccessDto postData);
 
 	@WebMethod
-	GetAccessResponseDto findAccess(@WebParam(name = "accessCode") String accessCode, @WebParam(name = "subscriptionCode") String subscriptionCode);
+	GetAccessResponseDto findAccess(@WebParam(name = "accessCode") String accessCode,
+			@WebParam(name = "subscriptionCode") String subscriptionCode);
 
 	@WebMethod
-	ActionStatus removeAccess(@WebParam(name = "accessCode") String accessCode, @WebParam(name = "subscriptionCode") String subscriptionCode);
+	ActionStatus removeAccess(@WebParam(name = "accessCode") String accessCode,
+			@WebParam(name = "subscriptionCode") String subscriptionCode);
 
 	@WebMethod
 	AccessesResponseDto listAccess(@WebParam(name = "subscriptionCode") String subscriptionCode);
+
+	@WebMethod
+	ActionStatus createOrUpdateAccess(@WebParam(name = "access") AccessDto postData);
 
 	// account hierarchy
 
@@ -148,21 +167,26 @@ public interface AccountWs extends IBaseWs {
 	ActionStatus createAccountHierarchy(@WebParam(name = "accountHierarchy") AccountHierarchyDto accountHierarchyDto);
 
 	@WebMethod
-	CustomerListResponse findAccountHierarchy(@WebParam(name = "accountHierarchy") AccountHierarchyDto accountHierarchyDto);
+	CustomerListResponse findAccountHierarchy(
+			@WebParam(name = "accountHierarchy") AccountHierarchyDto accountHierarchyDto);
 
 	@WebMethod
 	ActionStatus updateAccountHierarchy(@WebParam(name = "accountHierarchy") AccountHierarchyDto accountHierarchyDto);
-	
+
 	@WebMethod
 	ActionStatus createCRMAccountHierarchy(@WebParam(name = "crmAccountHierarchy") CRMAccountHierarchyDto postData);
-	
+
 	@WebMethod
 	ActionStatus updateCRMAccountHierarchy(@WebParam(name = "crmAccountHierarchy") CRMAccountHierarchyDto postData);
+
+	@WebMethod
+	ActionStatus createOrUpdateAccountHierarchy(
+			@WebParam(name = "accountHierarchy") AccountHierarchyDto accountHierarchyDto);
 
 	// customer hierarchy
 
 	@WebMethod
-	ActionStatus customerHierarchyUpdate(@WebParam(name = "customerHierarchy") CustomerHierarchyDto postData);	
+	ActionStatus customerHierarchyUpdate(@WebParam(name = "customerHierarchy") CustomerHierarchyDto postData);
 
 	// account operation
 
@@ -170,14 +194,34 @@ public interface AccountWs extends IBaseWs {
 	ActionStatus createAccountOperation(@WebParam(name = "accountOperation") AccountOperationDto postData);
 
 	@WebMethod
-	AccountOperationsResponseDto listAccountOperations(@WebParam(name = "customerAccountCode") String customerAccountCode);
+	AccountOperationsResponseDto listAccountOperations(
+			@WebParam(name = "customerAccountCode") String customerAccountCode);
 
 	// dunning
 
 	@WebMethod
-	ActionStatus dunningInclusionExclusion(@WebParam(name = "dunningInclusionExclusion") DunningInclusionExclusionDto dunningDto);
+	ActionStatus dunningInclusionExclusion(
+			@WebParam(name = "dunningInclusionExclusion") DunningInclusionExclusionDto dunningDto);
 
 	@WebMethod
-	FindAccountHierarchyResponseDto findAccountHierarchy2(@WebParam(name = "findAccountHierachyRequest") FindAccountHierachyRequestDto postData);
+	FindAccountHierarchyResponseDto findAccountHierarchy2(
+			@WebParam(name = "findAccountHierachyRequest") FindAccountHierachyRequestDto postData);
+
+	// title
+
+	@WebMethod
+	ActionStatus createTitle(@WebParam(name = "title") TitleDto postData);
+
+	@WebMethod
+	TitleResponseDto findTitle(@WebParam(name = "titleCode") String titleCode);
+
+	@WebMethod
+	ActionStatus updateTitle(@WebParam(name = "title") TitleDto postData);
+
+	@WebMethod
+	ActionStatus removeTitle(@WebParam(name = "titleCode") String titleCode);
+
+	@WebMethod
+	ActionStatus createOrUpdateTitle(@WebParam(name = "title") TitleDto postData);
 
 }

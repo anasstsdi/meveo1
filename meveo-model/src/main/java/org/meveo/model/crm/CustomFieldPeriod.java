@@ -3,285 +3,218 @@ package org.meveo.model.crm;
 import java.util.Date;
 
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.PostLoad;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import org.meveo.model.BaseProviderlessEntity;
-import org.meveo.model.BusinessEntity;
 import org.meveo.model.ExportIdentifier;
 
 @Entity
-@ExportIdentifier({ "customFieldInstance.code", "customFieldInstance.provider", "customFieldInstance.subscription.code", "customFieldInstance.account.code",
-        "customFieldInstance.chargeTemplate.code", "customFieldInstance.serviceTemplate.code", "customFieldInstance.offerTemplate.code", "customFieldInstance.access.accessUserId",
-        "customFieldInstance.access.subscription.code", "customFieldInstance.jobInstance.code", "periodStartDate", "periodEndDate" })
-@Table(name = "CRM_CUSTOM_FIELD_PERIOD", uniqueConstraints = @UniqueConstraint(columnNames = { "CF_INSTANCE_ID", "PERIOD_START_DATE", "PERIOD_END_DATE" }))
+@ExportIdentifier({ "customFieldInstance.code", "customFieldInstance.provider",
+		"customFieldInstance.subscription.code", "customFieldInstance.account.code",
+		"customFieldInstance.chargeTemplate.code", "customFieldInstance.serviceTemplate.code",
+		"customFieldInstance.offerTemplate.code", "customFieldInstance.access.accessUserId",
+		"customFieldInstance.access.subscription.code", "customFieldInstance.jobInstance.code", "periodStartDate",
+		"periodEndDate" })
+@Table(name = "CRM_CUSTOM_FIELD_PERIOD", uniqueConstraints = @UniqueConstraint(columnNames = { "CF_INSTANCE_ID",
+		"PERIOD_START_DATE", "PERIOD_END_DATE" }))
 @SequenceGenerator(name = "ID_GENERATOR", sequenceName = "CRM_CUSTOM_FIELD_PERIOD_SEQ")
+@EntityListeners({ CustomFieldPeriodListener.class })
 public class CustomFieldPeriod extends BaseProviderlessEntity {
 
-    private static final long serialVersionUID = -3613016075735338913L;
+	private static final long serialVersionUID = -3613016075735338913L;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CF_INSTANCE_ID")
-    private CustomFieldInstance customFieldInstance;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "CF_INSTANCE_ID")
+	private CustomFieldInstance customFieldInstance;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "PERIOD_START_DATE")
-    private Date periodStartDate;
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "PERIOD_START_DATE")
+	private Date periodStartDate;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "PERIOD_END_DATE")
-    private Date periodEndDate;
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "PERIOD_END_DATE")
+	private Date periodEndDate;
 
-    @Column(name = "STRING_VALUE")
-    private String stringValue;
+	@Column(name = "PRIORITY")
+	private int priority;
 
-    @Column(name = "DATE_VALUE")
-    private Date dateValue;
+	@Embedded
+	private CustomFieldValue cfValue;
 
-    @Column(name = "LONG_VALUE")
-    private Long longValue;
-
-    @Column(name = "DOUBLE_VALUE")
-    private Double doubleValue;
-
-    @Column(name = "PRIORITY")
-    private int priority;
-    
-   // @Lob
-    //@Basic(fetch=FetchType.LAZY)
-    @Column(name="ENTITY_VALUE",nullable=true)
-    private String entityValue;
-    
-    /**
-     * label for map
-     */
-    @Column(name="LABEL")
-    private String label;
-    
-    @Transient
-    private BusinessEntity businessEntity;
-
-    public CustomFieldInstance getCustomFieldInstance() {
-        return customFieldInstance;
-    }
-
-    public void setCustomFieldInstance(CustomFieldInstance customFieldInstance) {
-        this.customFieldInstance = customFieldInstance;
-    }
-
-    public Date getPeriodStartDate() {
-        return periodStartDate;
-    }
-
-    public void setPeriodStartDate(Date periodStartDate) {
-        this.periodStartDate = periodStartDate;
-    }
-
-    public Date getPeriodEndDate() {
-        return periodEndDate;
-    }
-
-    public void setPeriodEndDate(Date periodEndDate) {
-        this.periodEndDate = periodEndDate;
-    }
-
-    public String getStringValue() {
-        return stringValue;
-    }
-
-    public void setStringValue(String stringValue) {
-        this.stringValue = stringValue;
-    }
-
-    public Date getDateValue() {
-        return dateValue;
-    }
-
-    public void setDateValue(Date dateValue) {
-        this.dateValue = dateValue;
-    }
-
-    public Long getLongValue() {
-        return longValue;
-    }
-
-    public void setLongValue(Long longValue) {
-        this.longValue = longValue;
-    }
-
-    public Double getDoubleValue() {
-        return doubleValue;
-    }
-
-    public void setDoubleValue(Double doubleValue) {
-        this.doubleValue = doubleValue;
-    }
-
-    public int getPriority() {
-        return priority;
-    }
-
-    public void setPriority(int priority) {
-        this.priority = priority;
-    }
-    
-    
-
-    public String getEntityValue() {
-		return entityValue;
+	public CustomFieldPeriod() {
+		super();
+		cfValue = new CustomFieldValue();
 	}
 
-	public void setEntityValue(String entityValue) {
-		this.entityValue = entityValue;
+	public CustomFieldInstance getCustomFieldInstance() {
+		return customFieldInstance;
 	}
 
-	public BusinessEntity getBusinessEntity() {
-		return businessEntity;
+	public void setCustomFieldInstance(CustomFieldInstance customFieldInstance) {
+		this.customFieldInstance = customFieldInstance;
 	}
 
-	public void setBusinessEntity(BusinessEntity businessEntity) {
-		this.businessEntity = businessEntity;
+	public Date getPeriodStartDate() {
+		return periodStartDate;
 	}
 
-	public String getLabel() {
-		return label;
+	public void setPeriodStartDate(Date periodStartDate) {
+		this.periodStartDate = periodStartDate;
 	}
 
-	public void setLabel(String label) {
-		this.label = label;
+	public Date getPeriodEndDate() {
+		return periodEndDate;
+	}
+
+	public void setPeriodEndDate(Date periodEndDate) {
+		this.periodEndDate = periodEndDate;
+	}
+
+	public int getPriority() {
+		return priority;
+	}
+
+	public void setPriority(int priority) {
+		this.priority = priority;
+	}
+
+	public CustomFieldValue getCfValue() {
+		if (cfValue == null) {
+			cfValue = new CustomFieldValue();
+		}
+		return cfValue;
+	}
+
+	public void setCfValue(CustomFieldValue cfValue) {
+		this.cfValue = cfValue;
 	}
 
 	/**
-     * Check if date falls within period start and end dates
-     * 
-     * @param date Date to check
-     * @return True/false
-     */
-    public boolean isCorrespondsToPeriod(Date date) {
-        return date.compareTo(periodStartDate) >= 0 && date.before(periodEndDate);
-    }
+	 * Check if date falls within period start and end dates
+	 * 
+	 * @param date
+	 *            Date to check
+	 * @return True/false
+	 */
+	public boolean isCorrespondsToPeriod(Date date) {
+		return (periodStartDate == null || date.compareTo(periodStartDate) >= 0)
+				&& (periodEndDate == null || date.before(periodEndDate));
+	}
 
-    /**
-     * Check if dates match period start and end dates (strict match) or overlap period start and end dates (non-strict match)
-     * 
-     * @param startDate
-     * @param endDate
-     * @param strictMatch
-     * @return
-     */
-    public boolean isCorrespondsToPeriod(Date startDate, Date endDate, boolean strictMatch) {
+	/**
+	 * Check if dates match period start and end dates (strict match) or overlap
+	 * period start and end dates (non-strict match)
+	 * 
+	 * @param startDate
+	 *            Period start date to check
+	 * @param endDate
+	 *            Period end date to check
+	 * @param strictMatch
+	 *            True If dates match period start and end dates (strict match)
+	 *            or False when overlap period start and end dates (non-strict
+	 *            match)
+	 * @return True if current period object corresponds to give dates and
+	 *         strict matching type
+	 */
+	public boolean isCorrespondsToPeriod(Date startDate, Date endDate, boolean strictMatch) {
 
-        if (strictMatch) {
-            boolean match = (startDate == null && periodStartDate == null) || (startDate != null && periodStartDate != null && startDate.equals(periodStartDate));
-            match = match && (endDate == null && periodEndDate == null) || (endDate != null && periodEndDate != null && endDate.equals(periodEndDate));
-            return match;
-        }
-        // Check non-strict match case when dates overlap
-        if (startDate == null && endDate == null) {
-            return true;
-        }
+		if (strictMatch) {
+			boolean match = (startDate == null && periodStartDate == null)
+					|| (startDate != null && periodStartDate != null && startDate.equals(periodStartDate));
+			match = match
+					&& ((endDate == null && periodEndDate == null) || (endDate != null && periodEndDate != null && endDate
+							.equals(periodEndDate)));
+			return match;
+		}
+		// Check non-strict match case when dates overlap
+		if (startDate == null && endDate == null) {
+			return true;
+		}
 
-        // Period is not after dates being checked
-        if (startDate == null && (periodStartDate == null || periodStartDate.compareTo(endDate) < 0)) {
-            return true;
+		// Period is not after dates being checked
+		if (startDate == null && (periodStartDate == null || periodStartDate.compareTo(endDate) < 0)) {
+			return true;
 
-            // Period is not before dates being checked
-        } else if (endDate == null && (periodEndDate == null || periodEndDate.compareTo(startDate) >= 0)) {
-            return true;
+			// Period is not before dates being checked
+		} else if (endDate == null && (periodEndDate == null || periodEndDate.compareTo(startDate) >= 0)) {
+			return true;
 
-            // Dates are not after period
-        } else if (periodStartDate == null && (startDate == null || startDate.compareTo(endDate) < 0)) {
-            return true;
+			// Dates are not after period
+		} else if (periodStartDate == null && (startDate == null || startDate.compareTo(endDate) < 0)) {
+			return true;
 
-            // Dates are not before period
-        } else if (periodEndDate == null && (endDate == null || endDate.compareTo(startDate) >= 0)) {
-            return true;
+			// Dates are not before period
+		} else if (periodEndDate == null && (endDate == null || endDate.compareTo(startDate) >= 0)) {
+			return true;
 
-        } else if (startDate != null && endDate != null && periodStartDate != null && periodEndDate != null) {
+		} else if (startDate != null && endDate != null && periodStartDate != null && periodEndDate != null) {
 
-            // Dates end or start within the period
-            if ((endDate.compareTo(periodEndDate) < 0 && endDate.compareTo(periodStartDate) > 0)
-                    || (startDate.compareTo(periodEndDate) < 0 && startDate.compareTo(periodStartDate) > 0)) {
-                return true;
-            }
+			// Dates end or start within the period
+			if ((endDate.compareTo(periodEndDate) <= 0 && endDate.compareTo(periodStartDate) > 0)
+					|| (startDate.compareTo(periodEndDate) < 0 && startDate.compareTo(periodStartDate) >= 0)) {
+				return true;
+			}
 
-            // Period end or start within the dates
-            if ((periodEndDate.compareTo(endDate) < 0 && periodEndDate.compareTo(startDate) > 0)
-                    || (periodStartDate.compareTo(endDate) < 0 && periodStartDate.compareTo(startDate) > 0)) {
-                return true;
-            }
-        }
-        return false;
-    }
+			// Period end or start within the dates
+			if ((periodEndDate.compareTo(endDate) <= 0 && periodEndDate.compareTo(startDate) > 0)
+					|| (periodStartDate.compareTo(endDate) < 0 && periodStartDate.compareTo(startDate) >= 0)) {
+				return true;
+			}
+		}
+		return false;
+	}
 
-    /**
-     * Get a value
-     * 
-     * @return
-     */
-    public Object getValue() {
-        if (stringValue != null) {
-            return stringValue;
-        } else if (doubleValue != null) {
-            return doubleValue;
-        } else if (dateValue != null) {
-            return dateValue;
-        } else if (longValue != null) {
-            return longValue;
-        }else if(businessEntity!=null){
-        	return businessEntity;
-        }
-        return null;
-    }
+	@Override
+	public boolean equals(Object obj) {
 
-    /**
-     * Set value of a given type
-     * 
-     * @param value
-     * @param fieldType
-     */
-    public void setValue(Object value, CustomFieldTypeEnum fieldType) {
+		if (!(obj instanceof CustomFieldPeriod)) {
+			return false;
+		}
+		return isCorrespondsToPeriod(((CustomFieldPeriod) obj).getPeriodStartDate(),
+				((CustomFieldPeriod) obj).getPeriodEndDate(), true);
+	}
 
-        switch (fieldType) {
-        case DATE:
-            dateValue = (Date) value;
-            break;
+	@Override
+	public String toString() {
+		return String.format("CustomFieldPeriod [periodStartDate=%s, periodEndDate=%s, priority=%s, value=%s]",
+				periodStartDate, periodEndDate, priority, cfValue);
+	}
 
-        case DOUBLE:
-            doubleValue = (Double) value;
-            break;
+	// /**
+	// * NOT WORK/NOT USED: A JPA callback method to serialise reference to
+	// entity, list and map values upon persisting to DB.
+	// *
+	// * On update (@PreUpdate) does not work, as merge loose all transient
+	// values before calling PreUpdate callback. EclipseLink has PostMerge
+	// callback that Hibernate does not
+	// have.
+	// */
+	// @PrePersist
+	// @PreUpdate
+	// private void serializeValue() {
+	// value.serializeValue();
+	// }
 
-        case LONG:
-            longValue = (Long) value;
-            break;
+	/**
+	 * A JPA callback to deserialise reference to entity, list and map values
+	 * upon retrieval from DB.
+	 */
+	@PostLoad
+	public void deserializeValue() {
+		if (cfValue != null) {
+			cfValue.deserializeValue();
+		}
+	}
 
-        case STRING:
-        case LIST:
-            stringValue = (String) value;
-            break;
-        case ENTITY:
-        	businessEntity=(BusinessEntity)value;
-		case TEXT_AREA:
-			break;
-		default:
-			break;
-        }
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-
-        if (!(obj instanceof CustomFieldPeriod)) {
-            return false;
-        }
-        return isCorrespondsToPeriod(((CustomFieldPeriod) obj).getPeriodStartDate(), ((CustomFieldPeriod) obj).getPeriodEndDate(), true);
-    }
 }

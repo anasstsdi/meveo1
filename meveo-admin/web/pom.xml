@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>meveo-admin</artifactId>
 		<groupId>org.manaty</groupId>
-		<version>4.1</version>
+		<version>4.2</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<artifactId>meveo-admin-web</artifactId>
@@ -74,22 +74,22 @@
         	</plugin>
         
         	<!-- Primefaces Theme - Modena -->
-        	<plugin>
-	            <artifactId>maven-antrun-plugin</artifactId>
-	            <configuration>
-	                <tasks>
-	                    <copy file="../lib/modena-theme-1.0.1.jar" tofile="${project.build.directory}/meveo/WEB-INF/lib/modena-theme-1.0.1.jar"/>
-	                </tasks>
-	            </configuration>
-	            <executions>
-	                <execution>
-	                    <phase>install</phase>
-	                    <goals>
-	                        <goal>run</goal>
-	                    </goals>
-	                </execution>
-	            </executions>
-        	</plugin>
+<!--         	<plugin> -->
+<!-- 	            <artifactId>maven-antrun-plugin</artifactId> -->
+<!-- 	            <configuration> -->
+<!-- 	                <tasks> -->
+<!-- 	                    <copy file="../lib/modena-theme-1.0.1.jar" tofile="${project.build.directory}/meveo/WEB-INF/lib/modena-theme-1.0.1.jar"/> -->
+<!-- 	                </tasks> -->
+<!-- 	            </configuration> -->
+<!-- 	            <executions> -->
+<!-- 	                <execution> -->
+<!-- 	                    <phase>install</phase> -->
+<!-- 	                    <goals> -->
+<!-- 	                        <goal>run</goal> -->
+<!-- 	                    </goals> -->
+<!-- 	                </execution> -->
+<!-- 	            </executions> -->
+<!--         	</plugin> -->
         	
         	
         	<!-- Primefaces Theme - Modena -->
@@ -191,6 +191,12 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>javax.validation</groupId>
+			<artifactId>validation-api</artifactId>
+			<version>1.1.0.Final</version>
+		</dependency>
+
+		<dependency>
 			<groupId>org.jboss.spec.javax.servlet</groupId>
 			<artifactId>jboss-servlet-api_3.0_spec</artifactId>
 		</dependency>
@@ -239,11 +245,23 @@
 			<artifactId>omnifaces</artifactId>
 			<version>1.8.1</version>
 		</dependency>
-
+    <dependency>
+        <groupId>org.primefaces</groupId>
+        <artifactId>primefaces</artifactId>
+        <version>5.2</version>
+    </dependency>
 		<dependency>
 			<groupId>org.primefaces.extensions</groupId>
 			<artifactId>primefaces-extensions</artifactId>
+			<version>3.2.0</version>
 		</dependency>
+		
+		<dependency>
+		    <groupId>org.primefaces.extensions</groupId>
+		    <artifactId>resources-codemirror</artifactId>
+		    <version>3.2.0</version>
+		</dependency>
+
 		<dependency>
 			<groupId>commons-fileupload</groupId>
 			<artifactId>commons-fileupload</artifactId>

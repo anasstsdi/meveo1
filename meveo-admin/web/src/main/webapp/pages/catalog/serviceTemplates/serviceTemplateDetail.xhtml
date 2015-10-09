@@ -6,6 +6,12 @@
 	xmlns:hf="http://java.sun.com/jsf/composite/tags"
 	xmlns:p="http://primefaces.org/ui" template="/WEB-INF/template.xhtml">
 
+    <ui:define name="metadata">
+        <f:metadata>
+            <f:viewParam name="objectId" value="#{serviceTemplateBean.objectId}" />
+        </f:metadata>
+    </ui:define>
+    
 	<ui:define name="navigation">
 		<ui:include src="/WEB-INF/layoutmenu.xhtml" />
 	</ui:define>
@@ -127,7 +133,7 @@
 						<hftl:dataList id="serviceRecurringChargeTempalte_table"
 							backingBean="#{serviceChargeTemplateRecurringBean}"
 							dataModel="#{serviceTemplateBean.entity.serviceRecurringCharges}"
-							resultsId="serviceRecurringCharges_results" checkMany="false">
+							resultsId="serviceRecurringCharges_results" exportToXml="false">
 							<hftl:column label="#{messages['pricePlanMatrix.eventCode']}"
 								field="chargeTemplate.code" valueIdField="chargeTemplate.id" 
 								entityView="recurringChargeTemplateDetail"/>
@@ -144,7 +150,7 @@
 									icon="ui-icon-document" />
 								<p:commandButton
 									action="#{serviceTemplateBean.deleteServiceRecurringChargeTemplate(entity)}"
-									icon="ui-icon-trash" ajax="true"
+									icon="ui-icon-trash"
 									update=":tabView:serviceRecurringChargeTempalte_panel,:tabView:formPanelRecurringCharge:formRecurringCharge" />
 
 							</p:column>
@@ -220,7 +226,7 @@
 						<hftl:dataList id="serviceSubscriptionChargeTempalte_table"
 							backingBean="#{serviceChargeTemplateSubscriptionBean}"
 							dataModel="#{serviceTemplateBean.entity.serviceSubscriptionCharges}"
-							resultsId="serviceSubscriptionCharges_results" checkMany="false">
+							resultsId="serviceSubscriptionCharges_results" exportToXml="false">
 							<hftl:column label="#{messages['pricePlanMatrix.eventCode']}"
 								field="chargeTemplate.code" valueIdField="chargeTemplate.id" 
 								entityView="oneShotChargeTemplateDetail"/>
@@ -237,7 +243,7 @@
 									icon="ui-icon-document" />
 								<p:commandButton
 									action="#{serviceTemplateBean.deleteServiceSubscriptionChargeTemplate(entity)}"
-									icon="ui-icon-trash" ajax="true"
+									icon="ui-icon-trash"
 									update=":tabView:serviceSubscriptionChargeTempalte_panel,:tabView:formPanelSubscriptionCharge:formSubscriptionCharge" />
 
 							</p:column>
@@ -310,7 +316,7 @@
 						<hftl:dataList id="serviceTerminationChargeTempalte_table"
 							backingBean="#{serviceChargeTemplateTerminationBean}"
 							dataModel="#{serviceTemplateBean.entity.serviceTerminationCharges}"
-							resultsId="serviceTerminationCharges_results" checkMany="false">
+							resultsId="serviceTerminationCharges_results" exportToXml="false">
 							<hftl:column label="#{messages['pricePlanMatrix.eventCode']}"
 								field="chargeTemplate.code" valueIdField="chargeTemplate.id" 
 								entityView="oneShotChargeTemplateDetail"/>
@@ -327,7 +333,7 @@
 									icon="ui-icon-document" />
 								<p:commandButton
 									action="#{serviceTemplateBean.deleteServiceTerminationChargeTemplate(entity)}"
-									icon="ui-icon-trash" ajax="true"
+									icon="ui-icon-trash"
 									update=":tabView:serviceTerminationChargeTempalte_panel,:tabView:formPanelTerminationCharge:formTerminationCharge" />
 
 							</p:column>
@@ -399,7 +405,7 @@
                     <h:panelGroup id="serviceUsageChargeTempalte_panel">
 						<hftl:dataList backingBean="#{serviceChargeTemplateUsageBean}"
 							dataModel="#{serviceTemplateBean.entity.serviceUsageCharges}"
-							resultsId="serviceUsageCharges_results" checkMany="false">
+							resultsId="serviceUsageCharges_results" exportToXml="false">
 							<hftl:column label="#{messages['pricePlanMatrix.eventCode']}"
 								field="chargeTemplate.code" valueIdField="chargeTemplate.id" 
 								entityView="usageChargeTemplateDetail"/>
@@ -418,7 +424,7 @@
 									icon="ui-icon-document" />
 								<p:commandButton
 									action="#{serviceTemplateBean.deleteServiceUsageChargeTemplate(entity)}"
-									icon="ui-icon-trash" ajax="true"
+									icon="ui-icon-trash"
 									update=":tabView:serviceUsageChargeTempalte_panel,:tabView:formPanelUsageCharge:formUsageCharge" />
 							</p:column>
 						</hftl:dataList>
@@ -468,10 +474,12 @@
 						</p:panel>
 				</p:tab>
 
-				<p:tab title="#{messages['customFieldTemplate.panel']}" rendered="#{serviceTemplateBean.entity.id!=null}">
-					<hf:formPanel id="cfFormPanel" backingBean="#{serviceTemplateBean}" columns="1" addCustomFieldDialog="true">
-						<hf:customFields id="customFields" messagesId=":tabView:cfFormPanel:formId:messages" periodDialogIdPrefix=":tabView:cfFormPanel"/>
-					</hf:formPanel>
+				<p:tab title="#{messages['customFieldTemplate.cfValues']}" rendered="#{serviceTemplateBean.entity.id!=null}">
+    				<hf:formPanel id="cfFormPanel" backingBean="#{serviceTemplateBean}" ajaxSubmit="true" submitPartialProcess=":tabView:cfFormPanel:formId:fieldGroup">
+                        <h:panelGroup id="fieldGroup">
+    						<hf:customFields id="customFields" backingBean="#{serviceTemplateBean}" messagesId=":tabView:cfFormPanel:formId:messages" />
+    					</h:panelGroup>
+                    </hf:formPanel>
 				</p:tab>
 
 			</p:tabView>

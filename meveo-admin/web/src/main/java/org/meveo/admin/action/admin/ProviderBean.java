@@ -21,13 +21,12 @@ import javax.inject.Named;
 
 import org.jboss.seam.international.status.builder.BundleKey;
 import org.meveo.admin.action.CustomFieldBean;
-import org.meveo.admin.action.CustomFieldEnabledBean;
 import org.meveo.admin.exception.BusinessException;
 import org.meveo.commons.utils.ParamBean;
 import org.meveo.model.admin.User;
+import org.meveo.model.billing.BankCoordinates;
 import org.meveo.model.billing.InvoiceConfiguration;
 import org.meveo.model.billing.Language;
-import org.meveo.model.crm.AccountLevelEnum;
 import org.meveo.model.crm.Provider;
 import org.meveo.model.security.Role;
 import org.meveo.service.admin.impl.RoleService;
@@ -40,7 +39,6 @@ import org.primefaces.event.SelectEvent;
 
 @Named
 @ViewScoped
-@CustomFieldEnabledBean(accountLevel=AccountLevelEnum.PROVIDER)
 public class ProviderBean extends CustomFieldBean<Provider> {
 
     private static final long serialVersionUID = 1L;
@@ -94,6 +92,9 @@ public class ProviderBean extends CustomFieldBean<Provider> {
 	   	    entity.setInvoiceConfiguration(invoiceConfiguration);
 	   	    log.info("created invoiceConfiguration id={} for provider {}", invoiceConfiguration.getId(), entity.getCode());
 			}
+		if (entity.getBankCoordinates() == null) {
+			entity.setBankCoordinates(new BankCoordinates());
+		}
 		}catch(BusinessException e){
 		  log.error("error while saving invoiceConfiguration "+e);	
 		 }
@@ -151,6 +152,7 @@ public class ProviderBean extends CustomFieldBean<Provider> {
 	   		invoiceConfiguration.setDisplayOffers(entity.getInvoiceConfiguration().getDisplayOffers());
 	   		invoiceConfiguration.setDisplayServices(entity.getInvoiceConfiguration().getDisplayServices());
 	   		invoiceConfiguration.setDisplaySubscriptions(entity.getInvoiceConfiguration().getDisplaySubscriptions());
+	   		invoiceConfiguration.setDisplayEdrs(entity.getInvoiceConfiguration().getDisplayEdrs());
 	   		invoiceConfigurationService.create(invoiceConfiguration);
 			entity.setInvoiceConfiguration(invoiceConfiguration); 
 	   	    log.info("created invoiceConfiguration id={} for provider {}", invoiceConfiguration.getId(), entity.getCode());

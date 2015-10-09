@@ -17,6 +17,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -45,6 +46,7 @@ import javax.ejb.Singleton;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.enterprise.context.Conversation;
+import javax.faces.model.DataModel;
 import javax.inject.Inject;
 import javax.persistence.CascadeType;
 import javax.persistence.EntityManager;
@@ -81,6 +83,7 @@ import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataOutput;
 import org.meveo.api.MeveoApiErrorCode;
 import org.meveo.api.dto.response.utilities.ImportExportResponseDto;
 import org.meveo.cache.CdrEdrProcessingCacheContainerProvider;
+//import org.meveo.cache.CustomFieldsCacheContainerProvider;
 import org.meveo.cache.NotificationCacheContainerProvider;
 import org.meveo.cache.RatingCacheContainerProvider;
 import org.meveo.cache.WalletCacheContainerProvider;
@@ -94,6 +97,7 @@ import org.meveo.model.crm.Provider;
 import org.meveo.model.shared.DateUtils;
 import org.meveo.util.MeveoJpa;
 import org.meveo.util.MeveoJpaForJobs;
+import org.primefaces.model.LazyDataModel;
 import org.reflections.Reflections;
 import org.reflections.scanners.ResourcesScanner;
 import org.slf4j.Logger;
@@ -161,6 +165,9 @@ public class EntityExportImportService implements Serializable {
     @Inject
     private RatingCacheContainerProvider ratingCacheContainerProvider;
 
+    // @Inject
+    // private CustomFieldsCacheContainerProvider customFieldsCacheContainerProvider;
+
     private Map<Class<? extends IEntity>, String[]> exportIdMapping;
 
     private Map<String, Object[]> attributesToOmit;
@@ -222,7 +229,7 @@ public class EntityExportImportService implements Serializable {
     public Future<ExportImportStatistics> exportEntities(Collection<ExportTemplate> exportTemplates, Map<String, Object> parameters) {
         ExportImportStatistics exportStats = new ExportImportStatistics();
         for (ExportTemplate exportTemplate : exportTemplates) {
-            ExportImportStatistics exportStatsSingle = exportEntitiesInternal(exportTemplate, parameters);
+            ExportImportStatistics exportStatsSingle = exportEntitiesInternal(exportTemplate, parameters, null);
             exportStats.mergeStatistics(exportStatsSingle);
         }
         return new AsyncResult<ExportImportStatistics>(exportStats);
@@ -233,13 +240,14 @@ public class EntityExportImportService implements Serializable {
      * 
      * @param exportTemplates Export template
      * @param parameters Entity export (select) criteria
+     * @param dataModelToExport Entities to export that are already filtered in a data model. Supports export of non-grouped export templates only.
      * @return Export statistics
      */
     @Asynchronous
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-    public Future<ExportImportStatistics> exportEntities(ExportTemplate exportTemplate, Map<String, Object> parameters) {
+    public Future<ExportImportStatistics> exportEntities(ExportTemplate exportTemplate, Map<String, Object> parameters, DataModel<? extends IEntity> dataModelToExport) {
 
-        ExportImportStatistics exportStats = exportEntitiesInternal(exportTemplate, parameters);
+        ExportImportStatistics exportStats = exportEntitiesInternal(exportTemplate, parameters, dataModelToExport);
 
         return new AsyncResult<ExportImportStatistics>(exportStats);
     }
@@ -249,9 +257,10 @@ public class EntityExportImportService implements Serializable {
      * 
      * @param exportTemplates Export template
      * @param parameters Entity export (select) criteria
+     * @param dataModelToExport Entities to export that are already filtered in a data model. Supports export of non-grouped export templates only.
      * @return Export statistics
      */
-    private ExportImportStatistics exportEntitiesInternal(ExportTemplate exportTemplate, Map<String, Object> parameters) {
+    private ExportImportStatistics exportEntitiesInternal(ExportTemplate exportTemplate, Map<String, Object> parameters, DataModel<? extends IEntity> dataModelToExport) {
 
         if (parameters == null) {
             parameters = new HashMap<String, Object>();
@@ -305,11 +314,12 @@ public class EntityExportImportService implements Serializable {
             writer.startNode("meveoExport");
             writer.addAttribute("version", this.currentExportModelVersionChangeset);
 
+            // Export from a provided data model applies only in cases on non-grouped templates as it has a single entity type
             if (exportTemplate.getGroupedTemplates() == null || exportTemplate.getGroupedTemplates().isEmpty()) {
-                entityExportImportService.serializeEntities(exportTemplate, parameters, exportStats, writer);
+                entityExportImportService.serializeEntities(exportTemplate, parameters, dataModelToExport, exportStats, writer);
             } else {
                 for (ExportTemplate groupedExportTemplate : exportTemplate.getGroupedTemplates()) {
-                    entityExportImportService.serializeEntities(groupedExportTemplate, parameters, exportStats, writer);
+                    entityExportImportService.serializeEntities(groupedExportTemplate, parameters, null, exportStats, writer);
                 }
             }
 
@@ -330,6 +340,11 @@ public class EntityExportImportService implements Serializable {
         } catch (RemoteAuthenticationException e) {
             log.error("Failed to authenticate to a remote Meveo instance {}: {}", ((MeveoInstance) parameters.get(EXPORT_PARAM_REMOTE_INSTANCE)).getCode(), e.getMessage());
             exportStats.setErrorMessageKey("export.remoteImportFailedAuth");
+
+        } catch (RemoteImportException e) {
+            log.error("Failed to communicate or process data in a remote Meveo instance {}: {}", ((MeveoInstance) parameters.get(EXPORT_PARAM_REMOTE_INSTANCE)).getCode(),
+                e.getMessage());
+            exportStats.setErrorMessageKey("export.remoteImportFailedOther");
 
         } catch (Exception e) {
             log.error("Failed to export data to a file {}", filename, e);
@@ -386,16 +401,18 @@ public class EntityExportImportService implements Serializable {
      * 
      * @param exportTemplate Export template
      * @param parameters Entity export (select) criteria
+     * @param dataModelToExport Entities to export that are already filtered in a data model. Supports export of non-grouped export templates only.
      * @param exportStats Export statistics
      * @param writer Writer for serialized entity output
      * @return
      */
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public void serializeEntities(ExportTemplate exportTemplate, Map<String, Object> parameters, ExportImportStatistics exportStats, HierarchicalStreamWriter writer) {
+    public void serializeEntities(ExportTemplate exportTemplate, Map<String, Object> parameters, DataModel<? extends IEntity> dataModelToExport,
+            ExportImportStatistics exportStats, HierarchicalStreamWriter writer) {
 
-        log.info("Serializing entities from export template {}", exportTemplate.getName());
+        log.info("Serializing entities from export template {} and data model {}", exportTemplate.getName(), dataModelToExport != null);
 
-        List<IEntity> entities = getEntitiesToExport(exportTemplate, parameters, 0, PAGE_SIZE);
+        List<? extends IEntity> entities = getEntitiesToExport(exportTemplate, parameters, dataModelToExport, 0, PAGE_SIZE);
         if (entities.isEmpty()) {
             log.info("No entities to serialize from export template {}", exportTemplate.getName());
             return;
@@ -447,6 +464,7 @@ public class EntityExportImportService implements Serializable {
                 } else {
                     writer.endNode();
                     writer.flush();
+                    log.trace("Serialized {} records from export template {}", totalEntityCount, exportTemplate.getName());
                 }
                 writer.startNode("data");
                 pagesProcessedByXstream = 0;
@@ -466,7 +484,7 @@ public class EntityExportImportService implements Serializable {
                 break;
             }
             writer.flush();
-            entities = getEntitiesToExport(exportTemplate, parameters, from, PAGE_SIZE);
+            entities = getEntitiesToExport(exportTemplate, parameters, dataModelToExport, from, PAGE_SIZE);
             from += PAGE_SIZE;
             pagesProcessedByXstream++;
         }
@@ -1515,59 +1533,82 @@ public class EntityExportImportService implements Serializable {
      * @param exportTemplate Export template
      * @param from Starting record index
      * @param pageSize Page size
-     * @param parameters
-     * @return A list of entities
+     * @param parameters Filter parameters to retrieve entities from DB
+     * @param dataModelToExport Entities to export that are already filtered in a data model. Supports export of non-grouped export templates only.
+     * @return A list of entities corresponding to a page
      */
-    private List<IEntity> getEntitiesToExport(ExportTemplate exportTemplate, Map<String, Object> parameters, int from, int pageSize) {
-        // Construct a query to retrieve entities to export by selection criteria. OR examine selection criteria - could be that top export entity matches search criteria for
-        // related entities (e.g. exporting provider and related info and some provider is search criteria, but also it matches the top entity)
-        StringBuilder sql = new StringBuilder("select e from " + exportTemplate.getEntityToExport().getName() + " e  ");
-        boolean firstWhere = true;
-        Map<String, Object> parametersToApply = new HashMap<String, Object>();
-        for (Entry<String, Object> param : parameters.entrySet()) {
-            String paramName = param.getKey();
-            Object paramValue = param.getValue();
+    @SuppressWarnings({ "unchecked" })
+    private List<? extends IEntity> getEntitiesToExport(ExportTemplate exportTemplate, Map<String, Object> parameters, DataModel<? extends IEntity> dataModelToExport, int from,
+            int pageSize) {
 
-            if (paramValue == null) {
-                continue;
+        // Retrieve next pageSize number of entities from iterator
+        if (dataModelToExport != null) {
+            if (from >= dataModelToExport.getRowCount()) {
+                return new ArrayList<IEntity>();
+            }
 
-                // Handle the case when top export entity matches search criteria for related entities (e.g. exporting provider and related info. If search criteria is Provider -
-                // for related entities it is just search criteria, but for top entity (provider) it has to match it)
-            } else if (exportTemplate.getEntityToExport().isAssignableFrom(paramValue.getClass())) {
-                sql.append(firstWhere ? " where " : " and ").append(" id=:id");
-                firstWhere = false;
-                parametersToApply.put("id", ((IEntity) paramValue).getId());
+            if (dataModelToExport instanceof LazyDataModel) {
+                return ((LazyDataModel<? extends IEntity>) dataModelToExport).load(from, pageSize, null, null, null);
 
             } else {
-                String fieldName = paramName;
-                String fieldCondition = "=";
-                if (fieldName.contains("_")) {
-                    String[] paramInfo = fieldName.split("_");
-                    fieldName = paramInfo[0];
-                    fieldCondition = "from".equals(paramInfo[1]) ? ">" : "to".equals(paramInfo[1]) ? "<" : "=";
-                }
+                List<? extends IEntity> modelData = (List<? extends IEntity>) dataModelToExport.getWrappedData();
+                return modelData.subList(from, Math.min(from + pageSize, modelData.size()));
 
-                Field field = FieldUtils.getField(exportTemplate.getEntityToExport(), fieldName, true);
-                if (field == null) {
+            }
+
+        } else {
+
+            // Construct a query to retrieve entities to export by selection criteria. OR examine selection criteria - could be that top export entity matches search criteria for
+            // related entities (e.g. exporting provider and related info and some provider is search criteria, but also it matches the top entity)
+            StringBuilder sql = new StringBuilder("select e from " + exportTemplate.getEntityToExport().getName() + " e  ");
+            boolean firstWhere = true;
+            Map<String, Object> parametersToApply = new HashMap<String, Object>();
+            for (Entry<String, Object> param : parameters.entrySet()) {
+                String paramName = param.getKey();
+                Object paramValue = param.getValue();
+
+                if (paramValue == null) {
                     continue;
+
+                    // Handle the case when top export entity matches search criteria for related entities (e.g. exporting provider and related info. If search criteria is Provider
+                    // -
+                    // for related entities it is just search criteria, but for top entity (provider) it has to match it)
+                } else if (exportTemplate.getEntityToExport().isAssignableFrom(paramValue.getClass())) {
+                    sql.append(firstWhere ? " where " : " and ").append(" id=:id");
+                    firstWhere = false;
+                    parametersToApply.put("id", ((IEntity) paramValue).getId());
+
+                } else {
+                    String fieldName = paramName;
+                    String fieldCondition = "=";
+                    if (fieldName.contains("_")) {
+                        String[] paramInfo = fieldName.split("_");
+                        fieldName = paramInfo[0];
+                        fieldCondition = "from".equals(paramInfo[1]) ? ">" : "to".equals(paramInfo[1]) ? "<" : "=";
+                    }
+
+                    Field field = FieldUtils.getField(exportTemplate.getEntityToExport(), fieldName, true);
+                    if (field == null) {
+                        continue;
+                    }
+
+                    sql.append(firstWhere ? " where " : " and ").append(String.format(" %s%s:%s", fieldName, fieldCondition, paramName));
+                    firstWhere = false;
+                    parametersToApply.put(paramName, paramValue);
                 }
-
-                sql.append(firstWhere ? " where " : " and ").append(String.format(" %s%s:%s", fieldName, fieldCondition, paramName));
-                firstWhere = false;
-                parametersToApply.put(paramName, paramValue);
             }
-        }
 
-        // Do a search
+            // Do a search
 
-        TypedQuery<IEntity> query = getEntityManager().createQuery(sql.toString(), IEntity.class).setFirstResult(from).setMaxResults(pageSize);
-        for (Entry<String, Object> param : parametersToApply.entrySet()) {
-            if (param.getValue() != null) {
-                query.setParameter(param.getKey(), param.getValue());
+            TypedQuery<IEntity> query = getEntityManager().createQuery(sql.toString(), IEntity.class).setFirstResult(from).setMaxResults(pageSize);
+            for (Entry<String, Object> param : parametersToApply.entrySet()) {
+                if (param.getValue() != null) {
+                    query.setParameter(param.getKey(), param.getValue());
+                }
             }
+            List<IEntity> entities = query.getResultList();
+            return entities;
         }
-        List<IEntity> entities = query.getResultList();
-        return entities;
     }
 
     public static class ExportInfo {
@@ -1659,6 +1700,7 @@ public class EntityExportImportService implements Serializable {
         cdrEdrProcessingCacheContainerProvider.refreshCache(null);
         notificationCacheContainerProvider.refreshCache(null);
         ratingCacheContainerProvider.refreshCache(null);
+        // customFieldsCacheContainerProvider.refreshCache(null);
     }
 
     /**
@@ -1818,12 +1860,20 @@ public class EntityExportImportService implements Serializable {
             };
 
             Response response = target.request().post(Entity.entity(entity, MediaType.MULTIPART_FORM_DATA_TYPE));
+            if (response.getStatus() != HttpURLConnection.HTTP_OK) {
+                if (response.getStatus() == HttpURLConnection.HTTP_UNAUTHORIZED || response.getStatus() == HttpURLConnection.HTTP_FORBIDDEN) {
+                    throw new RemoteAuthenticationException(response.getStatusInfo().getReasonPhrase());
+                } else {
+                    throw new RemoteImportException("Failed to communicate or process data in remote meveo instance. Http status " + response.getStatus() + " "
+                            + response.getStatusInfo().getReasonPhrase());
+                }
+            }
             ImportExportResponseDto resultDto = response.readEntity(ImportExportResponseDto.class);
             if (resultDto.isFailed()) {
                 if (MeveoApiErrorCode.AUTHENTICATION_AUTHORIZATION_EXCEPTION.equals(resultDto.getActionStatus().getErrorCode())) {
                     throw new RemoteAuthenticationException(resultDto.getFailureMessage());
                 }
-                throw new Exception(resultDto.getFailureMessage());
+                throw new RemoteImportException(resultDto.getFailureMessage());
             }
 
             String executionId = resultDto.getExecutionId();
@@ -1842,9 +1892,12 @@ public class EntityExportImportService implements Serializable {
      * 
      * @param executionId Import in remote meveo instance execution id
      * @param remoteInstance Remote meveo instance
+     * @throws RemoteAuthenticationException
+     * @throws RemoteImportException
      * @throws Exception
      */
-    public ImportExportResponseDto checkRemoteMeveoInstanceImportStatus(String executionId, MeveoInstance remoteInstance) {
+    public ImportExportResponseDto checkRemoteMeveoInstanceImportStatus(String executionId, MeveoInstance remoteInstance) throws RemoteAuthenticationException,
+            RemoteImportException {
 
         log.debug("Checking status of import in remote meveo instance {} with execution id {}", remoteInstance.getCode(), executionId);
 
@@ -1856,7 +1909,14 @@ public class EntityExportImportService implements Serializable {
         target.register(basicAuthentication);
 
         Response response = target.request().get();// post(Entity.entity(entity, MediaType.MULTIPART_FORM_DATA_TYPE));
-
+        if (response.getStatus() != HttpURLConnection.HTTP_OK) {
+            if (response.getStatus() == HttpURLConnection.HTTP_UNAUTHORIZED || response.getStatus() == HttpURLConnection.HTTP_FORBIDDEN) {
+                throw new RemoteAuthenticationException(response.getStatusInfo().getReasonPhrase());
+            } else {
+                throw new RemoteImportException("Failed to communicate to remote meveo instance. Http status " + response.getStatus() + " "
+                        + response.getStatusInfo().getReasonPhrase());
+            }
+        }
         ImportExportResponseDto resultDto = response.readEntity(ImportExportResponseDto.class);
         log.debug("The status of import in remote meveo instance {} with execution id {} is {}", remoteInstance.getCode(), executionId, resultDto);
 

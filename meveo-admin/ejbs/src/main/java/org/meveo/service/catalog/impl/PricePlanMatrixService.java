@@ -552,6 +552,19 @@ public class PricePlanMatrixService extends PersistenceService<PricePlanMatrix> 
 		} catch (NoResultException e) {
 			return null;
 		}
+	} 
+
+	public Long getLastPricePlanByCharge(String eventCode, Provider provider) {
+		QueryBuilder qb = new QueryBuilder("select max(sequence) from PricePlanMatrix m");
+		qb.addCriterion("m.eventCode", "=", eventCode, true);
+		qb.addCriterionEntity("m.provider", provider);
+		try {
+			Long result = (Long) qb.getQuery(getEntityManager()).getSingleResult();
+			return result == null ? 0L : result;
+		} catch (NoResultException e) {
+			return null;
+		}
 	}
+	 
     
 }

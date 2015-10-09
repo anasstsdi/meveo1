@@ -64,7 +64,7 @@ body {
   background-image: none;
 }
 .BlueModena #layout-topbar {
-  background-color: #0277BD;
+  background-color: #4B8DF8; /* #0277BD */
 }
 /* Indigo Theme*/
 .IndigoModena.Geometry {
@@ -477,7 +477,7 @@ body {
 }
 .layout-menu > li > a {
   width: 88%;
-  padding: 18px 6%;
+  padding: 8px 6%; /* 18px 6%; */
   display: block;
   font-family: 'robotoregular';
   -webkit-transition: all 0.3s ease;

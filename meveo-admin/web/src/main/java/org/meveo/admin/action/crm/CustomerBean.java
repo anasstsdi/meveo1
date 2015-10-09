@@ -19,14 +19,13 @@ package org.meveo.admin.action.crm;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.meveo.admin.action.AccountBean;
 import org.meveo.admin.action.BaseBean;
-import org.meveo.admin.action.CustomFieldEnabledBean;
 import org.meveo.admin.exception.BusinessException;
-import org.meveo.model.crm.AccountLevelEnum;
 import org.meveo.model.crm.Customer;
 import org.meveo.service.base.PersistenceService;
 import org.meveo.service.base.local.IPersistenceService;
@@ -41,7 +40,6 @@ import org.omnifaces.cdi.ViewScoped;
  */
 @Named
 @ViewScoped
-@CustomFieldEnabledBean(accountLevel=AccountLevelEnum.CUST)
 public class CustomerBean extends AccountBean<Customer> {
 
 	private static final long serialVersionUID = 1L;
@@ -65,13 +63,15 @@ public class CustomerBean extends AccountBean<Customer> {
 	 */
 	@Override
 	public String saveOrUpdate(boolean killConversation) throws BusinessException {
-
 		super.saveOrUpdate(killConversation);
 
-		return "/pages/crm/customers/customerDetail.xhtml?edit=true&customerId=" + entity.getId()
-				+ "&faces-redirect=true";
+		if (FacesContext.getCurrentInstance().getPartialViewContext().isAjaxRequest()){
+		    return null;
+		} else {
+		    return "/pages/crm/customers/customerDetail.xhtml?edit=true&customerId=" + entity.getId() + "&faces-redirect=true";
+		}
 	}
-
+	
 	/**
 	 * @see org.meveo.admin.action.BaseBean#getPersistenceService()
 	 */

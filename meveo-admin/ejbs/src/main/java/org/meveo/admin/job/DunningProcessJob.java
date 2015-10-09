@@ -77,7 +77,7 @@ public class DunningProcessJob extends Job {
                 try {
                     log.info("Processing  customerAccounts code " + customerAccount.getCode());
                     loadedCustomerAccounts++;
-                    BigDecimal balanceExigible = customerAccountService.customerAccountBalanceExigibleWithoutLitigation(customerAccount.getId(), null, new Date());
+                    BigDecimal balanceExigible = customerAccountService.customerAccountBalanceExigibleWithoutLitigation(customerAccount.getId(), null, new Date(),customerAccount.getProvider());
                     log.info("balanceExigible " + balanceExigible);
 
                     customerAccount.updateAudit(currentUser);
@@ -92,6 +92,7 @@ public class DunningProcessJob extends Job {
                         }
                     }
                 } catch (Exception e) {
+                	result.registerWarning(e.getMessage());
                     errorCustomerAccounts++;
                     log.error("Failed to process dunning", e);
                 }
@@ -108,6 +109,7 @@ public class DunningProcessJob extends Job {
                 dunningPlan.getProvider());
             bayadDunningInputHistoryService.create(bayadDunningInputHistory,currentUser,provider);
             dunningLOTService.createDunningLOTAndCsvFile(listActionDunning, dunningHistory, currentUser);
+            result.registerSucces();
         }
     }
 

@@ -34,6 +34,7 @@ import org.meveo.model.billing.TradingLanguage;
 import org.meveo.model.catalog.OneShotChargeTemplate;
 import org.meveo.model.catalog.OneShotChargeTemplateTypeEnum;
 import org.meveo.model.catalog.TriggeredEDRTemplate;
+import org.meveo.model.crm.AccountLevelEnum;
 import org.meveo.model.crm.Provider;
 import org.meveo.service.admin.impl.SellerService;
 import org.meveo.service.admin.impl.TradingCurrencyService;
@@ -139,6 +140,16 @@ public class OneShotChargeTemplateApi extends BaseApi {
 
 				chargeTemplate.setEdrTemplates(edrTemplates);
 			}
+			
+			// populate customFields
+			if (postData.getCustomFields() != null) {
+                try {
+                    populateCustomFields(AccountLevelEnum.CHARGE, postData.getCustomFields().getCustomField(), chargeTemplate, currentUser);
+				} catch (IllegalArgumentException | IllegalAccessException e) {
+					log.error("Failed to associate custom field instance to an entity", e);
+					throw new MeveoApiException("Failed to associate custom field instance to an entity");
+				}
+			}
 
 			oneShotChargeTemplateService.create(chargeTemplate, currentUser, provider);
 
@@ -243,6 +254,16 @@ public class OneShotChargeTemplateApi extends BaseApi {
 				chargeTemplate.setEdrTemplates(edrTemplates);
 			}
 			
+			// populate customFields
+			if (postData.getCustomFields() != null) {
+				try {
+                    populateCustomFields(AccountLevelEnum.CHARGE, postData.getCustomFields().getCustomField(), chargeTemplate, currentUser);
+				} catch (IllegalArgumentException | IllegalAccessException e) {
+					log.error("Failed to associate custom field instance to an entity", e);
+					throw new MeveoApiException("Failed to associate custom field instance to an entity");
+				}
+			}
+			
 			oneShotChargeTemplateService.update(chargeTemplate, currentUser);
 		} else {
 			if (StringUtils.isBlank(postData.getCode())) {
@@ -312,7 +333,7 @@ public class OneShotChargeTemplateApi extends BaseApi {
 		}
 	}
 
-	public OneShotChargeTemplateWithPriceListDto listWithPrice(String languageCode, String countryCode, String currencyCode, String sellerCode, Date date, User currentUser) {
+	public OneShotChargeTemplateWithPriceListDto listWithPrice(String languageCode, String countryCode, String currencyCode, String sellerCode, Date date, User currentUser) throws MeveoApiException {
 		Provider provider = currentUser.getProvider();
 		Seller seller = sellerService.findByCode(sellerCode, provider);
 		TradingCurrency currency = tradingCurrencyService.findByTradingCurrencyCode(currencyCode, provider);
@@ -346,6 +367,7 @@ public class OneShotChargeTemplateApi extends BaseApi {
 					}
 				} catch (BusinessException e) {
 					log.warn("error occurred while getting application price",e);
+					throw new MeveoApiException(e.getMessage());
 				}
 			}
 
@@ -354,5 +376,12 @@ public class OneShotChargeTemplateApi extends BaseApi {
 
 		return oneShotChargeTemplateListDto;
 	}
-
+	
+	public void createOrUpdate(OneShotChargeTemplateDto postData, User currentUser) throws MeveoApiException {
+		if (oneShotChargeTemplateService.findByCode(postData.getCode(), currentUser.getProvider()) == null) {
+			create(postData, currentUser);
+		} else {
+			update(postData, currentUser);
+		}
+	}
 }
