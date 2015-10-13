@@ -45,9 +45,14 @@ body {
   background-attachment: fixed;
   background-size: 100%;
   background-repeat: no-repeat;
+  
 }
 .GrayModena {
-  background-image: none;
+  background: none;
+}
+.GrayModena .ui-panel{
+	background: none;
+	border:0 none;
 }
 .GrayModena #layout-topbar {
   /*background-color: #37474F;*/
@@ -1559,4 +1564,24 @@ vertical-align:top !important;
     margin: 0 7px 0 0;
 }
 
+
+
+/* changes done for flag spaces */
+
+#languagePanel {
+	text-align: center;
+	margin: 0 auto;
+	display: block;
+	width: 160px;
+}
+
+.image1 {
+  width: 20px;
+  float: left;
+  margin: 10px;
+}
+
+.ui-panel .ui-panel-titlebar {
+  background-color: #0277bd !important;
+}
 

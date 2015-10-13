@@ -33,18 +33,18 @@
 		</resources>
 
 		<plugins>
-		       
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-war-plugin</artifactId>
 				<version>2.0.1</version>
-				 <configuration>
-				 <packagingExcludes>**/import*.sql</packagingExcludes>
-			       <failOnMissingWebXml>false</failOnMissingWebXml>
-			        <archive>
-			        <manifestFile>src/main/resources/META-INF/MANIFEST.MF</manifestFile>
-			        </archive>
-			      </configuration>
+				<configuration>
+					<packagingExcludes>**/import*.sql</packagingExcludes>
+					<failOnMissingWebXml>false</failOnMissingWebXml>
+					<archive>
+						<manifestFile>src/main/resources/META-INF/MANIFEST.MF</manifestFile>
+					</archive>
+				</configuration>
 				<executions>
 					<execution>
 						<id>prepare-war</id>
@@ -55,61 +55,39 @@
 					</execution>
 				</executions>
 			</plugin>
-		       
-		     <plugin>
-	            <artifactId>maven-antrun-plugin</artifactId>
-	            <configuration>
-	                <tasks>
-	                    <copy file="../lib/flatworm-3.0.2.jar" tofile="${project.build.directory}/meveo/WEB-INF/lib/flatworm-3.0.2.jar"/>
-	                </tasks>
-	            </configuration>
-	            <executions>
-	                <execution>
-	                    <phase>install</phase>
-	                    <goals>
-	                        <goal>run</goal>
-	                    </goals>
-	                </execution>
-	            </executions>
-        	</plugin>
-        
-        	<!-- Primefaces Theme - Modena -->
-<!--         	<plugin> -->
-<!-- 	            <artifactId>maven-antrun-plugin</artifactId> -->
-<!-- 	            <configuration> -->
-<!-- 	                <tasks> -->
-<!-- 	                    <copy file="../lib/modena-theme-1.0.1.jar" tofile="${project.build.directory}/meveo/WEB-INF/lib/modena-theme-1.0.1.jar"/> -->
-<!-- 	                </tasks> -->
-<!-- 	            </configuration> -->
-<!-- 	            <executions> -->
-<!-- 	                <execution> -->
-<!-- 	                    <phase>install</phase> -->
-<!-- 	                    <goals> -->
-<!-- 	                        <goal>run</goal> -->
-<!-- 	                    </goals> -->
-<!-- 	                </execution> -->
-<!-- 	            </executions> -->
-<!--         	</plugin> -->
-        	
-        	
-        	<!-- Primefaces Theme - Modena -->
-<!--         	<plugin> -->
-<!-- 	            <artifactId>maven-antrun-plugin</artifactId> -->
-<!-- 	            <configuration> -->
-<!-- 	                <tasks> -->
-<!-- 	                    <copy file="../lib/modena-theme-1.0.1.jar" tofile="${project.build.directory}/meveo/WEB-INF/lib/modena-theme-1.0.1.jar"/> -->
-<!-- 	                </tasks> -->
-<!-- 	            </configuration> -->
-<!-- 	            <executions> -->
-<!-- 	                <execution> -->
-<!-- 	                    <phase>install</phase> -->
-<!-- 	                    <goals> -->
-<!-- 	                        <goal>run</goal> -->
-<!-- 	                    </goals> -->
-<!-- 	                </execution> -->
-<!-- 	            </executions> -->
-<!--         	</plugin> -->
-        
+
+
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<configuration>
+					<tasks>
+						<copy file="../lib/flatworm-3.0.2.jar"
+							tofile="${project.build.directory}/meveo/WEB-INF/lib/flatworm-3.0.2.jar" />
+						<copy file="../lib/modena-theme-1.0.1.jar"
+							tofile="${project.build.directory}/meveo/WEB-INF/lib/modena-theme-1.0.1.jar" />
+					</tasks>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>install</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- <plugin> <artifactId>maven-antrun-plugin</artifactId> <configuration> 
+				<tasks> <copy file="../lib/flatworm-3.0.2.jar" tofile="${project.build.directory}/meveo/WEB-INF/lib/flatworm-3.0.2.jar"/> 
+				</tasks> </configuration> <executions> <execution> <phase>install</phase> 
+				<goals> <goal>run</goal> </goals> </execution> </executions> </plugin> -->
+
+			<!-- Primefaces Theme - Modena -->
+			<!-- <plugin> <artifactId>maven-antrun-plugin</artifactId> <configuration> 
+				<tasks> <copy file="../lib/modena-theme-1.0.1.jar" tofile="${project.build.directory}/meveo/WEB-INF/lib/modena-theme-1.0.1.jar"/> 
+				</tasks> </configuration> <executions> <execution> <phase>install</phase> 
+				<goals> <goal>run</goal> </goals> </execution> </executions> </plugin> -->
+
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>buildnumber-maven-plugin</artifactId>
@@ -143,21 +121,21 @@
 				</executions>
 				<configuration>
 					<includes>
-<!-- 						<include>${project.build.directory}/**/persistence.xml</include> -->
+						<!-- <include>${project.build.directory}/**/persistence.xml</include> -->
 						<include>${project.build.directory}/**/layout/*.xhtml</include>
 					</includes>
 					<replacements>
 						<replacement>
 							<token>@VERSION_NUMBER@</token>
 							<value>${project.version}</value>
-						</replacement> 
+						</replacement>
 						<replacement>
-                       <token>@BUILD_NUMBER@</token>
-                       <value>${buildNumber}</value>
-                       </replacement> 
+							<token>@BUILD_NUMBER@</token>
+							<value>${buildNumber}</value>
+						</replacement>
 					</replacements>
 				</configuration>
-			</plugin> 
+			</plugin>
 
 			<plugin>
 				<artifactId>maven-antrun-plugin</artifactId>
@@ -181,9 +159,9 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-resources-plugin</artifactId>
 				<version>2.4</version>
-				<configuration>  
-        			<encoding>${project.build.sourceEncoding}</encoding>  
-    			</configuration>  
+				<configuration>
+					<encoding>${project.build.sourceEncoding}</encoding>
+				</configuration>
 			</plugin>
 		</plugins>
 
@@ -200,12 +178,12 @@
 			<groupId>org.jboss.spec.javax.servlet</groupId>
 			<artifactId>jboss-servlet-api_3.0_spec</artifactId>
 		</dependency>
-		
-		    <dependency>
-			    <groupId>commons-codec</groupId>
-			    <artifactId>commons-codec</artifactId>
-			    <version>1.10</version>
-			</dependency>
+
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>1.10</version>
+		</dependency>
 
 		<!-- Import the CDI API, we use provided scope as the API is included in 
 			JBoss AS 7 -->
@@ -245,21 +223,21 @@
 			<artifactId>omnifaces</artifactId>
 			<version>1.8.1</version>
 		</dependency>
-    <dependency>
-        <groupId>org.primefaces</groupId>
-        <artifactId>primefaces</artifactId>
-        <version>5.2</version>
-    </dependency>
+		<dependency>
+			<groupId>org.primefaces</groupId>
+			<artifactId>primefaces</artifactId>
+			<version>5.2</version>
+		</dependency>
 		<dependency>
 			<groupId>org.primefaces.extensions</groupId>
 			<artifactId>primefaces-extensions</artifactId>
 			<version>3.2.0</version>
 		</dependency>
-		
+
 		<dependency>
-		    <groupId>org.primefaces.extensions</groupId>
-		    <artifactId>resources-codemirror</artifactId>
-		    <version>3.2.0</version>
+			<groupId>org.primefaces.extensions</groupId>
+			<artifactId>resources-codemirror</artifactId>
+			<version>3.2.0</version>
 		</dependency>
 
 		<dependency>
@@ -293,7 +271,7 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-	
+
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-core</artifactId>
@@ -310,30 +288,30 @@
 			<artifactId>seam-security</artifactId>
 			<scope>compile</scope>
 		</dependency>
-		
+
 		<dependency>
-		  <groupId>com.lapis.jsfexporter</groupId>
-		    <artifactId>jsf-exporter-core</artifactId>
-		    <version>1.0.2.Final</version>
+			<groupId>com.lapis.jsfexporter</groupId>
+			<artifactId>jsf-exporter-core</artifactId>
+			<version>1.0.2.Final</version>
 		</dependency>
-		
+
 		<dependency>
-		    <groupId>com.lapis.jsfexporter</groupId>
-		    <artifactId>export-type-csv</artifactId>
-		    <version>1.0.2.Final</version>
+			<groupId>com.lapis.jsfexporter</groupId>
+			<artifactId>export-type-csv</artifactId>
+			<version>1.0.2.Final</version>
 		</dependency>
-		
+
 		<dependency>
-		    <groupId>com.lapis.jsfexporter</groupId>
-		    <artifactId>export-source-primefaces</artifactId>
-		    <version>1.0.2.Final</version>
+			<groupId>com.lapis.jsfexporter</groupId>
+			<artifactId>export-source-primefaces</artifactId>
+			<version>1.0.2.Final</version>
 		</dependency>
 
 		<!-- rest core library -->
-        <dependency>
-        	<groupId>org.jboss.resteasy</groupId>
-        	<artifactId>resteasy-jaxrs</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>org.jboss.resteasy</groupId>
+			<artifactId>resteasy-jaxrs</artifactId>
+		</dependency>
 
 		<!-- JAXB support -->
 		<dependency>
@@ -358,25 +336,22 @@
 					<groupId>org.jboss.logging</groupId>
 				</exclusion>
 			</exclusions>
-		</dependency>	
-			
-		<!-- <dependency>
-			<groupId>net.sf.flexjson</groupId>
-			<artifactId>flexjson</artifactId>
-			<version>2.0</version>
-		</dependency> -->
+		</dependency>
+
+		<!-- <dependency> <groupId>net.sf.flexjson</groupId> <artifactId>flexjson</artifactId> 
+			<version>2.0</version> </dependency> -->
 
 		<dependency>
 			<groupId>com.googlecode.json-simple</groupId>
 			<artifactId>json-simple</artifactId>
 			<version>1.1</version>
 		</dependency>
-		
-				<dependency>
+
+		<dependency>
 			<groupId>commons-collections</groupId>
 			<artifactId>commons-collections</artifactId>
 			<version>3.2.1</version>
-        </dependency>
+		</dependency>
 		<dependency>
 			<groupId>commons-beanutils</groupId>
 			<artifactId>commons-beanutils</artifactId>
@@ -392,14 +367,14 @@
 			<artifactId>commons-lang3</artifactId>
 			<version>3.4</version>
 		</dependency>
-		
-		
-        <!-- Primefaces Theme -->
-<!-- 		<dependency> -->
-<!-- 		    <groupId>org.primefaces.themes</groupId> -->
-<!-- 		    <artifactId>humanity</artifactId> -->
-<!-- 		    <version>1.0.10</version> -->
-<!-- 		</dependency> -->
+
+
+		<!-- Primefaces Theme -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.primefaces.themes</groupId> -->
+		<!-- <artifactId>humanity</artifactId> -->
+		<!-- <version>1.0.10</version> -->
+		<!-- </dependency> -->
 
 	</dependencies>
 
