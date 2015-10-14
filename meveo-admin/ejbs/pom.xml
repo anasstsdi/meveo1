@@ -309,6 +309,20 @@
 			<artifactId>xstream-hibernate</artifactId>
 			<version>1.4.8</version>
 		</dependency>
+		
+		<!-- diameter -->
+		<dependency>
+			<groupId>org.mobicents.diameter</groupId>
+			<artifactId>jdiameter-impl</artifactId>
+			<version>1.6.0.FINAL</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mobicents.diameter</groupId>
+			<artifactId>mobicents-diameter-mux-jar</artifactId>
+			<version>1.6.0.FINAL</version>
+			<scope>provided</scope>
+		</dependency>
 
 		<!-- For testing -->
 		<dependency>
