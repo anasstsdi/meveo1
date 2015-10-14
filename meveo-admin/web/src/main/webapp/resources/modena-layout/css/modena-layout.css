@@ -58,6 +58,31 @@ body {
   /*background-color: #37474F;*/
   background-color: #0277BD;
 }
+
+
+/* Blue Theme*/
+/* .BlueModena.Geometry {
+  background-image: url("#{resource['modena-layout:images/triangle-blue.svg']}");
+  background-attachment: fixed;
+  background-size: 100%;
+  background-repeat: no-repeat;
+}
+
+.BlueModena {
+  background: none;
+}
+
+.BlueModena .ui-panel{
+	background: none;
+	border:0 none;
+}
+
+.BlueModena #layout-topbar {
+  background-color: #37474F;
+  background-color: #4B8DF8; /*#0277BD*/
+} */
+
+
 /* Blue Theme*/
 .BlueModena.Geometry {
   background-image: url("#{resource['modena-layout:images/triangle-blue.svg']}");
@@ -69,8 +94,11 @@ body {
   background-image: none;
 }
 .BlueModena #layout-topbar {
-  background-color: #4B8DF8; /* #0277BD */
+  background-color: #4B8DF8; /*#0277BD*/
 }
+
+
+
 /* Indigo Theme*/
 .IndigoModena.Geometry {
   background-image: url("#{resource['modena-layout:images/triangle-indigo.svg']}");
@@ -1564,6 +1592,9 @@ vertical-align:top !important;
     margin: 0 7px 0 0;
 }
 
+.ui-panel .ui-panel-titlebar {
+  background-color: #0277bd !important;
+}
 
 
 /* changes done for flag spaces */
@@ -1579,9 +1610,5 @@ vertical-align:top !important;
   width: 20px;
   float: left;
   margin: 10px;
-}
-
-.ui-panel .ui-panel-titlebar {
-  background-color: #0277bd !important;
 }
 
