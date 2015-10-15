@@ -512,7 +512,7 @@ public class RoClientImpl extends CreditControlSessionFactory implements Network
     // [ Service-Information ]
     //*[ AVP ]
 
-    DiameterUtilities.printMessage(ccr.getMessage());
+    DiameterUtils.printMessage(ccr.getMessage());
 
     return ccr;
   }
@@ -732,8 +732,11 @@ public class RoClientImpl extends CreditControlSessionFactory implements Network
   private void switchStateMachine(int newState) {
     this.currentState = newState;
   }
-
-  public void stateChanged(Object source, Enum oldState, Enum newState) {
+  
+@Override
+public void stateChanged(AppSession session, Enum oldState, Enum newState) {
     stateChanged(oldState, newState);
-  }
+	// TODO Auto-generated method stub
+	
+}
 }
