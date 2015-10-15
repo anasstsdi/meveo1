@@ -1,1 +1,1 @@
-Dependencies: org.infinispan export
+Dependencies: org.infinispan export, deployment.mobicents-diameter-mux-1.6.0.FINAL.sar export 
