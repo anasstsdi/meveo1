@@ -27,9 +27,7 @@ import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
-import javax.management.ObjectName;
+import javax.ejb.EJB;
 
 import org.apache.log4j.Logger;
 import org.jdiameter.api.Answer;
@@ -55,7 +53,7 @@ import org.jdiameter.api.cca.ServerCCASession;
 import org.jdiameter.api.cca.events.JCreditControlAnswer;
 import org.jdiameter.api.cca.events.JCreditControlRequest;
 import org.jdiameter.client.api.ISessionFactory;
-import org.mobicents.diameter.stack.DiameterStackMultiplexer;
+import org.mobicents.diameter.stack.DiameterStackMultiplexerMBean;
 
 public class RoClientImpl extends CreditControlSessionFactory implements NetworkReqListener, EventListener<Request, Answer>, RoClient {
 
@@ -102,7 +100,8 @@ public class RoClientImpl extends CreditControlSessionFactory implements Network
 
   // Stack, Sessions & Listeners ----------------------------------------------
 
-  private DiameterStackMultiplexer muxMBean;
+  @EJB(lookup="java:global/mobicents-diameter/mux")
+  private DiameterStackMultiplexerMBean muxMBean;
   private RoClientListener listener;
 
   private HashMap<String, ClientCCASession> roSessions = new HashMap<String, ClientCCASession>();
@@ -126,19 +125,6 @@ public class RoClientImpl extends CreditControlSessionFactory implements Network
     this.listener = listener;
 
     try {
-      ObjectName objectName = new ObjectName("diameter.mobicents:service=DiameterStackMultiplexer");
-      Object[] params = new Object[]{};
-      String[] signature = new String[]{};
-      String operation = "getMultiplexerMBean";
-
-      MBeanServer server = (MBeanServer) MBeanServerFactory.findMBeanServer(null).get(0);
-
-      Object object = server.invoke( objectName, operation, params, signature );
-
-      if(object instanceof DiameterStackMultiplexer) {
-        muxMBean = (DiameterStackMultiplexer) object;
-      }
-
       Stack stack = muxMBean.getStack();
 
       super.sessionFactory = stack.getSessionFactory();

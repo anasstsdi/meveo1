@@ -1,5 +1,6 @@
 <jboss-deployment-structure>
-	<deployment>
+
+    <deployment>
 		<!-- Exclusions allow you to prevent the server from automatically adding 
 			some dependencies -->
 		<!-- <exclusions>
@@ -10,5 +11,13 @@
 			<module name="org.jboss.logmanager" />
 			<module name="org.jboss.logmanager.log4j" />
 		</exclusions> -->
-	</deployment>
+
+        <dependencies>
+            <module name="org.slf4j" />
+            <module name="org.mobicents.diameter" />
+            <module name="deployment.mobicents-diameter.jar" />
+        </dependencies>
+
+    </deployment>
+
 </jboss-deployment-structure>

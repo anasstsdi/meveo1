@@ -3,11 +3,9 @@ package org.meveo.diameter;
 import java.util.concurrent.ScheduledFuture;
 
 import javax.annotation.PostConstruct;
+import javax.ejb.EJB;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
-import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
-import javax.management.ObjectName;
 
 import org.jdiameter.api.Answer;
 import org.jdiameter.api.ApplicationId;
@@ -40,7 +38,7 @@ import org.jdiameter.common.impl.app.cca.JCreditControlAnswerImpl;
 import org.jdiameter.common.impl.app.cca.JCreditControlRequestImpl;
 import org.jdiameter.server.impl.app.cca.ServerCCASessionDataLocalImpl;
 import org.jdiameter.server.impl.app.cca.ServerCCASessionImpl;
-import org.mobicents.diameter.stack.DiameterStackMultiplexer;
+import org.mobicents.diameter.stack.DiameterStackMultiplexerMBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,30 +50,20 @@ IServerCCASessionContext, StateChangeListener<AppSession>{
 	
 	private ApplicationId roAppId = ApplicationId.createByAuthAppId(10415L, 4L);
 
-	private DiameterStackMultiplexer muxMBean;
 	  
 	protected Logger log = LoggerFactory.getLogger(getClass());
 
 	protected SessionFactory sessionFactory = null;
 	
 	protected long defaultValidityTimeInSecond = 30;
-
+	
+	@EJB(lookup="java:global/mobicents-diameter/mux")
+	private DiameterStackMultiplexerMBean muxMBean;
+	
 	@PostConstruct
 	public void init(){
 	    try {
-	        ObjectName objectName = new ObjectName("diameter.mobicents:service=DiameterStackMultiplexer");
-	        Object[] params = new Object[]{};
-	        String[] signature = new String[]{};
-	        String operation = "getMultiplexerMBean";
-
-	        MBeanServer server = (MBeanServer) MBeanServerFactory.findMBeanServer(null).get(0);
-
-	        Object object = server.invoke( objectName, operation, params, signature );
-
-	        if(object instanceof DiameterStackMultiplexer) {
-	          muxMBean = (DiameterStackMultiplexer) object;
-	        }
-
+	        
 	        Stack stack = muxMBean.getStack();
 
 	        sessionFactory = stack.getSessionFactory();
