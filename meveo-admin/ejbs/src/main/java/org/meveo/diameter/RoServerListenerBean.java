@@ -72,6 +72,7 @@ IServerCCASessionContext, StateChangeListener<AppSession>{
 	        network.addNetworkReqListener(this, roAppId);
 
 	        ((ISessionFactory) sessionFactory).registerAppFacory(ServerCCASession.class, this);
+	        log.info("Initialized Ro Server.");
 	      }
 	      catch (Exception e) {
 	        log.error("Failed to initialize Ro Server.", e);

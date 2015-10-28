@@ -310,12 +310,12 @@
 			<version>1.4.8</version>
 		</dependency>
 		
-		<!-- diameter -->
+		<!-- diameter--> 
 		<dependency>
 			<groupId>org.mobicents.diameter</groupId>
 			<artifactId>jdiameter-impl</artifactId>
 			<version>1.6.0.FINAL</version>
-			<scope>compile</scope>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.mobicents.diameter</groupId>
