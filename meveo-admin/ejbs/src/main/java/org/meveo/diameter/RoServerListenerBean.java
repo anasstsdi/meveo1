@@ -47,8 +47,8 @@ import org.slf4j.LoggerFactory;
 public class RoServerListenerBean implements NetworkReqListener,
 IAppSessionFactory, ICCAMessageFactory,ServerCCASessionListener, 
 IServerCCASessionContext, StateChangeListener<AppSession>{
-	
-	private ApplicationId roAppId = ApplicationId.createByAuthAppId(10415L, 4L);
+
+	private ApplicationId roAppId = ApplicationId.createByAuthAppId(0L, 4L);
 
 	  
 	protected Logger log = LoggerFactory.getLogger(getClass());
