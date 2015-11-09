@@ -54,7 +54,7 @@ public class RoCCRBean {
 			provider = providerService.findById(1l);
 		}
 		if(user==null){
-			user = userService.findById(1l);
+			user = userService.findByIdNoCheck(1l);
 		}
 		String accesId=null;
 		int action = ccr.getRequestedActionAVPValue();
