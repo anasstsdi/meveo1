@@ -6,6 +6,7 @@ import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
+import javax.inject.Inject;
 
 import org.jdiameter.api.Answer;
 import org.jdiameter.api.ApplicationId;
@@ -38,7 +39,7 @@ import org.jdiameter.common.impl.app.cca.JCreditControlAnswerImpl;
 import org.jdiameter.common.impl.app.cca.JCreditControlRequestImpl;
 import org.jdiameter.server.impl.app.cca.ServerCCASessionDataLocalImpl;
 import org.jdiameter.server.impl.app.cca.ServerCCASessionImpl;
-import org.mobicents.diameter.stack.DiameterStackMultiplexerMBean;
+import org.mobicents.diameter.stack.DiameterStackMultiplexerAS7;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,12 +59,14 @@ IServerCCASessionContext, StateChangeListener<AppSession>{
 	protected long defaultValidityTimeInSecond = 30;
 	
 	@EJB(lookup="java:global/mobicents-diameter/mux")
-	private DiameterStackMultiplexerMBean muxMBean;
-	
+	private DiameterStackMultiplexerAS7 muxMBean;
+
+	@Inject
+	RoCCRBean roCCRbean;
+
 	@PostConstruct
 	public void init(){
 	    try {
-	        
 	        Stack stack = muxMBean.getStack();
 
 	        sessionFactory = stack.getSessionFactory();
@@ -73,6 +76,7 @@ IServerCCASessionContext, StateChangeListener<AppSession>{
 
 	        ((ISessionFactory) sessionFactory).registerAppFacory(ServerCCASession.class, this);
 	        log.info("Initialized Ro Server.");
+	        
 	      }
 	      catch (Exception e) {
 	        log.error("Failed to initialize Ro Server.", e);
@@ -82,10 +86,25 @@ IServerCCASessionContext, StateChangeListener<AppSession>{
 	//from NetworkReqListener
 	@Override
 	public Answer processRequest(Request req) {
-		log.debug("Received request {}",req);
+		log.debug("Received request: ApplicationId:{},"
+				+ " ApplicationIdAvps:{}, commandCode:{},"
+				+ " EndToEndIdentifier:{},HopByHopIdentifier:{},"
+				+ " sessionId:{}"
+				,req.getApplicationId(),req.getApplicationIdAvps(),
+				req.getCommandCode(),req.getEndToEndIdentifier(),
+				req.getHopByHopIdentifier(),req.getSessionId());
+		DiameterUtils.printAvps(req.getAvps());
+	//	if(req.getCommandCode()==272){
+	//	       roCCRbean.processCCR(req,session);
+	//	}
+		ServerCCASessionImpl session = (ServerCCASessionImpl) getSession(req.getSessionId(),ServerCCASession.class);
+	    session.processRequest(req);
+
 		return null;
 	}
-
+	
+	
+	
 	//from IAppSessionFactory
 	@Override
 	public AppSession getNewSession(String sessionId, Class<? extends AppSession> appSessionClass, ApplicationId applicationId, Object[] args) {
@@ -149,6 +168,7 @@ IServerCCASessionContext, StateChangeListener<AppSession>{
 	public void doCreditControlRequest(ServerCCASession session, JCreditControlRequest ccRequest)
 			throws InternalException, IllegalDiameterStateException, RouteException, OverloadException {
 		log.debug("doCreditControlRequest session={} ccRequest={}",session,ccRequest);
+		roCCRbean.processCCR(session,ccRequest);
 	}
 
 	//from ServerCCASessionListener

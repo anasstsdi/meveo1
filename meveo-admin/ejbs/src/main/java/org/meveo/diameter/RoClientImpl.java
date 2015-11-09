@@ -53,7 +53,7 @@ import org.jdiameter.api.cca.ServerCCASession;
 import org.jdiameter.api.cca.events.JCreditControlAnswer;
 import org.jdiameter.api.cca.events.JCreditControlRequest;
 import org.jdiameter.client.api.ISessionFactory;
-import org.mobicents.diameter.stack.DiameterStackMultiplexerMBean;
+import org.mobicents.diameter.stack.DiameterStackMultiplexerAS7;;
 
 public class RoClientImpl extends CreditControlSessionFactory implements NetworkReqListener, EventListener<Request, Answer>, RoClient {
 
@@ -101,7 +101,7 @@ public class RoClientImpl extends CreditControlSessionFactory implements Network
   // Stack, Sessions & Listeners ----------------------------------------------
 
   @EJB(lookup="java:global/mobicents-diameter/mux")
-  private DiameterStackMultiplexerMBean muxMBean;
+  private DiameterStackMultiplexerAS7 muxMBean;
   private RoClientListener listener;
 
   private HashMap<String, ClientCCASession> roSessions = new HashMap<String, ClientCCASession>();
