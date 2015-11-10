@@ -24,11 +24,11 @@ public class CDR  implements Serializable,IProvider{
 	private String param7;
 	private String param8;
 	private String param9;
-	private long dateParam1;
-	private long dateParam2;
-	private long dateParam3; 
-	private long dateParam4; 
-	private long dateParam5; 
+	private Date dateParam1;
+	private Date dateParam2;
+	private Date dateParam3; 
+	private Date dateParam4; 
+	private Date dateParam5; 
 	private BigDecimal decimalParam1; 
 	private BigDecimal decimalParam2; 
 	private BigDecimal decimalParam3; 
@@ -211,70 +211,70 @@ public class CDR  implements Serializable,IProvider{
 	/**
 	 * @return the dateParam1
 	 */
-	public long getDateParam1() {
+	public Date getDateParam1() {
 		return dateParam1;
 	}
 
 	/**
 	 * @param dateParam1 the dateParam1 to set
 	 */
-	public void setDateParam1(long dateParam1) {
+	public void setDateParam1(Date dateParam1) {
 		this.dateParam1 = dateParam1;
 	}
 
 	/**
 	 * @return the dateParam2
 	 */
-	public long getDateParam2() {
+	public Date getDateParam2() {
 		return dateParam2;
 	}
 
 	/**
 	 * @param dateParam2 the dateParam2 to set
 	 */
-	public void setDateParam2(long dateParam2) {
+	public void setDateParam2(Date dateParam2) {
 		this.dateParam2 = dateParam2;
 	}
 
 	/**
 	 * @return the dateParam3
 	 */
-	public long getDateParam3() {
+	public Date getDateParam3() {
 		return dateParam3;
 	}
 
 	/**
 	 * @param dateParam3 the dateParam3 to set
 	 */
-	public void setDateParam3(long dateParam3) {
+	public void setDateParam3(Date dateParam3) {
 		this.dateParam3 = dateParam3;
 	}
 
 	/**
 	 * @return the dateParam4
 	 */
-	public long getDateParam4() {
+	public Date getDateParam4() {
 		return dateParam4;
 	}
 
 	/**
 	 * @param dateParam4 the dateParam4 to set
 	 */
-	public void setDateParam4(long dateParam4) {
+	public void setDateParam4(Date dateParam4) {
 		this.dateParam4 = dateParam4;
 	}
 
 	/**
 	 * @return the dateParam5
 	 */
-	public long getDateParam5() {
+	public Date getDateParam5() {
 		return dateParam5;
 	}
 
 	/**
 	 * @param dateParam5 the dateParam5 to set
 	 */
-	public void setDateParam5(long dateParam5) {
+	public void setDateParam5(Date dateParam5) {
 		this.dateParam5 = dateParam5;
 	}
 

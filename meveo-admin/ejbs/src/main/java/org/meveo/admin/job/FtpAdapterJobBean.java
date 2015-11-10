@@ -39,7 +39,7 @@ public class FtpAdapterJobBean {
 
 	@Interceptors({ JobLoggingInterceptor.class, PerformanceInterceptor.class })
 	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-	public void execute(JobExecutionResultImpl result, JobInstance jobInstance, User currentUser, String distDirectory, String remoteServer, int remotePort, boolean removeDistantFile, String ftpInputDirectory, String extention, String ftpUsername, String ftpPassword) {
+	public void execute(JobExecutionResultImpl result, JobInstance jobInstance, User currentUser, String distDirectory, String remoteServer, int remotePort, boolean removeDistantFile, String ftpInputDirectory, String extention, String ftpUsername, String ftpPassword,String ftpProtocol) {
 		log.debug("start ftpClient...");
 		FTPClient ftpClient = new FTPClient();
 		OutputStream outputStream = null;
@@ -55,12 +55,20 @@ public class FtpAdapterJobBean {
 				log.debug("end !");
 				return;
 			}
+			File tmp = new File(distDirectory);
+			if(!tmp.exists()){
+				tmp.mkdirs();
+			}
 			ftpClient.changeWorkingDirectory(ftpInputDirectory);
 			String[] listNames = ftpClient.listNames();
 			log.debug("remote files : " + listNames.length);
 			for (String fileName : listNames) {
 				log.debug("fileName : " + fileName);
 				try {
+					if(extention == null){
+						log.debug("extension is null");
+						continue;
+					}
 					if (!fileName.endsWith(extention) && !"*".equals(extention)) {
 						log.debug("extension ignored");
 						continue;
