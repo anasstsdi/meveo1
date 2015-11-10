@@ -159,8 +159,9 @@ public class WebHookNotifier {
 			        try{
 			        	ScriptInterface scriptInterface = scriptInterfaceClass.newInstance();
 			        	Map<String, Object> paramsEvaluated = new HashMap<String, Object>();
+			        	paramsEvaluated.putAll(webHook.getParams());
 			            
-			        	for (@SuppressWarnings("rawtypes") Map.Entry entry : params.entrySet()) {
+			        	for (@SuppressWarnings("rawtypes") Map.Entry entry : paramsEvaluated.entrySet()) {
 			        	    paramsEvaluated.put((String) entry.getKey(), ValueExpressionWrapper.evaluateExpression( (String)entry.getValue(), userMap, String.class));
 			        	}
 			        	paramsEvaluated.put("response",result);
@@ -192,17 +193,11 @@ public class WebHookNotifier {
 	}
 	
 	public static void main(String[] args){
-		String test="{  \"sid\": \"CLb2f57233976448368708c754b3c1efb7\",  \"date_created\": \"Sat, 21 Feb 2015 18:37:49 +0000\","
-				+ "  \"date_updated\": \"Sat, 21 Feb 2015 18:37:49 +0000\",  \"account_sid\": \"ACae6e420f425248d6a26948c17a9e2acf\","
-				+ "  \"api_version\": \"2012-04-24\",  \"friendly_name\": \"RC_A1\",  \"login\": \"RC_A1\","
-				+ "  \"password\": \"toto\",  \"status\": \"1\",  \"voice_method\": \"POST\",  \"voice_fallback_method\": \"POST\","
-				+ "  \"uri\": \"/restcomm/2012-04-24/Accounts/ACae6e420f425248d6a26948c17a9e2acf/Clients/CLb2f57233976448368708c754b3c1efb7.json\"}";
-		try {
-			JSONObject json = new JSONObject(test);
-			System.out.println(json.getString("sid"));
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace(); 
-		}
+		
+	
+			String response = "{\"private_id\": \"1234567821@clearwater.local\", \"sip_username\": \"1234567821\", \"formatted_number\": \"234567821\", \"number\": \"1234567821\", \"sip_uri\": \"sip:1234567821@clearwater.local\", \"number_id\": \"65d3da8967a84e2e8350d3ae2b9d6bbc\", \"sip_password\": \"GzVpwH3PX\", \"pstn\": false}";		
+			System.out.println("value  :"+ StringUtils.patternMacher("\"sip_uri\": \"(.*?)\",", response));
+		
+		
 	}
 }

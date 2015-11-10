@@ -286,6 +286,12 @@
 			<artifactId>slf4j-api</artifactId>
 			<version>1.7.5</version>
 		</dependency>
+		
+		<dependency>
+	<groupId>commons-net</groupId>
+	<artifactId>commons-net</artifactId>
+	<version>3.3</version>
+</dependency>
 
 		<dependency>
 			<groupId>org.infinispan</groupId>

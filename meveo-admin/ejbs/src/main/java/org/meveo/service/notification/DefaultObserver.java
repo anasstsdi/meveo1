@@ -155,9 +155,13 @@ public class DefaultObserver {
                 return;
             }
             Map<String,Object> context = new HashMap<String,Object>();
-            if (notif.getScriptInstance()!=null) {
-            	ScriptInstance script = (ScriptInstance) scriptInstanceService.attach(notif.getScriptInstance());
-            	executeScript(script, e,notif.getParams(),context);
+            
+            //re think notif and script
+            if (!(notif instanceof WebHook)) {
+	            if (notif.getScriptInstance()!=null) {
+	            	ScriptInstance script = (ScriptInstance) scriptInstanceService.attach(notif.getScriptInstance());
+	            	executeScript(script, e,notif.getParams(),context);
+	            }
             }
             
             // then the notification itself
