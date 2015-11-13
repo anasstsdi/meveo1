@@ -61,7 +61,7 @@ public class FtpAdapterJobBean {
 			}
 			ftpClient.changeWorkingDirectory(ftpInputDirectory);
 			String[] listNames = ftpClient.listNames();
-			log.debug("remote files : " + listNames.length);
+			log.debug("nb remote files : " + listNames.length);
 			for (String fileName : listNames) {
 				log.debug("fileName : " + fileName);
 				try {
