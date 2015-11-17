@@ -117,8 +117,7 @@ public class PaymentApi extends BaseApi {
 			if (paymentDto.isToMatching()) {
 				MatchingCode matchingCode = new MatchingCode();
 				BigDecimal amountToMatch = BigDecimal.ZERO;
-				for (int i = 0; i < paymentDto.getListOCCReferenceforMatching()
-						.size(); i++) {
+				for (int i = 0; i < paymentDto.getListOCCReferenceforMatching().size(); i++) {
 					RecordedInvoice accountOperation = recordedInvoiceService
 							.getRecordedInvoice(paymentDto
 									.getListOCCReferenceforMatching().get(i),
