@@ -24,6 +24,7 @@ import org.meveo.model.mediation.Access;
 import org.meveo.model.rating.EDR;
 import org.meveo.model.rating.EDRStatusEnum;
 import org.meveo.service.admin.impl.UserService;
+import org.meveo.service.billing.impl.EdrService;
 import org.meveo.service.billing.impl.UsageRatingService;
 import org.meveo.service.crm.impl.ProviderService;
 import org.slf4j.Logger;
@@ -41,6 +42,8 @@ public class RoCCRBean {
 	
 	private Provider provider;
 	
+	@Inject
+	EdrService edrService;
 	@Inject
 	private UserService userService;
 	
@@ -74,7 +77,7 @@ public class RoCCRBean {
 		   } catch (Exception e) {}
 		   log.debug("Received CCR action={}, type={}, nbMessages={}, accesId={}, serviceContextId={}",
 				   action,type,nbMessages,accesId,serviceContextId);
-		   long resultCode = 0;
+		   long resultCode = 2001l;
 		   List<Access> accesses = cdrEdrProcessingCacheContainerProvider.getAccessesByAccessUserId(1l, ""+accesId);
 	       if (accesses == null || accesses.size() == 0) {
 	            nbMessages=-1l;
@@ -93,6 +96,7 @@ public class RoCCRBean {
 			   edr.setStatus(EDRStatusEnum.OPEN);
 			   edr.setSubscription(access.getSubscription());
 			   try {
+				edrService.create(edr);
 				usageRatingService.rateUsageWithinTransaction(edr, user);
 			   } catch (BusinessException e) {
 				   log.warn("Exception rating edr: {}",e.getMessage());
@@ -100,7 +104,7 @@ public class RoCCRBean {
 			            nbMessages=-1l;
 					   resultCode=4012l;
 				   } else {
-						resultCode=2001l;
+						resultCode=0l;
 				   }
 			   }
 	       }
