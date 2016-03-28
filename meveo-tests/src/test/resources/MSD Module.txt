@@ -1,0 +1,598 @@
+JAVA CODE SCRIPT
+=======================================================================================================================================================
+package org.meveo.dynamics.script;
+
+import java.math.BigDecimal;
+import java.util.Map;
+import org.meveo.admin.exception.BusinessException;
+import org.meveo.api.dto.catalog.CounterTemplateDto;
+import org.meveo.api.dto.catalog.OfferTemplateDto;
+import org.meveo.api.dto.catalog.PricePlanDto;
+import org.meveo.api.dto.catalog.RecurringChargeTemplateDto;
+import org.meveo.api.dto.catalog.ServiceChargeTemplateRecurringDto;
+import org.meveo.api.dto.catalog.ServiceChargeTemplateRecurringsDto;
+import org.meveo.api.dto.catalog.ServiceChargeTemplateUsagesDto;
+import org.meveo.api.dto.catalog.ServiceTemplateDto;
+import org.meveo.api.dto.catalog.ServiceTemplatesDto;
+import org.meveo.api.dto.catalog.ServiceUsageChargeTemplateDto;
+import org.meveo.api.dto.catalog.UsageChargeTemplateDto;
+import org.meveo.model.admin.User;
+import org.meveo.model.crm.Provider;
+import org.meveo.model.notification.InboundRequest;
+import org.meveo.service.crm.impl.CustomFieldInstanceService;
+import org.meveo.service.notification.InboundRequestService;
+import org.meveo.service.script.Script;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.meveo.api.catalog.OfferTemplateApi;
+import org.meveo.api.catalog.ServiceTemplateApi;
+import org.meveo.api.catalog.RecurringChargeTemplateApi;
+import org.meveo.api.catalog.UsageChargeTemplateApi;
+import org.meveo.api.catalog.CounterTemplateApi;
+import org.meveo.api.catalog.PricePlanApi;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
+import javax.xml.bind.DatatypeConverter;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+public class InvoiceCreateScript extends Script {
+	  
+  	private static final Logger log = LoggerFactory.getLogger(InvoiceCreateScript.class);
+  	private CustomFieldInstanceService cfService = (CustomFieldInstanceService)getServiceInterface("CustomFieldInstanceService");
+	public class CrmAuthenticationHeader{
+		String Header;
+		Date Expires;
+		
+		public CrmAuthenticationHeader(){
+			
+		}
+	}
+  
+  	public void execute(Map<String,Object> context, Provider provider, User user) throws BusinessException{
+      
+      try{
+        
+      // CRM Online
+		String url = ""+cfService.getCFValue(provider, "MSD_URL", user);
+		String username = ""+cfService.getCFValue(provider, "MSD_USERNAME", user);
+		String password = ""+cfService.getCFValue(provider, "MSD_PASSWORD", user);
+        
+        log.debug("Executing Script MS Invoice Create");
+        
+        CrmAuthenticationHeader authHeader = GetHeaderOnline(username, password, url);
+        
+        /*String id = CrmWhoAmI(authHeader, url);
+		if (id == null)
+			return;
+
+		String name = CrmGetUserName(authHeader, id, url);
+		log.debug(name);*/
+        
+		// End CRM Online
+
+		String invoiceTypeId = GetInvoiceTypeId(authHeader,context, url);
+		String createdInvoice = CreateInvoice(authHeader,context, url,invoiceTypeId);
+		log.debug("Created Invoice : " + createdInvoice);
+        
+		
+      }catch(Exception e){
+        log.debug("An error occured");
+        log.debug(e.toString());
+      }
+	}
+  
+  	public String GetInvoiceTypeId(CrmAuthenticationHeader authHeader,Map<String,Object> context, String url) throws IOException, SAXException, ParserConfigurationException {
+
+		String requestMain = "";
+
+		requestMain += "  <s:Body>";
+		requestMain += "      <Execute xmlns=\"http://schemas.microsoft.com/xrm/2011/Contracts/Services\" xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\">";
+		requestMain += "        <request i:type=\"a:RetrieveAttributeRequest\" xmlns:a=\"http://schemas.microsoft.com/xrm/2011/Contracts\">";
+		requestMain += "          <a:Parameters xmlns:b=\"http://schemas.datacontract.org/2004/07/System.Collections.Generic\">";
+		requestMain += "            <a:KeyValuePairOfstringanyType>";
+		requestMain += "              <b:key>MetadataId</b:key>";
+		requestMain += "              <b:value i:type=\"c:guid\" xmlns:c=\"http://schemas.microsoft.com/2003/10/Serialization/\">00000000-0000-0000-0000-000000000000</b:value>";
+		requestMain += "            </a:KeyValuePairOfstringanyType>";
+		requestMain += "            <a:KeyValuePairOfstringanyType>";
+		requestMain += "              <b:key>RetrieveAsIfPublished</b:key>";
+		requestMain += "              <b:value i:type=\"c:boolean\" xmlns:c=\"http://www.w3.org/2001/XMLSchema\">true</b:value>";
+		requestMain += "            </a:KeyValuePairOfstringanyType>";
+		requestMain += "            <a:KeyValuePairOfstringanyType>";
+		requestMain += "              <b:key>EntityLogicalName</b:key>";
+		requestMain += "              <b:value i:type=\"c:string\" xmlns:c=\"http://www.w3.org/2001/XMLSchema\">invoice</b:value>";
+		requestMain += "            </a:KeyValuePairOfstringanyType>";
+		requestMain += "            <a:KeyValuePairOfstringanyType>";
+		requestMain += "              <b:key>LogicalName</b:key>";
+		requestMain += "              <b:value i:type=\"c:string\" xmlns:c=\"http://www.w3.org/2001/XMLSchema\">ocl_invoicetype</b:value>";
+		requestMain += "            </a:KeyValuePairOfstringanyType>";
+		requestMain += "          </a:Parameters>";
+		requestMain += "          <a:RequestId i:nil=\"true\" />";
+		requestMain += "          <a:RequestName>RetrieveAttribute</a:RequestName>";
+		requestMain += "        </request>";
+		requestMain += "      </Execute>";
+		requestMain += "    </s:Body>";
+
+		//log.debug("Request Main : " + requestMain);
+		Document xDoc = ExecuteSoapRequest(authHeader, requestMain, url);
+		log.debug("xDoc : " + xDoc.toString());
+
+		NodeList nodes = xDoc.getElementsByTagName("d:OptionMetadata");
+		for (int i = 0; i < nodes.getLength(); i++) {
+			for(int j=0;j< nodes.item(i).getChildNodes().getLength();j++){
+				Node currentNode = nodes.item(i).getChildNodes().item(j); 
+				String nodeName = currentNode.getNodeName();
+				if(nodeName == "d:Label"){
+					for(int k=0;k< currentNode.getChildNodes().getLength();k++){
+						Node labelNode = currentNode.getChildNodes().item(k);
+						String labelNodeName = labelNode.getNodeName();
+						if(labelNodeName == "b:UserLocalizedLabel"){
+							for(int l=0;l< labelNode.getChildNodes().getLength();l++){
+								Node ullNode = labelNode.getChildNodes().item(l);
+								String ullNodeName = ullNode.getNodeName();
+								if(ullNodeName == "b:Label" && ullNode.getTextContent().equalsIgnoreCase(context.get("INVOICE_TYPE") != null ? context.get("INVOICE_TYPE").toString() : "Commercial")){
+									System.out.println("Invoice Type Found : "+ullNode.getTextContent());
+									System.out.println("ID : "+nodes.item(i).getLastChild().getTextContent());
+									return nodes.item(i).getLastChild().getTextContent();
+								}
+							}
+							break;
+						}
+						
+						
+					}
+					break;
+				}
+			}
+		}
+
+		return "";
+	}	
+  	public String CreateInvoice(CrmAuthenticationHeader authHeader,Map<String,Object> context, String url, String invoiceTypeId)
+			throws IOException, SAXException, ParserConfigurationException {
+              
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+
+		if(context !=null){
+          log.debug("context is not null");
+          for(String c: context.keySet()){
+            log.debug(c);
+          }
+          String requestMain = "";
+        	requestMain += "  <s:Body>";
+        	requestMain += "      <Execute xmlns=\"http://schemas.microsoft.com/xrm/2011/Contracts/Services\" xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\">";
+        	requestMain += "        <request i:type=\"a:CreateRequest\" xmlns:a=\"http://schemas.microsoft.com/xrm/2011/Contracts\">";
+        	requestMain += "          <a:Parameters xmlns:b=\"http://schemas.datacontract.org/2004/07/System.Collections.Generic\">";
+        	requestMain += "            <a:KeyValuePairOfstringanyType>";
+            requestMain += "              <b:key>Target</b:key>";
+            requestMain += "              <b:value i:type=\"a:Entity\">";
+            requestMain += "                <a:Attributes>";
+            requestMain += "                  <a:KeyValuePairOfstringanyType>";
+            requestMain += "                  	<b:key>ocl_amountwithouttax</b:key>";
+            requestMain += "                  	<b:value i:type=\"a:Money\">";
+            requestMain += "                  		<a:Value>"+(getBigDecimal(context.get("AMOUNT_WITHOUT_TAX")).toPlainString())+"</a:Value>";
+            requestMain += "                  	</b:value>";
+            requestMain += "                  </a:KeyValuePairOfstringanyType>";
+            requestMain += "                  <a:KeyValuePairOfstringanyType>";
+            requestMain += "                  	<b:key>ocl_amountwithtax</b:key>";
+            requestMain += "                  	<b:value i:type=\"a:Money\">";
+            requestMain += "                  		<a:Value>"+(getBigDecimal(context.get("AMOUNT_WITH_TAX")).toPlainString())+"</a:Value>";
+            requestMain += "                  	</b:value>";
+            requestMain += "                  </a:KeyValuePairOfstringanyType>";
+            requestMain += "                  <a:KeyValuePairOfstringanyType>";
+            requestMain += "                    <b:key>name</b:key>";
+            requestMain += "                    <b:value i:type=\"c:string\" xmlns:c=\"http://www.w3.org/2001/XMLSchema\">"
+              +(context.get("INVOICE_NUMBER") != null ? context.get("INVOICE_NUMBER").toString() : "INVOICE_NUMBER")+"</b:value>";
+            requestMain += "                  </a:KeyValuePairOfstringanyType>";
+          	requestMain += "                  <a:KeyValuePairOfstringanyType>";
+			requestMain += "                  	<b:key>createdon</b:key>";
+			requestMain += "                  	<b:value i:type=\"c:dateTime\" xmlns:c=\"http://www.w3.org/2001/XMLSchema\">"+sdf.format(context.get("INVOICE_DATE"))+"</b:value>";
+			requestMain += "                  </a:KeyValuePairOfstringanyType>";
+          	requestMain += "                  <a:KeyValuePairOfstringanyType>";
+			requestMain += "                    <b:key>ocl_invoicetype</b:key>";
+			requestMain += "                    <b:value i:type=\"a:OptionSetValue\">";
+			requestMain += "                    	<a:Value>"+invoiceTypeId+"</a:Value>";
+			requestMain += "                    </b:value>";
+			requestMain += "                  </a:KeyValuePairOfstringanyType>";
+			requestMain += "                  <a:KeyValuePairOfstringanyType>";
+			requestMain += "                  	<b:key>customerid</b:key>";
+			requestMain += "                  	<b:value i:type=\"a:EntityReference\">";
+			requestMain += "                  		<a:Id>"+context.get("ACCOUNT_NAME")+"</a:Id>";
+			requestMain += "                  		<a:LogicalName>account</a:LogicalName>";
+			requestMain += "                  		<a:Name i:nil=\"true\" />";
+			requestMain += "                  	</b:value>";
+			requestMain += "                  </a:KeyValuePairOfstringanyType>";
+            requestMain += "                </a:Attributes>";
+            requestMain += "                <a:EntityState i:nil=\"true\" />";
+            requestMain += "                <a:FormattedValues />";
+            //requestMain += "                <a:Id>00000000-0000-0000-0000-000000000000</a:Id>";
+            requestMain += "                <a:LogicalName>invoice</a:LogicalName>";
+            requestMain += "                <a:RelatedEntities />";
+            requestMain += "              </b:value>";
+            requestMain += "            </a:KeyValuePairOfstringanyType>";
+            requestMain += "          </a:Parameters>";
+            requestMain += "          <a:RequestId i:nil=\"true\" />";
+            requestMain += "          <a:RequestName>Create</a:RequestName>";
+            requestMain += "        </request>";
+            requestMain += "      </Execute>";
+            requestMain += "    </s:Body>";
+                  
+            //log.debug("Request Main : " + requestMain);
+            Document xDoc = ExecuteSoapRequest(authHeader, requestMain, url);
+            log.debug("xDoc : " + xDoc.toString());
+            if (xDoc == null)
+                return "";
+    
+            NodeList nodes = xDoc.getElementsByTagName("b:KeyValuePairOfstringanyType");
+            for (int i = 0; i < nodes.getLength(); i++) {
+                if ((nodes.item(i).getFirstChild().getTextContent()).equals("UserId")) {
+                    return nodes.item(i).getLastChild().getTextContent();
+                }
+            }
+          	
+		}
+              log.debug("context is null");
+		return "";
+	}
+
+	public String CrmWhoAmI(CrmAuthenticationHeader authHeader, String url)
+			throws IOException, SAXException, ParserConfigurationException {
+		StringBuilder xml = new StringBuilder();
+		xml.append("<s:Body>");
+		xml.append("<Execute xmlns=\"http://schemas.microsoft.com/xrm/2011/Contracts/Services\">");
+		xml.append(
+				"<request i:type=\"c:WhoAmIRequest\" xmlns:b=\"http://schemas.microsoft.com/xrm/2011/Contracts\" xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:c=\"http://schemas.microsoft.com/crm/2011/Contracts\">");
+		xml.append("<b:Parameters xmlns:d=\"http://schemas.datacontract.org/2004/07/System.Collections.Generic\"/>");
+		xml.append("<b:RequestId i:nil=\"true\"/>");
+		xml.append("<b:RequestName>WhoAmI</b:RequestName>");
+		xml.append("</request>");
+		xml.append("</Execute>");
+		xml.append("</s:Body>");
+
+		Document xDoc = ExecuteSoapRequest(authHeader, xml.toString(), url);
+		if (xDoc == null)
+			return null;
+
+		NodeList nodes = xDoc.getElementsByTagName("b:KeyValuePairOfstringanyType");
+		for (int i = 0; i < nodes.getLength(); i++) {
+			if ((nodes.item(i).getFirstChild().getTextContent()).equals("UserId")) {
+				return nodes.item(i).getLastChild().getTextContent();
+			}
+		}
+
+		return null;
+	}
+
+	public String CrmGetUserName(CrmAuthenticationHeader authHeader, String id, String url)
+			throws IOException, SAXException, ParserConfigurationException {
+		StringBuilder xml = new StringBuilder();
+		xml.append("<s:Body>");
+		xml.append(
+				"<Execute xmlns=\"http://schemas.microsoft.com/xrm/2011/Contracts/Services\" xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\">");
+		xml.append(
+				"<request i:type=\"a:RetrieveRequest\" xmlns:a=\"http://schemas.microsoft.com/xrm/2011/Contracts\">");
+		xml.append("<a:Parameters xmlns:b=\"http://schemas.datacontract.org/2004/07/System.Collections.Generic\">");
+		xml.append("<a:KeyValuePairOfstringanyType>");
+		xml.append("<b:key>Target</b:key>");
+		xml.append("<b:value i:type=\"a:EntityReference\">");
+		xml.append("<a:Id>" + id + "</a:Id>");
+		xml.append("<a:LogicalName>systemuser</a:LogicalName>");
+		xml.append("<a:Name i:nil=\"true\" />");
+		xml.append("</b:value>");
+		xml.append("</a:KeyValuePairOfstringanyType>");
+		xml.append("<a:KeyValuePairOfstringanyType>");
+		xml.append("<b:key>ColumnSet</b:key>");
+		xml.append("<b:value i:type=\"a:ColumnSet\">");
+		xml.append("<a:AllColumns>false</a:AllColumns>");
+		xml.append("<a:Columns xmlns:c=\"http://schemas.microsoft.com/2003/10/Serialization/Arrays\">");
+		xml.append("<c:string>firstname</c:string>");
+		xml.append("<c:string>lastname</c:string>");
+		xml.append("</a:Columns>");
+		xml.append("</b:value>");
+		xml.append("</a:KeyValuePairOfstringanyType>");
+		xml.append("</a:Parameters>");
+		xml.append("<a:RequestId i:nil=\"true\" />");
+		xml.append("<a:RequestName>Retrieve</a:RequestName>");
+		xml.append("</request>");
+		xml.append("</Execute>");
+		xml.append("</s:Body>");
+
+		Document xDoc = ExecuteSoapRequest(authHeader, xml.toString(), url);
+		if (xDoc == null)
+			return null;
+
+		String firstname = "";
+		String lastname = "";
+
+		NodeList nodes = xDoc.getElementsByTagName("b:KeyValuePairOfstringanyType");
+		for (int i = 0; i < nodes.getLength(); i++) {
+			if ((nodes.item(i).getFirstChild().getTextContent()).equals("firstname")) {
+				firstname = nodes.item(i).getLastChild().getTextContent();
+			}
+			if ((nodes.item(i).getFirstChild().getTextContent()).equals("lastname")) {
+				lastname = nodes.item(i).getLastChild().getTextContent();
+			}
+		}
+
+		return firstname + " " + lastname;
+	}
+	
+	public CrmAuthenticationHeader GetHeaderOnline(String username,
+			String password, String url) throws IOException, SAXException,
+			ParserConfigurationException, XPathExpressionException {
+
+		if (!url.endsWith("/"))
+			url += "/";
+
+		String urnAddress = GetUrnOnline(url);
+		Date now = new Date();
+
+		StringBuilder xml = new StringBuilder();
+		xml.append("<s:Envelope xmlns:s=\"http://www.w3.org/2003/05/soap-envelope\" xmlns:a=\"http://www.w3.org/2005/08/addressing\" xmlns:u=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\">");
+		xml.append("<s:Header>");
+		xml.append("<a:Action s:mustUnderstand=\"1\">http://schemas.xmlsoap.org/ws/2005/02/trust/RST/Issue</a:Action>");
+		xml.append("<a:MessageID>urn:uuid:" + java.util.UUID.randomUUID()
+				+ "</a:MessageID>");
+		xml.append("<a:ReplyTo>");
+		xml.append("<a:Address>http://www.w3.org/2005/08/addressing/anonymous</a:Address>");
+		xml.append("</a:ReplyTo>");
+		xml.append("<a:To s:mustUnderstand=\"1\">https://login.microsoftonline.com/RST2.srf</a:To>");
+		xml.append("<o:Security s:mustUnderstand=\"1\" xmlns:o=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\">");
+		xml.append("<u:Timestamp u:Id=\"_0\">");
+		xml.append("<u:Created>" + String.format("%tFT%<tT.%<tLZ", now)
+				+ "</u:Created>");
+		xml.append("<u:Expires>"
+				+ String.format("%tFT%<tT.%<tLZ", AddMinutes(60, now))
+				+ "</u:Expires>");
+		xml.append("</u:Timestamp>");
+		xml.append("<o:UsernameToken u:Id=\"uuid-"
+				+ java.util.UUID.randomUUID() + "-1\">");
+		xml.append("<o:Username>" + username + "</o:Username>");
+		xml.append("<o:Password>" + password + "</o:Password>");
+		xml.append("</o:UsernameToken>");
+		xml.append("</o:Security>");
+		xml.append("</s:Header>");
+		xml.append("<s:Body>");
+		xml.append("<trust:RequestSecurityToken xmlns:trust=\"http://schemas.xmlsoap.org/ws/2005/02/trust\">");
+		xml.append("<wsp:AppliesTo xmlns:wsp=\"http://schemas.xmlsoap.org/ws/2004/09/policy\">");
+		xml.append("<a:EndpointReference>");
+		xml.append("<a:Address>urn:" + urnAddress + "</a:Address>");
+		xml.append("</a:EndpointReference>");
+		xml.append("</wsp:AppliesTo>");
+		xml.append("<trust:RequestType>http://schemas.xmlsoap.org/ws/2005/02/trust/Issue</trust:RequestType>");
+		xml.append("</trust:RequestSecurityToken>");
+		xml.append("</s:Body>");
+		xml.append("</s:Envelope>");
+
+		System.out.println("Get Authenticator : "+xml.toString());
+		URL LoginURL = new URL("https://login.microsoftonline.com/RST2.srf");
+		HttpURLConnection rc = (HttpURLConnection) LoginURL.openConnection();
+
+		rc.setRequestMethod("POST");
+		rc.setDoOutput(true);
+		rc.setDoInput(true);
+		rc.setRequestProperty("Content-Type",
+				"application/soap+xml; charset=UTF-8");
+		String reqStr = xml.toString();
+		int len = reqStr.length();
+		rc.setRequestProperty("Content-Length", Integer.toString(len));
+		rc.connect();
+		OutputStreamWriter out = new OutputStreamWriter(rc.getOutputStream());
+		out.write(reqStr, 0, len);
+		out.flush();
+
+		InputStreamReader read = new InputStreamReader(rc.getInputStream());
+		StringBuilder sb = new StringBuilder();
+		int ch = read.read();
+		while (ch != -1) {
+			sb.append((char) ch);
+			ch = read.read();
+		}
+		String response = sb.toString();
+		read.close();
+		rc.disconnect();
+
+		DocumentBuilderFactory builderFactory = DocumentBuilderFactory
+				.newInstance();
+		DocumentBuilder builder = builderFactory.newDocumentBuilder();
+		Document x = builder
+				.parse(new ByteArrayInputStream(response.getBytes()));
+
+		NodeList cipherElements = x.getElementsByTagName("CipherValue");
+		String token1 = cipherElements.item(0).getTextContent();
+		String token2 = cipherElements.item(1).getTextContent();
+
+		NodeList keyIdentiferElements = x
+				.getElementsByTagName("wsse:KeyIdentifier");
+		String keyIdentifer = keyIdentiferElements.item(0).getTextContent();
+
+		NodeList tokenExpiresElements = x.getElementsByTagName("wsu:Expires");
+		String tokenExpires = tokenExpiresElements.item(0).getTextContent();
+
+		Calendar c = DatatypeConverter.parseDateTime(tokenExpires);
+		InvoiceCreateScript mc = new InvoiceCreateScript();
+		CrmAuthenticationHeader authHeader = mc.new CrmAuthenticationHeader();
+		authHeader.Expires = c.getTime();
+		authHeader.Header = CreateSoapHeaderOnline(url, keyIdentifer, token1,
+				token2);
+
+		return authHeader;
+	}
+	
+	public String CreateSoapHeaderOnline(String url, String keyIdentifer,
+			String token1, String token2) {
+		StringBuilder xml = new StringBuilder();
+		xml.append("<s:Header>");
+		xml.append("<a:Action s:mustUnderstand=\"1\">http://schemas.microsoft.com/xrm/2011/Contracts/Services/IOrganizationService/Execute</a:Action>");
+		xml.append("<Security xmlns=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\">");
+		xml.append("<EncryptedData Id=\"Assertion0\" Type=\"http://www.w3.org/2001/04/xmlenc#Element\" xmlns=\"http://www.w3.org/2001/04/xmlenc#\">");
+		xml.append("<EncryptionMethod Algorithm=\"http://www.w3.org/2001/04/xmlenc#tripledes-cbc\"/>");
+		xml.append("<ds:KeyInfo xmlns:ds=\"http://www.w3.org/2000/09/xmldsig#\">");
+		xml.append("<EncryptedKey>");
+		xml.append("<EncryptionMethod Algorithm=\"http://www.w3.org/2001/04/xmlenc#rsa-oaep-mgf1p\"/>");
+		xml.append("<ds:KeyInfo Id=\"keyinfo\">");
+		xml.append("<wsse:SecurityTokenReference xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\">");
+		xml.append("<wsse:KeyIdentifier EncodingType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary\" "
+                   +" ValueType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509SubjectKeyIdentifier\">"
+					+ keyIdentifer + "</wsse:KeyIdentifier>");
+		xml.append("</wsse:SecurityTokenReference>");
+		xml.append("</ds:KeyInfo>");
+		xml.append("<CipherData>");
+		xml.append("<CipherValue>" + token1 + "</CipherValue>");
+		xml.append("</CipherData>");
+		xml.append("</EncryptedKey>");
+		xml.append("</ds:KeyInfo>");
+		xml.append("<CipherData>");
+		xml.append("<CipherValue>" + token2 + "</CipherValue>");
+		xml.append("</CipherData>");
+		xml.append("</EncryptedData>");
+		xml.append("</Security>");
+		xml.append("<a:MessageID>urn:uuid:" + java.util.UUID.randomUUID()
+				+ "</a:MessageID>");
+		xml.append("<a:ReplyTo>");
+		xml.append("<a:Address>http://www.w3.org/2005/08/addressing/anonymous</a:Address>");
+		xml.append("</a:ReplyTo>");
+		xml.append("<a:To s:mustUnderstand=\"1\">" + url
+				+ "XRMServices/2011/Organization.svc</a:To>");
+		xml.append("</s:Header>");
+
+		return xml.toString();
+	}
+
+	public  String GetUrnOnline(String url) {
+		if (url.toUpperCase().contains("CRM2.DYNAMICS.COM"))
+			return "crmsam:dynamics.com";
+		if (url.toUpperCase().contains("CRM4.DYNAMICS.COM"))
+			return "crmemea:dynamics.com";
+		if (url.toUpperCase().contains("CRM5.DYNAMICS.COM"))
+			return "crmapac:dynamics.com";
+		if (url.toUpperCase().contains("CRM6.DYNAMICS.COM"))
+			return "crmoce:dynamics.com";
+		if (url.toUpperCase().contains("CRM7.DYNAMICS.COM"))
+			return "crmjpn:dynamics.com";
+		if (url.toUpperCase().contains("CRM8.DYNAMICS.COM"))
+			return "crmgcc:dynamics.com";
+
+		return "crmna:dynamics.com";
+	}
+  
+	public Document ExecuteSoapRequest(CrmAuthenticationHeader authHeader, String requestBody, String url)
+			throws IOException, SAXException, ParserConfigurationException {
+		if (!url.endsWith("/"))
+			url += "/";
+
+		StringBuilder xml = new StringBuilder();
+		xml.append(
+				"<s:Envelope xmlns:s=\"http://www.w3.org/2003/05/soap-envelope\" xmlns:a=\"http://www.w3.org/2005/08/addressing\">");
+		//System.out.println("Auth Header : " + authHeader.Header);
+		xml.append(authHeader.Header);
+		xml.append(requestBody);
+		xml.append("</s:Envelope>");
+
+		log.debug("Request Sent : " + xml.toString());
+		URL SoapURL = new URL(url + "XRMServices/2011/Organization.svc");
+		HttpURLConnection rc = (HttpURLConnection) SoapURL.openConnection();
+
+		rc.setRequestMethod("POST");
+		rc.setDoOutput(true);
+		rc.setDoInput(true);
+		rc.setRequestProperty("Content-Type", "application/soap+xml; charset=UTF-8");
+		String reqStr = xml.toString();
+		int len = reqStr.length();
+		rc.setRequestProperty("Content-Length", Integer.toString(len));
+		rc.connect();
+		OutputStreamWriter out = new OutputStreamWriter(rc.getOutputStream());
+		out.write(reqStr, 0, len);
+		out.flush();
+
+		InputStreamReader read = new InputStreamReader(rc.getInputStream());
+		StringBuilder sb = new StringBuilder();
+		int ch = read.read();
+		while (ch != -1) {
+			sb.append((char) ch);
+			ch = read.read();
+		}
+		String response = sb.toString();
+		log.debug("Response : " + response);
+		read.close();
+		rc.disconnect();
+
+		DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder builder = builderFactory.newDocumentBuilder();
+		Document doc = builder.parse(new ByteArrayInputStream(response.getBytes()));
+
+		return doc;
+	}
+	
+	private Date AddMinutes(int minutes, Date time) {
+		long ONE_MINUTE_IN_MILLIS = 60000;
+		long currentTime = time.getTime();
+		Date newDate = new Date(currentTime + (minutes * ONE_MINUTE_IN_MILLIS));
+		return newDate;
+	}
+  
+  	public static BigDecimal getBigDecimal(Object value) {
+		BigDecimal ret = null;
+		if (value != null) {
+			if (value instanceof BigDecimal) {
+				ret = (BigDecimal) value;
+			} else if (value instanceof String) {
+				ret = new BigDecimal((String) value);
+			} else if (value instanceof BigInteger) {
+				ret = new BigDecimal((BigInteger) value);
+			} else if (value instanceof Number) {
+				ret = new BigDecimal(((Number) value).doubleValue());
+			} else {
+				throw new ClassCastException("Not possible to coerce [" + value + "] from class " + value.getClass()
+						+ " into a BigDecimal.");
+			}
+		}
+		return ret;
+	}
+}
+
+NOTIFICATION
+=======================================================================================================================================================
+Code : 				MSDynamicsInvoiceCreate
+Classname filter :	org.meveo.model.billing.Invoice
+Event type filter:	Updated
+Event EL filter :	#{event.invoiceNumber.length() > 0}
+Script Parameters:
+
+Name						Value
+===================			===================
+ACCOUNT_NAME				#{event.billingAccount.customerAccount.code}
+AMOUNT_WITH_TAX				#{event.amountWithTax}
+INVOICE_NUMBER				#{event.invoiceNumber}
+AMOUNT_WITHOUT_TAX			#{event.amountWithoutTax}
+INVOICE_TYPE				#{event.invoiceTypeEnum}
+INVOICE_DATE				#{event.invoiceDate}
+
+
+CUSTOM FIELDS
+=======================================================================================================================================================
+Code						Description							Applies to
+===================			===================					===================
+MSD_URL						URL Microsof dynamics				Provider
+MSD_PASSWORD				Password for Microsoft Dynamics		Provider
+MSD_USERNAME				Username for Microsoft Dynamics		Provider
