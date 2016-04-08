@@ -233,11 +233,12 @@
 					value="#{messages['action.validate']}" />
 				<!-- <h:commandButton
 				action="#{billingRunBean.rerateConfirmedInvoicing()}"
-				value="Rerate" /> -->
+				value="Rerate" /> 
 				<p:commandButton
 					action="#{billingRunBean.cancelConfirmedInvoicing()}"
 					value="#{messages['action.cancel']}"
 					onclick="if(confirm('#{messages['commons.confirmCancelInvoiceProcess']}')){return true;}else{return false;}" />
+					-->
 			</div>
 		</h:form>
 	</ui:define>
