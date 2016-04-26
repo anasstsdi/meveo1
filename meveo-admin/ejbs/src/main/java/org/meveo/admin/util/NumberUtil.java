@@ -17,17 +17,25 @@ public class NumberUtil {
 		if (unitNbDecimal == null){
 			unitNbDecimal = new Integer(2);
 		}
-		if (roundingModeEnum == null){
-			roundingModeEnum = RoundingModeEnum.NEAREST;
-		}
-		BigDecimal result = unitValue.multiply(unitMultiplicator);				
-		if (RoundingModeEnum.DOWN.name().equals(roundingModeEnum.name())) {
-			result = result.setScale(unitNbDecimal, RoundingMode.FLOOR);
-		} else if (RoundingModeEnum.UP.name().equals(roundingModeEnum.name())) {
-			result = result.setScale(unitNbDecimal, RoundingMode.CEILING);
-		} else {
-			result = result.setScale(unitNbDecimal, RoundingMode.HALF_UP);
-		}
+
+		BigDecimal result = unitValue.multiply(unitMultiplicator);			
+		result = result.setScale(unitNbDecimal, getRoundingMode(roundingModeEnum));
 		return result;
+	}
+	
+	public static RoundingMode getRoundingMode(RoundingModeEnum roundingModeEnum){
+		if (roundingModeEnum == null){
+			return RoundingMode.HALF_UP;
+		}
+		
+		if (RoundingModeEnum.DOWN.name().equals(roundingModeEnum.name())) {
+			return RoundingMode.FLOOR;
+		} 
+		
+		if (RoundingModeEnum.UP.name().equals(roundingModeEnum.name())) {
+			return RoundingMode.CEILING;
+		} 
+			
+		return RoundingMode.HALF_UP;		
 	}
 }
