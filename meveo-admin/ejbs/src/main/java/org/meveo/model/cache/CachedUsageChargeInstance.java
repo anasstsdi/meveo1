@@ -4,8 +4,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Date;
 
-import org.meveo.admin.exception.BusinessException;
-import org.meveo.admin.util.NumberUtil;
 import org.meveo.model.BaseEntity;
 import org.meveo.model.billing.UsageChargeInstance;
 import org.meveo.model.catalog.RoundingModeEnum;
@@ -117,19 +115,22 @@ public class CachedUsageChargeInstance implements Comparable<CachedUsageChargeIn
         return this.getTemplateCache().getPriority() - o.getTemplateCache().getPriority();
     }
 
-    public BigDecimal getInChargeUnit(BigDecimal edrUnitValue) throws BusinessException {
-        if (unityMultiplicator == null){
+    public BigDecimal getInChargeUnit(BigDecimal edrUnitValue) {
+        if (unityMultiplicator == null)
             unityMultiplicator = BigDecimal.ONE;
-        }        
-        if(edrUnitValue == null){
-        	throw new BusinessException("Cant get countedValue with null quantity");
-        }
-        BigDecimal  result = NumberUtil.getInChargeUnit(edrUnitValue, unityMultiplicator, unityNbDecimal, roundingModeEnum);
+        BigDecimal result = edrUnitValue.multiply(unityMultiplicator);
+
+        if (unityNbDecimal > 0) {
+            result = result.setScale(roundingUnityNbDecimal, RoundingMode.HALF_UP);
+        }else{
+			result=result.setScale(BaseEntity.NB_DECIMALS, RoundingMode.HALF_UP);
+		}
+
         return result;
     }
 
     public BigDecimal getInEDRUnit(BigDecimal chargeUnitValue) {
-        return chargeUnitValue.divide(unityMultiplicator, roundingEdrNbDecimal,NumberUtil.getRoundingMode(roundingModeEnum));
+        return chargeUnitValue.divide(unityMultiplicator, roundingEdrNbDecimal, RoundingMode.HALF_UP);
     }
 
     public void populateFromUsageChargeInstance(UsageChargeInstance usageChargeInstance, UsageChargeTemplate usageChargeTemplate, CachedUsageChargeTemplate cachedTemplate,
