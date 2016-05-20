@@ -26803,7 +26803,7 @@
          <!--Optional:-->
          <access code="${#TestSuite#ticket}_ACC1">
             <subscription>${#TestSuite#ticket}_SUB1</subscription>
-            <startDate>2016-03-01</startDate>
+            <startDate>2016-01-01</startDate>
   		  <endDate>2016-08-30</endDate>
          </access>
       </ws:createAccess>
@@ -26813,10 +26813,10 @@
    <soapenv:Body>
       <ws:chargeCdr>
          <!--Optional:-->
-         <cdr>2015-10-02T00:20:00.000Z;10;${#TestSuite#ticket}_ACC1;USAGE</cdr>
+         <cdr>2016-03-01T00:20:00.000Z;10;${#TestSuite#ticket}_ACC1;USAGE</cdr>
       </ws:chargeCdr>
    </soapenv:Body>
-</soapenv:Envelope>]]></con:request><con:assertion type="SOAP Response" id="5b02a077-1178-43ab-bc54-6a993e51798f"/><con:credentials><con:username>meveo.admin</con:username><con:password>meveo.admin</con:password><con:selectedAuthProfile>Basic</con:selectedAuthProfile><con:addedBasicAuthenticationTypes>Basic</con:addedBasicAuthenticationTypes><con:authType>Global HTTP Settings</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:properties/></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Invoicing" searchProperties="true" id="576c9289-f756-4562-a431-60bf86102047"><con:settings/><con:testStep type="request" name="GenerateInvoice" id="79fafc10-9e86-4b7c-a7d6-8aea90f5cc6b"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>InvoiceWsSoapBinding</con:interface><con:operation>generateInvoiceData</con:operation><con:request name="GenerateInvoice" id="7e62d038-732c-4fef-a703-9048e8424c07"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>${#Project#meveoUrl}/InvoiceWs</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ws="http://ws.api.meveo.org/">
+</soapenv:Envelope>]]></con:request><con:assertion type="SOAP Response" id="5b02a077-1178-43ab-bc54-6a993e51798f"/><con:assertion type="Simple Contains" id="f80c8d0f-14af-4fec-a1b6-6d2f85cd38a5" name="Contains"><con:configuration><token>SUCCESS</token><ignoreCase>false</ignoreCase><useRegEx>false</useRegEx></con:configuration></con:assertion><con:credentials><con:username>meveo.admin</con:username><con:password>meveo.admin</con:password><con:selectedAuthProfile>Basic</con:selectedAuthProfile><con:addedBasicAuthenticationTypes>Basic</con:addedBasicAuthenticationTypes><con:authType>Global HTTP Settings</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508"/><con:wsrmConfig version="1.2"/></con:request></con:config></con:testStep><con:properties/></con:testCase><con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="Invoicing" searchProperties="true" id="576c9289-f756-4562-a431-60bf86102047"><con:settings/><con:testStep type="request" name="GenerateInvoice" id="79fafc10-9e86-4b7c-a7d6-8aea90f5cc6b"><con:settings/><con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:interface>InvoiceWsSoapBinding</con:interface><con:operation>generateInvoiceData</con:operation><con:request name="GenerateInvoice" id="7e62d038-732c-4fef-a703-9048e8424c07"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>${#Project#meveoUrl}/InvoiceWs</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ws="http://ws.api.meveo.org/">
    <soapenv:Header/>
    <soapenv:Body>
       <ws:generateInvoiceData>
