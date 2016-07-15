@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.meveo.admin.wf.WorkflowType;
+import org.meveo.admin.wf.WorkflowTypeClass;
 import org.meveo.model.catalog.LifeCycleStatusEnum;
 import org.meveo.model.catalog.ProductOffering;
 
+@WorkflowTypeClass
 public class OfferValidatioWF extends WorkflowType<ProductOffering> {
 
 	public OfferValidatioWF(ProductOffering e) {
