@@ -298,13 +298,13 @@
                 <hftl:formField label="#{messages['BusinessEntity.code']}" field="code" required="true" allowEdit="false" componentWidth="15" />
                 <hftl:formField label="#{messages['customFieldTemplate.fieldLabel']}" field="description" required="true" useConverter="false" id="description" componentWidth="35" />
                 <hftl:formField label="#{messages['customFieldTemplate.fieldType']}" field="fieldType" required="true" componentWidth="10"
-                    listenerUpdate="listValuesField defaultValueField entityClazzField validations versioning storageType_enum matrixColumns childEntityFields"
+                    listenerUpdate="listValuesField defaultValueField entityClazzField validations versioning storageType_enum mapKeyTypeField matrixColumns childEntityFields"
                     actionListenerBean="#{customFieldTemplateBean}" actionListenerMethod="updateDefaultValues" allowEdit="false" />
                 <!--                 <hftl:formField label="#{messages['customFieldTemplate.appliesTo']}" field="appliesTo" componentWidth="20" edit="false" /> -->
                 <!--                 <hftl:formField label="#{messages['customFieldTemplate.guipos']}" field="guiPosition" componentWidth="20" edit="false" /> -->
                 <hftl:formField label="#{messages['customFieldTemplate.storageType']}" field="storageType" required="true" componentWidth="10"
                     listenerUpdate="@this defaultValueField mapKeyTypeField matrixColumns" actionListenerBean="#{customFieldTemplateBean}" allowEdit="false"
-                    actionListenerMethod="updateDefaultValues" />
+                    actionListenerMethod="updateDefaultValues" disabled="#{customFieldTemplateBean.entity.fieldType eq 'PRICE'}" />
 
                 <h:panelGroup id="mapKeyTypeField">
                     <hftl:formField label="#{messages['customFieldTemplate.mapKeyType']}" field="mapKeyType" required="true" componentWidth="10"

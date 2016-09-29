@@ -39,6 +39,11 @@ public enum CustomFieldTypeEnum {
      * A long string value
      */
     TEXT_AREA(false, String.class),
+    
+    /**
+     * Price is a pre-configured matrix storage type, with first column = "currency".
+     */
+    PRICE(false, Double.class),
 
     /**
      * An embedded entity data

@@ -12,6 +12,8 @@ public class CustomFieldMatrixColumn implements Serializable, Comparable<CustomF
     private static final long serialVersionUID = 4307211518190785915L;
 
     private int position;
+    
+    public static final String PRICE_CURRENCY_FIELD = "CURRENCY";
 
     // @Column(name = "CODE", nullable = false, length = 20)
     @Size(max = 20)
