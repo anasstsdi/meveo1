@@ -68,7 +68,7 @@ public class RealtimeChargingService {
 
 		Seller seller = ba.getCustomerAccount().getCustomer().getSeller();
 
-		return getApplicationPrice(provider, seller, ba,currency,
+		return getApplicationPrice(currentUser, seller, ba,currency,
 				tradingCountry, chargeTemplate, subscriptionDate, offerCode,
 				quantity, param1, param2, param3, priceWithoutTax);
 	}
