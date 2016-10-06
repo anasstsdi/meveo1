@@ -30,16 +30,15 @@ import org.meveo.model.admin.User;
 import org.meveo.model.billing.AccountStatusEnum;
 import org.meveo.model.billing.BillingAccount;
 import org.meveo.model.billing.CounterInstance;
+import org.meveo.model.billing.ProductInstance;
 import org.meveo.model.billing.SubscriptionTerminationReason;
 import org.meveo.model.billing.UserAccount;
 import org.meveo.model.billing.WalletOperation;
-import org.meveo.model.catalog.OfferTemplate;
 import org.meveo.model.catalog.ProductTemplate;
 import org.meveo.model.crm.Provider;
 import org.meveo.service.billing.impl.BillingAccountService;
 import org.meveo.service.billing.impl.ProductInstanceService;
 import org.meveo.service.billing.impl.UserAccountService;
-import org.meveo.service.catalog.impl.OfferTemplateService;
 import org.meveo.service.catalog.impl.ProductTemplateService;
 import org.meveo.service.crm.impl.SubscriptionTerminationReasonService;
 
@@ -61,9 +60,6 @@ public class UserAccountApi extends AccountApi {
 
 	@Inject
 	private ProductTemplateService productTemplateService;
-	
-	@Inject
-	private OfferTemplateService offerTemplateService;
 	
 	@Inject
 	private ProductInstanceService productInstanceService;
@@ -108,10 +104,10 @@ public class UserAccountApi extends AccountApi {
 		// Validate and populate customFields
 		try {
 			populateCustomFields(postData.getCustomFields(), userAccount, true, currentUser, checkCustomFields);
-		} catch (IllegalArgumentException | IllegalAccessException e) {
-			log.error("Failed to associate custom field instance to an entity", e);
-			throw new MeveoApiException("Failed to associate custom field instance to an entity");
-		}
+        } catch (Exception e) {
+            log.error("Failed to associate custom field instance to an entity", e);
+            throw e;
+        }
 
 		return userAccount;
 	}
@@ -164,10 +160,10 @@ public class UserAccountApi extends AccountApi {
 		// Validate and populate customFields
 		try {
 			populateCustomFields(postData.getCustomFields(), userAccount, false, currentUser, checkCustomFields);
-		} catch (IllegalArgumentException | IllegalAccessException e) {
-			log.error("Failed to associate custom field instance to an entity", e);
-			throw new MeveoApiException("Failed to associate custom field instance to an entity");
-		}
+        } catch (Exception e) {
+            log.error("Failed to associate custom field instance to an entity", e);
+            throw e;
+        }
 
 		return userAccount;
 	}
@@ -190,19 +186,19 @@ public class UserAccountApi extends AccountApi {
 		return accountHierarchyApi.userAccountToDto(userAccount);
 	}
 
-	public void remove(String userAccountCode, Provider provider) throws MeveoApiException {
+	public void remove(String userAccountCode, User currentUser) throws MeveoApiException, BusinessException  {
 
 		if (StringUtils.isBlank(userAccountCode)) {
 			missingParameters.add("userAccountCode");
 			handleMissingParameters();
 		}
 
-		UserAccount userAccount = userAccountService.findByCode(userAccountCode, provider);
+		UserAccount userAccount = userAccountService.findByCode(userAccountCode, currentUser.getProvider());
 		if (userAccount == null) {
 			throw new EntityDoesNotExistsException(UserAccount.class, userAccountCode);
 		}
 		try {
-			userAccountService.remove(userAccount);
+			userAccountService.remove(userAccount, currentUser);
 			userAccountService.commit();
 		} catch (Exception e) {
 			if (e.getMessage().indexOf("ConstraintViolationException") > -1) {
@@ -330,52 +326,49 @@ public class UserAccountApi extends AccountApi {
 		}
 	}
 
-	public WalletOperationDto applyProduct(ApplyProductRequestDto postData, User currentUser) throws MeveoApiException, BusinessException {
-		WalletOperationDto result = null;  
+	public List<WalletOperationDto> applyProduct(ApplyProductRequestDto postData, User currentUser) throws MeveoApiException, BusinessException {
+		List<WalletOperationDto> result = new ArrayList<>();
 		if (StringUtils.isBlank(postData.getProduct())) {
-	            missingParameters.add("product");
-	        }
-	        if (StringUtils.isBlank(postData.getUserAccount())) {
-	            missingParameters.add("userAccount");
-	        }
-	        if (postData.getOperationDate() == null) {
-	            missingParameters.add("operationDate");
-	        }
+			missingParameters.add("product");
+		}
+		if (StringUtils.isBlank(postData.getUserAccount())) {
+			missingParameters.add("userAccount");
+		}
+		if (postData.getOperationDate() == null) {
+			missingParameters.add("operationDate");
+		}
 
-	        handleMissingParameters();
+		handleMissingParameters();
 
-	        Provider provider = currentUser.getProvider();
+		Provider provider = currentUser.getProvider();
 
-	        ProductTemplate productTemplate = productTemplateService.findByCode(postData.getProduct(), provider);
-	        if (productTemplate == null) {
-	            throw new EntityDoesNotExistsException(ProductTemplate.class, postData.getProduct());
-	        }
-	        
-	        OfferTemplate offerTemplate=null;
-	        if(!StringUtils.isBlank(postData.getOffer())){
-	        	offerTemplate=offerTemplateService.findByCode(postData.getOffer(), provider);
-		        if (offerTemplate == null) {
-		            throw new EntityDoesNotExistsException(OfferTemplate.class, postData.getOffer());
-		        }	        	
-	        }
+		ProductTemplate productTemplate = productTemplateService.findByCode(postData.getProduct(), provider);
+		if (productTemplate == null) {
+			throw new EntityDoesNotExistsException(ProductTemplate.class, postData.getProduct());
+		}
 
-	        UserAccount userAccount = userAccountService.findByCode(postData.getUserAccount(), provider);
-	        if (userAccount == null) {
-	            throw new EntityDoesNotExistsException(UserAccount.class, postData.getUserAccount());
-	        }
+		UserAccount userAccount = userAccountService.findByCode(postData.getUserAccount(), provider);
+		if (userAccount == null) {
+			throw new EntityDoesNotExistsException(UserAccount.class, postData.getUserAccount());
+		}
 
-	        if (userAccount.getStatus() != AccountStatusEnum.ACTIVE) {
-	            throw new MeveoApiException("User account is not ACTIVE.");
-	        }
+		if (userAccount.getStatus() != AccountStatusEnum.ACTIVE) {
+			throw new MeveoApiException("User account is not ACTIVE.");
+		}
 
-	        try {
-	        	WalletOperation walletOperation =  productInstanceService.applyProduct(userAccount, productTemplate, postData.getQuantity(),
-	        			postData.getOperationDate(), postData.getDescription(), postData.getAmountWithoutTax(), postData.getAmountWithTax(), offerTemplate,
-	        			postData.getCriteria1(), postData.getCriteria2(), postData.getCriteria3(),currentUser, true);
-	        	result = new WalletOperationDto(walletOperation);
-	        } catch (BusinessException e) {
-	            throw new MeveoApiException(e.getMessage());
-	        }
-	        return result;
+		List<WalletOperation> walletOperations = null;
+
+		try {
+			ProductInstance productInstance = new ProductInstance(userAccount, null, productTemplate, postData.getQuantity(), postData.getOperationDate(),
+					postData.getProduct(), postData.getDescription(), currentUser);
+			walletOperations = productInstanceService.applyProductInstance(productInstance, postData.getCriteria1(),
+					postData.getCriteria2(), postData.getCriteria3(), currentUser, true);
+			for (WalletOperation walletOperation : walletOperations) {
+				result.add(new WalletOperationDto(walletOperation));
+			}
+		} catch (BusinessException e) {
+			throw new MeveoApiException(e.getMessage());
+		}
+		return result;
 	}
 }

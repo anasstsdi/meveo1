@@ -11,7 +11,7 @@
 	<ui:define name="metadata">
 		<f:metadata>
 			<o:viewParam name="bomId" value="#{offerTemplateBean.bomId}" />
-            <f:viewParam name="objectId" value="#{offerTemplateBean.objectId}" />
+			<f:viewParam name="objectId" value="#{offerTemplateBean.objectId}" />
 		</f:metadata>
 	</ui:define>
 
@@ -33,7 +33,7 @@
 			backView="mm_offerTemplates">
 
 			<p:panelGrid columns="3"
-				columnClasses="Wid10 Responsive100, Wid35 Responsive100 VAlignTop, Wid35 Responsive100 VAlignTop"
+				columnClasses="Wid10 Responsive100, Wid30 Responsive100 VAlignTop, Wid30 Responsive100 VAlignTop"
 				styleClass="ui-panelgrid-blank">
 				<p:panel>
 					<hftl:decorateFormField fieldId="offerImageUpload"
@@ -45,7 +45,7 @@
 					<hftl:decorateFormField fieldId="offerImage"
 						rendered="#{not offerTemplateBean.entity.transient}"
 						label="#{messages['commons.image']}">
-						<p:outputPanel autoUpdate="true">
+						<p:outputPanel autoUpdate="false" style="border: 1px solid #ddd;">
 							<p:graphicImage id="offerImage" cache="false"
 								value="#{offerTemplateImageStreamer.image}" height="150"
 								width="150">
@@ -59,10 +59,10 @@
 					</hftl:decorateFormField>
 					<p:outputPanel>
 						<p:panel rendered="#{not offerTemplateBean.edit}">
-							<ul class="ListNoStyle" style="margin: 0px; padding: 0px;">
-								<li class="Padding5 FLeft"><p:commandLink
+							<ul class="list-inline">
+								<li class=""><p:commandLink
 										action="#{offerTemplateBean.duplicate()}" update="@form"
-										styleClass="fa fa-copy">
+										styleClass="fa fa-copy text-blue fa-2x">
 										<f:param name="edit" value="false"></f:param>
 										<f:param name="backView" value="#{offerTemplateBean.backView}"></f:param>
 										<f:param name="cid"
@@ -70,7 +70,8 @@
 										<p:confirm header="#{messages['commons.duplicate']}"
 											message="#{messages['commons.confirmDuplicate']}" />
 									</p:commandLink></li>
-								<li class="Padding5 FLeft"><p:link styleClass="fa fa-edit"
+								<li class=""><p:link
+										styleClass="fa fa-edit fa-2x text-blue no-text-decoration"
 										outcome="mm_offerTemplateDetail">
 										<f:param name="cid"
 											value="#{javax.enterprise.context.conversation.id}" />
@@ -85,10 +86,8 @@
 					</p:outputPanel>
 				</p:panel>
 				<p:panel>
-					<h:panelGrid columns="1" styleClass="ui-panelgrid-blank Wid100" columnClasses="Wid100">
-						<hftl:formField label="#{messages['offerTemplate.prefix']}"
-							required="true" field="prefix"
-							rendered="#{offerTemplateBean.bomId ne null}" />
+					<h:panelGrid columns="1" styleClass="ui-panelgrid-blank Wid100"
+						columnClasses="Wid100">
 						<h:outputText value="#{offerTemplateBean.entity.nameOrCode}"
 							rendered="#{!offerTemplateBean.edit}"></h:outputText>
 						<hftl:formField label="#{messages['offerTemplate.name']}"
@@ -98,10 +97,20 @@
 						<hftl:formField id="code"
 							label="#{messages['offerTemplate.code']}" field="code"
 							required="true" validateUnique="true" />
-						<hftl:formField
-							label="#{messages['marketingManager.catalog.family']}"
-							allowEdit="false" field="businessOfferModel"
-							valueLabelField="code" listBean="#{businessOfferModelBean}" />
+						<c:if test="#{offerTemplateBean.bomId eq null}">
+							<hftl:formField
+								label="#{messages['marketingManager.catalog.family']}"
+								allowEdit="false" field="businessOfferModel"
+								valueLabelField="code" listBean="#{businessOfferModelBean}" />
+						</c:if>
+						<c:if test="#{offerTemplateBean.bomId ne null}">
+							<hftl:decorateFormField fieldId="family"
+								label="#{messages['marketingManager.catalog.family']}">
+								<h:outputText id="family"
+									value="#{offerTemplateBean.businessOfferModel.code}"
+									styleClass="field-value" />
+							</hftl:decorateFormField>
+						</c:if>
 						<hftl:formLanguageFields entity="#{offerTemplateBean.entity}"
 							backingBean="#{offerTemplateBean}" multiLang="true" />
 
@@ -111,32 +120,34 @@
 						<h:outputText
 							value="#{offerTemplateBean.entity.auditable.creator}"></h:outputText>
 					</p:panel>
-					<p:panelGrid columns="1" styleClass="ui-panelgrid-blank">
+					<h:panelGrid columns="1"
+						styleClass="ui-panelgrid-blank Wid100 Responsive100">
 						<hftl:formField label="#{messages['commons.validFrom']}"
-							field="validFrom" time="true" />
+							field="validFrom" time="true" displayOneLine="true"
+							labelWidth="100" />
 						<hftl:formField label="#{messages['commons.validTo']}"
-							field="validTo" time="true" />
+							field="validTo" time="true" displayOneLine="true"
+							labelWidth="100" />
 						<hftl:formField label="#{messages['commons.status']}"
-							field="lifeCycleStatus" />
-					</p:panelGrid>
+							field="lifeCycleStatus" displayOneLine="true" labelWidth="100" />
+					</h:panelGrid>
 				</p:panel>
-				<p:panelGrid columns="1" styleClass="ui-panelgrid-blank">
+				<h:panelGrid columns="1" styleClass="ui-panelgrid-blank Wid100">
 					<hftl:formField id="offerTemplateCategories"
 						label="#{messages['offerTemplate.category']}"
-						field="offerTemplateCategories" listType="pickUpList"
-						valueLabelField="code"
-						dualListModel="#{offerTemplateBean.offerTemplateCategoriesDM}" />
+						field="offerTemplateCategories" listType="selectCheckbox"
+						valueLabelField="descriptionOrCode" listBean="#{offerTemplateCategoryListBean}"
+						componentWidth="100" />
 					<hftl:formField id="channels" label="#{messages['channels.title']}"
-						field="channels" listType="pickUpList"
-						valueLabelField="descriptionOrCode"
-						dualListModel="#{offerTemplateBean.channelsDM}" newLine="true" />
+						field="channels" listType="selectCheckbox"
+						valueLabelField="descriptionOrCode" listBean="#{channelListBean}"
+						newLine="true" componentWidth="100" />
 					<hftl:formField id="businessAccountModels"
 						label="#{messages['marketingManager.catalog.targetSegment']}"
-						field="businessAccountModels" listType="pickUpList"
-						valueLabelField="code"
-						dualListModel="#{offerTemplateBean.businessAccountModelsDM}"
-						newLine="true" />
-				</p:panelGrid>
+						field="businessAccountModels" listType="selectCheckbox"
+						valueLabelField="descriptionOrCode" listBean="#{businessAccountModelListBean}"
+						newLine="true" componentWidth="100" />
+				</h:panelGrid>
 			</p:panelGrid>
 
 			<p:panel>
@@ -209,52 +220,64 @@
 						styleClass="fa fa-edit no-text-decoration"
 						style="margin-left: 10px;" rendered="#{offerTemplateBean.edit}" />
 				</f:facet>
-					<!-- custom fields -->
-                <c:if test="#{customFieldDataEntryBean.getGroupedFieldTemplates(offerTemplateBean.entity).children.size() == 1}">
-                    <hftl:customFields backingBean="#{offerTemplateBean}" messagesId=":formId:messages" defaultTabLabel="#{messages['commons.parameters']}" />
-                </c:if>
-                <c:if test="#{customFieldDataEntryBean.getGroupedFieldTemplates(offerTemplateBean.entity).children.size() > 1}">
-                    <p:tabView>
-                        <hftl:customFields backingBean="#{offerTemplateBean}" messagesId=":formId:messages" defaultTabLabel="#{messages['commons.parameters']}" />
-                    </p:tabView>
-                </c:if>
-            </p:panel>
+				<!-- custom fields -->
+				<c:if
+					test="#{customFieldDataEntryBean.getGroupedFieldTemplates(offerTemplateBean.entity).children.size() == 1}">
+					<hftl:customFields backingBean="#{offerTemplateBean}"
+						messagesId=":formId:messages"
+						defaultTabLabel="#{messages['commons.parameters']}" />
+				</c:if>
+				<c:if
+					test="#{customFieldDataEntryBean.getGroupedFieldTemplates(offerTemplateBean.entity).children.size() > 1}">
+					<p:tabView>
+						<hftl:customFields backingBean="#{offerTemplateBean}"
+							messagesId=":formId:messages"
+							defaultTabLabel="#{messages['commons.parameters']}" />
+					</p:tabView>
+				</c:if>
+			</p:panel>
 
 			<p:panel>
-				<f:facet name="header">
-					<h:outputText
-						value="#{messages['marketingManager.catalog.service']} #{messages['productTemplate.attributes']}"
-						styleClass="SubHeader" />
-				</f:facet>
+				<f:facet name="header">#{messages['marketingManager.catalog.servicesToInclude']}</f:facet>
+
 				<p:panel>
-					<c:set var="index" value="${0}"></c:set>
-					<c:forEach
-						items="#{offerTemplateBean.entity.offerServiceTemplates}"
-						var="ost">
 
-						<p:selectBooleanCheckbox value="#{ost.serviceTemplate.selected}"
-							rendered="#{offerTemplateBean.edit and offerTemplateBean.bomId ne null}">
-							<p:ajax update="serviceCf_panel_#{index}"></p:ajax>
-						</p:selectBooleanCheckbox>
-						<h:outputText value=" #{ost.serviceTemplate.descriptionOrCode}"></h:outputText>
+					<h:panelGrid columns="3" styleClass="Wid100 ui-panelgrid-blank"
+						columnClasses="Responsive Wid2, Wid27 Responsive50, TexAlLeft Wid70 Responsive100">
 
-						<p:panel id="serviceCf_panel_#{index}">
+                        <c:forEach items="#{offerTemplateBean.entity.offerServiceTemplates}" var="ost" varStatus="loopStatus">
 
-                            <!-- custom fields -->
-                            <c:if test="#{customFieldDataEntryBean.getGroupedFieldTemplates(ost.serviceTemplate).children.size() ==1}">
-                                <hftl:customFields backingBean="#{serviceTemplateBean}" entity="#{ost.serviceTemplate}" messagesId=":formId:messages"
-                                    defaultTabLabel="#{messages['commons.parameters']}" prefix="cf_#{index}" />
-                            </c:if>
-                            <c:if test="#{customFieldDataEntryBean.getGroupedFieldTemplates(ost.serviceTemplate).children.size() > 1}">
-                                <p:tabView>
-                                    <hftl:customFields backingBean="#{serviceTemplateBean}" entity="#{ost.serviceTemplate}" messagesId=":formId:messages"
-                                        defaultTabLabel="#{messages['commons.parameters']}" prefix="cf_#{index}" />
-                                </p:tabView>
-                            </c:if>
-                        </p:panel>
+                            <p:selectBooleanCheckbox value="#{ost.serviceTemplate.selected}" rendered="#{offerTemplateBean.edit and offerTemplateBean.bomId ne null}">
+                                <p:ajax update="serviceCf_panel_#{loopStatus.index}"></p:ajax>
+                            </p:selectBooleanCheckbox>
 
-						<c:set var="index" value="${index + 1}"></c:set>
-					</c:forEach>
+                            <h:outputText value=" #{ost.serviceTemplate.descriptionOrCode}"></h:outputText>
+
+                            <p:outputPanel id="serviceCf_panel_#{loopStatus.index}">
+                                <p:panel rendered="#{ost.serviceTemplate.selected}">
+                                    <f:facet name="header">
+                                        <p:panel styleClass="TexAlLeft">
+                                            <h:outputText value="#{messages['marketingManager.catalog.service']} #{messages['productTemplate.attributes']}" styleClass="SubHeader" />
+                                        </p:panel>
+                                    </f:facet>
+                                    <!-- custom fields -->
+                                    <c:if test="#{customFieldDataEntryBean.getGroupedFieldTemplates(ost.serviceTemplate).children.size() == 1}">
+                                        <hftl:customFields backingBean="#{serviceTemplateBean}" entity="#{ost.serviceTemplate}" messagesId=":formId:messages"
+                                            defaultTabLabel="#{messages['commons.parameters']}" prefix="cf_#{loopStatus.index}" />
+                                    </c:if>
+                                    <c:if test="#{customFieldDataEntryBean.getGroupedFieldTemplates(ost.serviceTemplate).children.size() > 1}">
+                                        <p:tabView>
+                                            <hftl:customFields backingBean="#{serviceTemplateBean}" entity="#{ost.serviceTemplate}" messagesId=":formId:messages"
+                                                defaultTabLabel="#{messages['commons.parameters']}" prefix="cf_#{loopStatus.index}" />
+                                        </p:tabView>
+                                    </c:if>
+                                </p:panel>
+                            </p:outputPanel>
+
+                        </c:forEach>
+
+                    </h:panelGrid>
+
 				</p:panel>
 			</p:panel>
 		</hftl:formPanel>
@@ -269,16 +292,18 @@
 					listener="#{customFieldDataEntryBean.refreshFieldsAndActionsWhilePreserveValues(offerTemplateBean.entity)}"
 					update=":formId:customFieldsWrappPanel" />
 
-                <ui:include src="../../pages/admin/customEntities/customFieldsAndActions.xhtml">
-                </ui:include>
+				<ui:include
+					src="../../pages/admin/customEntities/customFieldsAndActions.xhtml">
+				</ui:include>
 
-                <h:form>
-                    <p:panel width="100">
-                        <p:button value="#{messages['commons.close']}" onclick="PF('entityCustomizationDialog').hide();return false;">
-                        </p:button>
-                    </p:panel>
-                </h:form>
-            </p:dialog>
+				<h:form>
+					<p:panel width="100">
+						<p:button value="#{messages['commons.close']}"
+							onclick="PF('entityCustomizationDialog').hide();return false;">
+						</p:button>
+					</p:panel>
+				</h:form>
+			</p:dialog>
 		</h:panelGroup>
 
 		<p:dialog id="selectProduct" widgetVar="selectProduct" dynamic="true"

@@ -38,7 +38,6 @@ import org.meveo.admin.action.CustomFieldBean;
 import org.meveo.admin.action.admin.custom.CustomFieldDataEntryBean;
 import org.meveo.admin.exception.BusinessException;
 import org.meveo.api.billing.OrderApi;
-import org.meveo.api.exception.MeveoApiException;
 import org.meveo.api.order.OrderProductCharacteristicEnum;
 import org.meveo.commons.utils.ParamBean;
 import org.meveo.model.BusinessCFEntity;
@@ -54,6 +53,7 @@ import org.meveo.model.catalog.ServiceTemplate;
 import org.meveo.model.crm.CustomFieldTemplate;
 import org.meveo.model.crm.Provider;
 import org.meveo.model.crm.custom.CustomFieldValue;
+import org.meveo.model.hierarchy.UserHierarchyLevel;
 import org.meveo.model.order.Order;
 import org.meveo.model.order.OrderItem;
 import org.meveo.model.order.OrderItemActionEnum;
@@ -63,7 +63,7 @@ import org.meveo.service.base.PersistenceService;
 import org.meveo.service.base.local.IPersistenceService;
 import org.meveo.service.billing.impl.UserAccountService;
 import org.meveo.service.catalog.impl.ProductOfferingService;
-import org.meveo.service.catalog.impl.ServiceTemplateService;
+import org.meveo.service.hierarchy.impl.UserHierarchyLevelService;
 import org.meveo.service.order.OrderItemService;
 import org.meveo.service.order.OrderService;
 import org.omnifaces.cdi.ViewScoped;
@@ -95,9 +95,6 @@ public class OrderBean extends CustomFieldBean<Order> {
     private OrderItemService orderItemService;
 
     @Inject
-    private ServiceTemplateService serviceTemplateService;
-
-    @Inject
     private OrderApi orderApi;
 
     @Inject
@@ -108,6 +105,9 @@ public class OrderBean extends CustomFieldBean<Order> {
 
     @Inject
     private CustomFieldDataEntryBean customFieldDataEntryBean;
+
+    @Inject
+    private UserHierarchyLevelService userHierarchyLevelService;
 
     private ParamBean paramBean = ParamBean.getInstance();
 
@@ -344,19 +344,29 @@ public class OrderBean extends CustomFieldBean<Order> {
         }
     }
 
+    @Override
+    public String saveOrUpdate(boolean killConversation) throws BusinessException {
+        String result = super.saveOrUpdate(killConversation);
+        
+        // Execute workflow with every update
+        if (entity.getStatus() != OrderStatusEnum.IN_CREATION) {
+            entity = orderApi.initiateWorkflow(entity, getCurrentUser());
+        }
+        return result;
+    }
+
     /**
      * Initiate processing of order
      * 
      * @throws BusinessException
      */
-    public void sendToProcess() throws BusinessException {
-        entity.setStatus(OrderStatusEnum.ACKNOWLEDGED);
-        saveOrUpdate(false);
+    public void sendToProcess() {
 
         try {
-            orderApi.processOrder(entity, getCurrentUser());
+            entity = orderApi.initiateWorkflow(entity, getCurrentUser());
             messages.info(new BundleKey("messages", "order.sendToProcess.ok"));
-        } catch (MeveoApiException e) {
+
+        } catch (BusinessException e) {
             log.error("Failed to send order for processing ", e);
             messages.error(new BundleKey("messages", "order.sendToProcess.ko"), e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName());
             FacesContext.getCurrentInstance().validationFailed();
@@ -601,6 +611,12 @@ public class OrderBean extends CustomFieldBean<Order> {
         }
     }
 
+    /**
+     * Convert product characteristics to a map of values extracting only those values that match OrderProductCharacteristicEnum values
+     * 
+     * @param characteristics Product characteristics to check
+     * @return A map of values
+     */
     private Map<OrderProductCharacteristicEnum, Object> productCharacteristicsToMap(List<ProductCharacteristic> characteristics) {
         Map<OrderProductCharacteristicEnum, Object> values = new HashMap<>();
 
@@ -611,7 +627,7 @@ public class OrderBean extends CustomFieldBean<Order> {
             if (characteristicEnum == null) {
                 continue;
             }
-            Class valueClazz = characteristicEnum.getClazz();
+            Class<?> valueClazz = characteristicEnum.getClazz();
             if (valueClazz == String.class) {
                 values.put(characteristicEnum, productCharacteristic.getValue());
             } else if (valueClazz == BigDecimal.class) {
@@ -623,6 +639,12 @@ public class OrderBean extends CustomFieldBean<Order> {
         return values;
     }
 
+    /**
+     * Convert a map of values to a list of product characteristic entities
+     * 
+     * @param values Map of values
+     * @return List of product characteristic entities
+     */
     @SuppressWarnings("rawtypes")
     private List<ProductCharacteristic> mapToProductCharacteristics(Map<OrderProductCharacteristicEnum, Object> values) {
 
@@ -732,13 +754,29 @@ public class OrderBean extends CustomFieldBean<Order> {
     }
 
     private OrderItem cloneOrderItem(OrderItem itemToClone) throws BusinessException {
-        OrderItem newOrderItem = new OrderItem();
-        // itemToClone.get
+
         try {
             return (OrderItem) BeanUtilsBean.getInstance().cloneBean(itemToClone);
         } catch (IllegalAccessException | InstantiationException | InvocationTargetException | NoSuchMethodException e) {
             log.error("Failed to clone orderItem for edit", e);
             throw new BusinessException(e);
         }
+    }
+
+    /**
+     * Order is editable only in non-final states and when order is routed to a user group - user must belong to that or a higher group
+     * 
+     * @return Is order editable
+     */
+    public boolean isOrderEditable() {
+        getEntity();// This will initialize entity if not done so yet
+        boolean editable = entity.getStatus() != OrderStatusEnum.CANCELLED && entity.getStatus() != OrderStatusEnum.COMPLETED && entity.getStatus() != OrderStatusEnum.REJECTED;
+
+        if (editable && entity.getRoutedToUserGroup() != null) {
+            UserHierarchyLevel userGroup = userHierarchyLevelService.refreshOrRetrieve(entity.getRoutedToUserGroup());
+            editable = userGroup.isUserBelongsHereOrHigher(getCurrentUser());
+        }
+
+        return editable;
     }
 }

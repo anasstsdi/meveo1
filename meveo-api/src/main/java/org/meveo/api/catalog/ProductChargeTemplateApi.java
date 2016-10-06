@@ -24,7 +24,6 @@ import org.meveo.model.billing.TradingLanguage;
 import org.meveo.model.catalog.ProductChargeTemplate;
 import org.meveo.model.catalog.RoundingModeEnum;
 import org.meveo.model.catalog.TriggeredEDRTemplate;
-import org.meveo.model.catalog.UsageChargeTemplate;
 import org.meveo.model.crm.Provider;
 import org.meveo.model.finance.RevenueRecognitionRule;
 import org.meveo.service.catalog.impl.CatMessagesService;
@@ -139,10 +138,10 @@ public class ProductChargeTemplateApi extends BaseApi {
 		// populate customFields
 		try {
 			populateCustomFields(postData.getCustomFields(), chargeTemplate, true, currentUser);
-		} catch (IllegalArgumentException | IllegalAccessException e) {
-			log.error("Failed to associate custom field instance to an entity", e);
-			throw new MeveoApiException("Failed to associate custom field instance to an entity");
-		}
+        } catch (Exception e) {
+            log.error("Failed to associate custom field instance to an entity", e);
+            throw e;
+        }
 
 		// create cat messages
 		if (postData.getLanguageDescriptions() != null) {
@@ -275,10 +274,10 @@ public class ProductChargeTemplateApi extends BaseApi {
 		// populate customFields
 		try {
 			populateCustomFields(postData.getCustomFields(), chargeTemplate, false, currentUser);
-		} catch (IllegalArgumentException | IllegalAccessException e) {
-			log.error("Failed to associate custom field instance to an entity", e);
-			throw new MeveoApiException("Failed to associate custom field instance to an entity");
-		}
+        } catch (Exception e) {
+            log.error("Failed to associate custom field instance to an entity", e);
+            throw e;
+        }
 	}
 
 	public ProductChargeTemplateDto find(String code, Provider provider) throws MeveoApiException {
@@ -306,7 +305,7 @@ public class ProductChargeTemplateApi extends BaseApi {
 		return result;
 	}
 
-	public void remove(String code, Provider provider) throws MeveoApiException {
+	public void remove(String code, User currentUser) throws MeveoApiException, BusinessException {
 
 		if (StringUtils.isBlank(code)) {
 			missingParameters.add("usageChargeTemplateCode");
@@ -314,12 +313,12 @@ public class ProductChargeTemplateApi extends BaseApi {
 		}
 
 		// check if code already exists
-		ProductChargeTemplate chargeTemplate = productChargeTemplateService.findByCode(code, provider, Arrays.asList("invoiceSubCategory"));
+		ProductChargeTemplate chargeTemplate = productChargeTemplateService.findByCode(code, currentUser.getProvider(), Arrays.asList("invoiceSubCategory"));
 		if (chargeTemplate == null) {
 			throw new EntityDoesNotExistsException(UsageChargeTemplateDto.class, code);
 		}
 
-		productChargeTemplateService.remove(chargeTemplate);
+		productChargeTemplateService.remove(chargeTemplate, currentUser);
 	}
 
 	public void createOrUpdate(ProductChargeTemplateDto postData, User currentUser) throws MeveoApiException, BusinessException {

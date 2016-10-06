@@ -156,10 +156,10 @@ public class OfferTemplateApi extends BaseApi {
 		// populate customFields
 		try {
 			populateCustomFields(postData.getCustomFields(), offerTemplate, true, currentUser);
-		} catch (IllegalArgumentException | IllegalAccessException e) {
-			log.error("Failed to associate custom field instance to an entity", e);
-			throw new MeveoApiException("Failed to associate custom field instance to an entity");
-		}
+        } catch (Exception e) {
+            log.error("Failed to associate custom field instance to an entity", e);
+            throw e;
+        }
 	}
 
 	public void update(OfferTemplateDto postData, User currentUser) throws MeveoApiException, BusinessException {
@@ -270,7 +270,7 @@ public class OfferTemplateApi extends BaseApi {
 
 				if (toBeDeleted.size() > 0) {
 					for (OfferServiceTemplate offerServiceTemplate : toBeDeleted) {
-						offerServiceTemplateService.remove(offerServiceTemplate);
+						offerServiceTemplateService.remove(offerServiceTemplate, currentUser);
 					}
 				}
 
@@ -364,10 +364,10 @@ public class OfferTemplateApi extends BaseApi {
 		// populate customFields
 		try {
 			populateCustomFields(postData.getCustomFields(), offerTemplate, false, currentUser);
-		} catch (IllegalArgumentException | IllegalAccessException e) {
-			log.error("Failed to associate custom field instance to an entity", e);
-			throw new MeveoApiException("Failed to associate custom field instance to an entity");
-		}
+        } catch (Exception e) {
+            log.error("Failed to associate custom field instance to an entity", e);
+            throw e;
+        }
 	}
 
 	private void processOfferProductTemplates(OfferTemplateDto postData, OfferTemplate offerTemplate, User currentUser) throws MeveoApiException, BusinessException {
@@ -467,19 +467,19 @@ public class OfferTemplateApi extends BaseApi {
 
 	}
 
-	public void remove(String code, Provider provider) throws MeveoApiException {
+	public void remove(String code, User currentUser) throws MeveoApiException, BusinessException {
 
 		if (StringUtils.isBlank(code)) {
 			missingParameters.add("offerTemplateCode");
 			handleMissingParameters();
 		}
 
-		OfferTemplate offerTemplate = offerTemplateService.findByCode(code, provider);
+		OfferTemplate offerTemplate = offerTemplateService.findByCode(code, currentUser.getProvider());
 		if (offerTemplate == null) {
 			throw new EntityDoesNotExistsException(OfferTemplate.class, code);
 		}
 
-		offerTemplateService.remove(offerTemplate);
+		offerTemplateService.remove(offerTemplate, currentUser);
 	}
 
 	/**

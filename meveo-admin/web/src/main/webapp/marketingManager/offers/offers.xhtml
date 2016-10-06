@@ -144,7 +144,7 @@
 
 										<p:panel>
 											<p>
-												<h:outputText id="nameOrCode"
+												<h:outputText id="nameOrCode" styleClass="FontBold"
 													value="#{of:abbreviate(entity.nameOrCode, 25)}"></h:outputText>
 											</p>
 											<p:tooltip for="nameOrCode" value="#{entity.nameOrCode}"></p:tooltip>
@@ -181,9 +181,8 @@
 										</p:panel>
 
 										<p:panel>
-											<p:panel>
+											<p:panel styleClass="switch-wrapper">
 												<p:inputSwitch value="#{entity.active}" disabled="true"
-													styleClass="#{entity.active ? 'GreenBg' : ''}"
 													onLabel="#{messages['accountStatusEnum.active']}"
 													offLabel="#{messages['accountStatusEnum.inactive']}"></p:inputSwitch>
 											</p:panel>
@@ -306,7 +305,7 @@
 												<h:outputText value="#{service.descriptionOrCode}"
 													styleClass="text-bold" />
 												<h:panelGroup layout="block">
-													<ul class="list-unstyled">
+													<ul class="no-list-style">
 														<ui:repeat var="charge"
 															value="#{service.serviceUsageCharges}">
 															<li><h:outputText

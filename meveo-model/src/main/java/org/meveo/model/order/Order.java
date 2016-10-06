@@ -122,7 +122,7 @@ public class Order extends BusinessCFEntity {
     /**
      * A list of order items. Not modifiable once started processing.
      */
-    @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "order", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> orderItems;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -249,13 +249,6 @@ public class Order extends BusinessCFEntity {
 
     public void setRoutedToUserGroup(UserHierarchyLevel routedToUserGroup) {
         this.routedToUserGroup = routedToUserGroup;
-    }
-
-    public String getRoutedTo() {
-        if (routedToUserGroup != null) {
-            return routedToUserGroup.getCode();
-        }
-        return null;
     }
 
     public String getReceivedFromApp() {

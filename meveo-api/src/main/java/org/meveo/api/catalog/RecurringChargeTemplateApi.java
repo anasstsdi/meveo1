@@ -156,9 +156,9 @@ public class RecurringChargeTemplateApi extends BaseApi {
         // populate customFields
         try {
             populateCustomFields(postData.getCustomFields(), chargeTemplate, true, currentUser);
-        } catch (IllegalArgumentException | IllegalAccessException e) {
+        } catch (Exception e) {
             log.error("Failed to associate custom field instance to an entity", e);
-            throw new MeveoApiException("Failed to associate custom field instance to an entity");
+            throw e;
         }
 
         // create cat messages
@@ -282,9 +282,9 @@ public class RecurringChargeTemplateApi extends BaseApi {
         // populate customFields
         try {
             populateCustomFields(postData.getCustomFields(), chargeTemplate, false, currentUser);
-        } catch (IllegalArgumentException | IllegalAccessException e) {
+        } catch (Exception e) {
             log.error("Failed to associate custom field instance to an entity", e);
-            throw new MeveoApiException("Failed to associate custom field instance to an entity");
+            throw e;
         }
     }
 
@@ -314,7 +314,7 @@ public class RecurringChargeTemplateApi extends BaseApi {
         return result;
     }
 
-    public void remove(String code, Provider provider) throws MeveoApiException {
+    public void remove(String code, User currentUser) throws MeveoApiException, BusinessException {
 
         if (StringUtils.isBlank(code)) {
             missingParameters.add("recurringChargeTemplateCode");
@@ -322,12 +322,12 @@ public class RecurringChargeTemplateApi extends BaseApi {
         }
 
         // check if code already exists
-        RecurringChargeTemplate chargeTemplate = recurringChargeTemplateService.findByCode(code, provider);
+        RecurringChargeTemplate chargeTemplate = recurringChargeTemplateService.findByCode(code, currentUser.getProvider());
         if (chargeTemplate == null) {
             throw new EntityDoesNotExistsException(RecurringChargeTemplate.class, code);
         }
 
-        recurringChargeTemplateService.remove(chargeTemplate);
+        recurringChargeTemplateService.remove(chargeTemplate, currentUser);
     }
 
     public void createOrUpdate(RecurringChargeTemplateDto postData, User currentUser) throws MeveoApiException, BusinessException {

@@ -11,6 +11,7 @@ import org.meveo.admin.exception.BusinessException;
 import org.meveo.admin.exception.IncorrectChargeTemplateException;
 import org.meveo.admin.util.NumberUtil;
 import org.meveo.model.admin.Seller;
+import org.meveo.model.admin.User;
 import org.meveo.model.billing.BillingAccount;
 import org.meveo.model.billing.InvoiceSubCategory;
 import org.meveo.model.billing.InvoiceSubcategoryCountry;
@@ -25,7 +26,6 @@ import org.meveo.model.catalog.OneShotChargeTemplate;
 import org.meveo.model.catalog.RecurringChargeTemplate;
 import org.meveo.model.catalog.ServiceChargeTemplate;
 import org.meveo.model.catalog.ServiceTemplate;
-import org.meveo.model.crm.Provider;
 import org.meveo.service.catalog.impl.InvoiceSubCategoryService;
 import org.slf4j.Logger;
 
@@ -50,7 +50,7 @@ public class RealtimeChargingService {
 	public BigDecimal getApplicationPrice(BillingAccount ba,
 			OneShotChargeTemplate chargeTemplate, Date subscriptionDate,
 			String offerCode, BigDecimal quantity, String param1,
-			String param2, String param3, boolean priceWithoutTax)
+			String param2, String param3, boolean priceWithoutTax,User currentUser)
 			throws BusinessException {
 
 		TradingCurrency currency = ba.getCustomerAccount().getTradingCurrency();
@@ -66,8 +66,6 @@ public class RealtimeChargingService {
 					"no country exists for billingAccount id=" + ba.getId());
 		}
 
-		Provider provider = ba.getProvider();
-
 		Seller seller = ba.getCustomerAccount().getCustomer().getSeller();
 
 		return getApplicationPrice(provider, seller, ba,currency,
@@ -75,7 +73,7 @@ public class RealtimeChargingService {
 				quantity, param1, param2, param3, priceWithoutTax);
 	}
 
-	public BigDecimal getApplicationPrice(Provider provider,
+	public BigDecimal getApplicationPrice(User currentUser,
 			Seller seller, BillingAccount ba,TradingCurrency currency,
 			TradingCountry tradingCountry,
 			OneShotChargeTemplate chargeTemplate, Date subscriptionDate,
@@ -95,7 +93,7 @@ public class RealtimeChargingService {
 		Long tradingCountryId = tradingCountry.getId();
 		InvoiceSubcategoryCountry invoiceSubcategoryCountry = invoiceSubCategoryCountryService
 				.findInvoiceSubCategoryCountry(invoiceSubCategory.getId(),
-						tradingCountryId, provider);
+						tradingCountryId, currentUser.getProvider());
 		if (invoiceSubcategoryCountry == null) {
 			throw new IncorrectChargeTemplateException(
 					"no invoiceSubcategoryCountry exists for invoiceSubCategory code="
@@ -121,7 +119,7 @@ public class RealtimeChargingService {
 		op.setParameter2(param2);
 		op.setParameter3(param3);
 
-		op.setProvider(provider);
+		op.setProvider(currentUser.getProvider());
 		OneShotChargeInstance ci = new OneShotChargeInstance();
 		ci.setCountry(tradingCountry);
 		ci.setCurrency(currency);
@@ -141,7 +139,7 @@ public class RealtimeChargingService {
 		op.setSeller(seller);
 
 		chargeApplicationRatingService.rateBareWalletOperation(op, null,
-				null, tradingCountryId, currency, provider);
+				null, tradingCountryId, currency, currentUser);
 
 		return priceWithoutTax ? op.getAmountWithoutTax() : op
 				.getAmountWithTax();
@@ -150,7 +148,7 @@ public class RealtimeChargingService {
 	public BigDecimal getFirstRecurringPrice(BillingAccount ba,
 			RecurringChargeTemplate chargeTemplate, Date subscriptionDate,
 			BigDecimal quantity, String param1, String param2, String param3,
-			boolean priceWithoutTax) throws BusinessException {
+			boolean priceWithoutTax,User currentUser) throws BusinessException {
 		RecurringChargeInstance chargeInstance = new RecurringChargeInstance();
 		chargeInstance.setRecurringChargeTemplate(chargeTemplate);
 		chargeInstance.setSubscriptionDate(subscriptionDate);
@@ -164,7 +162,7 @@ public class RealtimeChargingService {
 		Date nextApplicationDate = walletOperationService
 				.getNextApplicationDate(chargeInstance);
 		WalletOperation op = walletOperationService.prerateSubscription(
-				subscriptionDate, chargeInstance, nextApplicationDate);
+				subscriptionDate, chargeInstance, nextApplicationDate,currentUser);
 		return priceWithoutTax ? op.getAmountWithoutTax() : op
 				.getAmountWithTax();
 	}
@@ -172,11 +170,11 @@ public class RealtimeChargingService {
 	public BigDecimal getActivationServicePrice(BillingAccount ba,
 			ServiceTemplate serviceTemplate, Date subscriptionDate,
 			String offerCode, BigDecimal quantity, String param1,
-			String param2, String param3, boolean priceWithoutTax)
+			String param2, String param3, boolean priceWithoutTax,User currentUser)
 			throws BusinessException {
 		return getActivationServicePrice(null, ba, serviceTemplate,
 				subscriptionDate, offerCode, quantity, param1, param2, param3,
-				priceWithoutTax);
+				priceWithoutTax,currentUser);
 	}
 
 	/*
@@ -185,7 +183,7 @@ public class RealtimeChargingService {
 	public BigDecimal getActivationServicePrice(EntityManager em,
 			BillingAccount ba, ServiceTemplate serviceTemplate,
 			Date subscriptionDate, String offerCode, BigDecimal quantity,
-			String param1, String param2, String param3, boolean priceWithoutTax)
+			String param1, String param2, String param3, boolean priceWithoutTax,User currentUser)
 			throws BusinessException {
 
 		BigDecimal result = BigDecimal.ZERO;
@@ -195,7 +193,7 @@ public class RealtimeChargingService {
 					.getServiceSubscriptionCharges()) {
 				result = result.add(getApplicationPrice(ba, charge.getChargeTemplate(),
 						subscriptionDate,offerCode, quantity, param1, param2, param3,
-						priceWithoutTax));
+						priceWithoutTax,currentUser));
 			}
 		}
 
@@ -205,7 +203,7 @@ public class RealtimeChargingService {
 				if (charge.getChargeTemplate().getApplyInAdvance()) {
 					result = result.add(getFirstRecurringPrice(ba, charge.getChargeTemplate(),
 							subscriptionDate, quantity, param1, param2, param3,
-							priceWithoutTax));
+							priceWithoutTax,currentUser));
 				}
 			}
 		}

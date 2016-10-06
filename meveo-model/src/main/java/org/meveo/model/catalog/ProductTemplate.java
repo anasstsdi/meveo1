@@ -1,7 +1,11 @@
 package org.meveo.model.catalog;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -11,7 +15,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
-import javax.persistence.OneToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.OrderColumn;
 import javax.persistence.Transient;
 
@@ -39,9 +43,8 @@ public class ProductTemplate extends ProductOffering {
 	@Transient
 	public static final String CF_CATALOG_PRICE = "CATALOG_PRICE";
 
-	@OneToOne
-	@JoinColumn(name = "PRODUCT_CHARGE_TMPL_ID")
-	private ProductChargeTemplate productChargeTemplate;
+	@OneToMany(mappedBy = "productTemplate", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+	private Set<ProductChargeTemplate> productChargeTemplates = new HashSet<>();
 
 	@ManyToOne
 	@JoinColumn(name = "BUSINESS_PRODUCT_MODEL_ID")
@@ -54,16 +57,19 @@ public class ProductTemplate extends ProductOffering {
 	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "CAT_PRODUCT_WALLET_TEMPLATE", joinColumns = @JoinColumn(name = "PRODUCT_TEMPLATE_ID"), inverseJoinColumns = @JoinColumn(name = "WALLET_TEMPLATE_ID"))
 	@OrderColumn(name = "INDX")
-	private List<WalletTemplate> walletTemplates;
+	private List<WalletTemplate> walletTemplates = new ArrayList<WalletTemplate>();
 
-	public ProductChargeTemplate getProductChargeTemplate() {
-		return productChargeTemplate;
+	public Set<ProductChargeTemplate> getProductChargeTemplates() {
+		if(productChargeTemplates == null){
+			productChargeTemplates = new HashSet<>();
+		}
+		return productChargeTemplates;
 	}
 
-	public void setProductChargeTemplate(ProductChargeTemplate productChargeTemplate) {
-		this.productChargeTemplate = productChargeTemplate;
+	public void setProductChargeTemplates(Set<ProductChargeTemplate> productChargeTemplates) {
+		this.productChargeTemplates = productChargeTemplates;
 	}
-
+	
 	public BusinessProductModel getBusinessProductModel() {
 		return businessProductModel;
 	}

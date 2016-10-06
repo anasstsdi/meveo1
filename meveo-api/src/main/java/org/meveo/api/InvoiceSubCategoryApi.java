@@ -103,10 +103,10 @@ public class InvoiceSubCategoryApi extends BaseApi {
         try {
             populateCustomFields(postData.getCustomFields(), invoiceSubCategory, true, currentUser, true);
 
-        } catch (IllegalArgumentException | IllegalAccessException e) {
+        } catch (Exception e) {
             log.error("Failed to associate custom field instance to an entity", e);
-            throw new MeveoApiException("Failed to associate custom field instance to an entity");
-        }        
+            throw e;
+        }       
     }
 
     public void update(InvoiceSubCategoryDto postData, User currentUser) throws MeveoApiException, BusinessException {
@@ -157,10 +157,17 @@ public class InvoiceSubCategoryApi extends BaseApi {
                 }
 
                 // create cat messages
-                for (LanguageDescriptionDto ld : postData.getLanguageDescriptions()) {
-                    CatMessages catMsg = new CatMessages(InvoiceSubCategory.class.getSimpleName() , invoiceSubCategory.getCode(), ld.getLanguageCode(), ld.getDescription());
-
-                    catMessagesService.create(catMsg, currentUser);
+                for (LanguageDescriptionDto ld : postData.getLanguageDescriptions()) {                   
+                    CatMessages catMsg = catMessagesService.getCatMessages( invoiceSubCategory.getCode(),InvoiceSubCategory.class.getSimpleName(), ld.getLanguageCode(),provider);
+                    
+                    if (catMsg != null) {
+                        catMsg.setDescription(ld.getDescription());
+                        catMessagesService.update(catMsg, currentUser);
+                    } else {
+                        CatMessages catMessages = new CatMessages(InvoiceSubCategory.class.getSimpleName() , invoiceSubCategory.getCode(), ld.getLanguageCode(),
+                            ld.getDescription());
+                        catMessagesService.create(catMessages, currentUser);
+                    }
                 }
             }
         }
@@ -171,10 +178,10 @@ public class InvoiceSubCategoryApi extends BaseApi {
         try {
             populateCustomFields(postData.getCustomFields(), invoiceSubCategory, false, currentUser, true);
 
-        } catch (IllegalArgumentException | IllegalAccessException e) {
+        } catch (Exception e) {
             log.error("Failed to associate custom field instance to an entity", e);
-            throw new MeveoApiException("Failed to associate custom field instance to an entity");
-        } 
+            throw e;
+        }
     }
 
     public InvoiceSubCategoryDto find(String code, Provider provider) throws MeveoApiException {
@@ -203,19 +210,19 @@ public class InvoiceSubCategoryApi extends BaseApi {
         return result;
     }
 
-    public void remove(String code, Provider provider) throws MeveoApiException {
+    public void remove(String code, User currentUser) throws MeveoApiException, BusinessException {
 
         if (StringUtils.isBlank(code)) {
             missingParameters.add("invoiceSubCategoryCode");
             handleMissingParameters();
         }
 
-        InvoiceSubCategory invoiceSubCategory = invoiceSubCategoryService.findByCode(code, provider);
+        InvoiceSubCategory invoiceSubCategory = invoiceSubCategoryService.findByCode(code, currentUser.getProvider());
         if (invoiceSubCategory == null) {
             throw new EntityDoesNotExistsException(InvoiceSubCategory.class, code);
         }
 
-        invoiceSubCategoryService.remove(invoiceSubCategory);
+        invoiceSubCategoryService.remove(invoiceSubCategory, currentUser);
 
     }
 
