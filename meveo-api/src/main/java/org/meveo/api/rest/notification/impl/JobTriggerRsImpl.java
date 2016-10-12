@@ -69,7 +69,7 @@ public class JobTriggerRsImpl extends BaseRs implements JobTriggerRs {
         GetJobTriggerResponseDto result = new GetJobTriggerResponseDto();
 
         try {
-            result.setJobTriggerDto(jobTriggerApi.find(notificationCode, getCurrentUser().getProvider()));
+            result.setJobTriggerDto(jobTriggerApi.find(notificationCode, getCurrentUser()));
         } catch (MeveoApiException e) {
             result.getActionStatus().setErrorCode(e.getErrorCode());
             result.getActionStatus().setStatus(ActionStatusEnum.FAIL);
@@ -89,7 +89,7 @@ public class JobTriggerRsImpl extends BaseRs implements JobTriggerRs {
         ActionStatus result = new ActionStatus(ActionStatusEnum.SUCCESS, "");
 
         try {
-            jobTriggerApi.remove(notificationCode, getCurrentUser().getProvider());
+            jobTriggerApi.remove(notificationCode, getCurrentUser());
         } catch (MeveoApiException e) {
             result.setErrorCode(e.getErrorCode());
             result.setStatus(ActionStatusEnum.FAIL);

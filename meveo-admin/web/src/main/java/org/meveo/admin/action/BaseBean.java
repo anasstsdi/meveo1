@@ -164,8 +164,8 @@ public abstract class BaseBean<T extends IEntity> implements Serializable {
     private String backViewSave;
 
     /**
-    * Object identifier to load
-    */
+     * Object identifier to load
+     */
     private Long objectId;
 
     /** Helper field to enter language related field values. */
@@ -223,6 +223,10 @@ public abstract class BaseBean<T extends IEntity> implements Serializable {
      */
     public Class<T> getClazz() {
         return clazz;
+    }
+
+    public void setClazz(Class<T> clazz) {
+        this.clazz = clazz;
     }
 
     protected void beginConversation() {
@@ -308,14 +312,14 @@ public abstract class BaseBean<T extends IEntity> implements Serializable {
      */
     private void loadMultiLanguageFields() {
 
-        if (!isMultilanguageEntity()||!(entity instanceof BusinessEntity)) {
+        if (!isMultilanguageEntity() || !(entity instanceof BusinessEntity)) {
             return;
         }
 
         languageMessagesMap.clear();
-        BusinessEntity businessEntity=(BusinessEntity)entity;
+        BusinessEntity businessEntity = (BusinessEntity) entity;
 
-        for (CatMessages msg : catMessagesService.getCatMessagesList(catMessagesService.getEntityClass(clazz) ,businessEntity.getCode(),currentProvider)) {
+        for (CatMessages msg : catMessagesService.getCatMessagesList(catMessagesService.getEntityClass(clazz), businessEntity.getCode(), currentProvider)) {
             languageMessagesMap.put(msg.getLanguageCode(), msg.getDescription());
         }
     }
@@ -582,7 +586,7 @@ public abstract class BaseBean<T extends IEntity> implements Serializable {
     public void delete(Long id) {
         try {
             log.info("Deleting entity {} with id = {}", clazz.getName(), id);
-            getPersistenceService().remove(id);
+            getPersistenceService().remove(id, getCurrentUser());
             messages.info(new BundleKey("messages", "delete.successful"));
         } catch (Throwable t) {
             if (t.getCause() instanceof EntityExistsException) {
@@ -602,7 +606,7 @@ public abstract class BaseBean<T extends IEntity> implements Serializable {
     public void delete() {
         try {
             log.info("Deleting entity {} with id = {}", clazz.getName(), getEntity().getId());
-            getPersistenceService().remove((Long) getEntity().getId());
+            getPersistenceService().remove((Long) getEntity().getId(), getCurrentUser());
             messages.info(new BundleKey("messages", "delete.successful"));
         } catch (Throwable t) {
             if (t.getCause() instanceof EntityExistsException) {
@@ -632,7 +636,7 @@ public abstract class BaseBean<T extends IEntity> implements Serializable {
                 }
                 log.info("Deleting multiple entities {} with ids = {}", clazz.getName(), idsString.toString());
 
-                getPersistenceService().remove(idsToDelete);
+                getPersistenceService().remove(idsToDelete, getCurrentUser());
                 getPersistenceService().commit();
                 messages.info(new BundleKey("messages", "delete.entitities.successful"));
             } else {
@@ -870,7 +874,7 @@ public abstract class BaseBean<T extends IEntity> implements Serializable {
                 public User getCurrentUser() {
                     return BaseBean.this.getCurrentUser();
                 }
-                
+
                 @Override
                 protected String getFullTextSearchValue(Map<String, Object> loadingFilters) {
                     String fullTextValue = super.getFullTextSearchValue(loadingFilters);
@@ -878,7 +882,7 @@ public abstract class BaseBean<T extends IEntity> implements Serializable {
                         return (String) filters.get(ESBasedDataModel.FILTER_FULL_TEXT);
                     }
                     return fullTextValue;
-                }            
+                }
             };
         }
 
@@ -934,13 +938,13 @@ public abstract class BaseBean<T extends IEntity> implements Serializable {
      * 
      * @return
      */
-	public boolean isEdit() {
-		if (edit == null || org.meveo.commons.utils.StringUtils.isBlank(edit.get())) {
-			return true;
-		}
+    public boolean isEdit() {
+        if (edit == null || org.meveo.commons.utils.StringUtils.isBlank(edit.get())) {
+            return true;
+        }
 
-		return Boolean.valueOf(edit.get());
-	}
+        return Boolean.valueOf(edit.get());
+    }
 
     protected void clearObjectId() {
         objectId = null;
@@ -1259,18 +1263,18 @@ public abstract class BaseBean<T extends IEntity> implements Serializable {
     public void setPartOfModules(String partOfModules) {
         this.partOfModules = partOfModules;
     }
-    
-	public String getDescriptionOrCode() {
-		if (entity instanceof BusinessEntity) {
-			BusinessEntity be = (BusinessEntity) entity;
-			if (org.meveo.commons.utils.StringUtils.isBlank(be.getDescription())) {
-				return be.getCode();
-			} else {
-				return be.getDescription();
-			}
-		}
-		
-		return null;
-	}
+
+    public String getDescriptionOrCode() {
+        if (entity instanceof BusinessEntity) {
+            BusinessEntity be = (BusinessEntity) entity;
+            if (org.meveo.commons.utils.StringUtils.isBlank(be.getDescription())) {
+                return be.getCode();
+            } else {
+                return be.getDescription();
+            }
+        }
+
+        return null;
+    }
 
 }

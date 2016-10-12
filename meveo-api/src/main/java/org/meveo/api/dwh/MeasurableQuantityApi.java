@@ -7,26 +7,26 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 import org.meveo.admin.exception.BusinessException;
-import org.meveo.api.BaseApi;
+import org.meveo.api.BaseCrudApi;
 import org.meveo.api.dto.dwh.MeasurableQuantityDto;
 import org.meveo.api.exception.EntityAlreadyExistsException;
 import org.meveo.api.exception.EntityDoesNotExistsException;
 import org.meveo.api.exception.MeveoApiException;
 import org.meveo.commons.utils.StringUtils;
 import org.meveo.model.admin.User;
-import org.meveocrm.model.dwh.MeasurableQuantity;
+import org.meveo.model.dwh.MeasurableQuantity;
 import org.meveocrm.services.dwh.MeasurableQuantityService;
 
 /**
  * @author Andrius Karpavicius
  **/
 @Stateless
-public class MeasurableQuantityApi extends BaseApi {
+public class MeasurableQuantityApi extends BaseCrudApi<MeasurableQuantity, MeasurableQuantityDto> {
 
     @Inject
     private MeasurableQuantityService measurableQuantityService;
 
-    public void create(MeasurableQuantityDto postData, User currentUser) throws MeveoApiException, BusinessException {
+    public MeasurableQuantity create(MeasurableQuantityDto postData, User currentUser) throws MeveoApiException, BusinessException {
 
         if (StringUtils.isBlank(postData.getCode())) {
             missingParameters.add("code");
@@ -40,9 +40,10 @@ public class MeasurableQuantityApi extends BaseApi {
         MeasurableQuantity measurableQuantity = fromDTO(postData, currentUser, null);
         measurableQuantityService.create(measurableQuantity, currentUser);
 
+        return measurableQuantity;
     }
 
-    public void update(MeasurableQuantityDto postData, User currentUser) throws MeveoApiException, BusinessException {
+    public MeasurableQuantity update(MeasurableQuantityDto postData, User currentUser) throws MeveoApiException, BusinessException {
         if (StringUtils.isBlank(postData.getCode())) {
             missingParameters.add("measurableQuantityCode");
             handleMissingParameters();
@@ -54,7 +55,9 @@ public class MeasurableQuantityApi extends BaseApi {
         }
 
         measurableQuantity = fromDTO(postData, currentUser, measurableQuantity);
-        measurableQuantityService.update(measurableQuantity, currentUser);
+        measurableQuantity = measurableQuantityService.update(measurableQuantity, currentUser);
+
+        return measurableQuantity;
 
     }
 
@@ -75,7 +78,7 @@ public class MeasurableQuantityApi extends BaseApi {
         return result;
     }
 
-    public void remove(String measurableQuantityCode, User currentUser) throws MeveoApiException {
+    public void remove(String measurableQuantityCode, User currentUser) throws MeveoApiException, BusinessException {
 
         if (StringUtils.isBlank(measurableQuantityCode)) {
             missingParameters.add("measurableQuantityCode");
@@ -87,17 +90,18 @@ public class MeasurableQuantityApi extends BaseApi {
             throw new EntityDoesNotExistsException(MeasurableQuantity.class, measurableQuantityCode);
         }
 
-        measurableQuantityService.remove(measurableQuantity);
+        measurableQuantityService.remove(measurableQuantity, currentUser);
     }
 
-    public void createOrUpdate(MeasurableQuantityDto postData, User currentUser) throws MeveoApiException, BusinessException {
+    @Override
+    public MeasurableQuantity createOrUpdate(MeasurableQuantityDto postData, User currentUser) throws MeveoApiException, BusinessException {
         MeasurableQuantity measurableQuantity = measurableQuantityService.findByCode(postData.getCode(), currentUser.getProvider());
         if (measurableQuantity == null) {
             // create
-            create(postData, currentUser);
+            return create(postData, currentUser);
         } else {
             // update
-            update(postData, currentUser);
+            return update(postData, currentUser);
         }
     }
 

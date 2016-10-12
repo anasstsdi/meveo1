@@ -71,7 +71,7 @@ public class NotificationRsImpl extends BaseRs implements NotificationRs {
         GetNotificationResponseDto result = new GetNotificationResponseDto();
 
         try {
-            result.setNotificationDto(notificationApi.find(notificationCode, getCurrentUser().getProvider()));
+            result.setNotificationDto(notificationApi.find(notificationCode, getCurrentUser()));
         } catch (MeveoApiException e) {
             result.getActionStatus().setErrorCode(e.getErrorCode());
             result.getActionStatus().setStatus(ActionStatusEnum.FAIL);
@@ -91,7 +91,7 @@ public class NotificationRsImpl extends BaseRs implements NotificationRs {
         ActionStatus result = new ActionStatus(ActionStatusEnum.SUCCESS, "");
 
         try {
-            notificationApi.remove(notificationCode, getCurrentUser().getProvider());
+            notificationApi.remove(notificationCode, getCurrentUser());
         } catch (MeveoApiException e) {
             result.setErrorCode(e.getErrorCode());
             result.setStatus(ActionStatusEnum.FAIL);

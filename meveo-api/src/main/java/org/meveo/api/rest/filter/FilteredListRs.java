@@ -11,7 +11,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import org.meveo.api.dto.filter.FilteredListDto;
+import org.meveo.api.dto.FilterDto;
 import org.meveo.api.rest.IBaseRs;
 import org.meveo.api.rest.security.RSSecured;
 
@@ -21,13 +21,17 @@ import org.meveo.api.rest.security.RSSecured;
 @RSSecured
 public interface FilteredListRs extends IBaseRs {
 
-    @Path("/")
-    @GET
-    public Response list(@QueryParam("filter") String filter, @QueryParam("firstRow") Integer firstRow, @QueryParam("numberOfRows") Integer numberOfRows);
-
-    @Path("/xmlInput")
+	/**
+     * Execute a filter to retrieve a list of entities
+     * 
+     * @param filter - if the code is set we lookup the filter in DB, else we parse the inputXml to create a transient filter
+     * @param from Pagination - starting record
+     * @param size Pagination - number of records per page
+     * @return
+     */
+    @Path("/listByFilter")
     @POST
-    public Response listByXmlInput(FilteredListDto postData);
+    public Response listByFilter(FilterDto filter, @QueryParam("from") Integer from, @QueryParam("size") Integer size);
 
     /**
      * Execute a search in Elastic Search on all fields (_all field)
@@ -40,7 +44,8 @@ public interface FilteredListRs extends IBaseRs {
      */
     @Path("/search")
     @GET
-    public Response search(@QueryParam("classnamesOrCetCodes") String[] classnamesOrCetCodes, @QueryParam("query") String query, @QueryParam("from") Integer from, @QueryParam("size") Integer size);
+    public Response search(@QueryParam("classnamesOrCetCodes") String[] classnamesOrCetCodes, @QueryParam("query") String query, @QueryParam("from") Integer from,
+            @QueryParam("size") Integer size);
 
     /**
      * Execute a search in Elastic Search on given fields for given values. Query values by field are passed in extra query parameters in a form of fieldName=valueToMatch
@@ -52,5 +57,15 @@ public interface FilteredListRs extends IBaseRs {
      */
     @Path("/searchByField")
     @GET
-    public Response searchByField(@QueryParam("classnamesOrCetCodes") String[] classnamesOrCetCodes, @QueryParam("from") Integer from, @QueryParam("size") Integer size, @Context UriInfo info);
+    public Response searchByField(@QueryParam("classnamesOrCetCodes") String[] classnamesOrCetCodes, @QueryParam("from") Integer from, @QueryParam("size") Integer size,
+            @Context UriInfo info);
+
+    /**
+     * Clean and reindex Elastic Search repository
+     * 
+     * @return
+     */
+    @Path("/reindex")
+    @GET
+    public Response reindex();
 }

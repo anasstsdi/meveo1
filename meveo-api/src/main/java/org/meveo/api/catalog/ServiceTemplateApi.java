@@ -7,7 +7,7 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 import org.meveo.admin.exception.BusinessException;
-import org.meveo.api.BaseApi;
+import org.meveo.api.BaseCrudApi;
 import org.meveo.api.dto.catalog.ServiceChargeTemplateRecurringDto;
 import org.meveo.api.dto.catalog.ServiceChargeTemplateSubscriptionDto;
 import org.meveo.api.dto.catalog.ServiceChargeTemplateTerminationDto;
@@ -48,7 +48,7 @@ import org.meveo.service.catalog.impl.UsageChargeTemplateService;
  * @author Edward P. Legaspi
  **/
 @Stateless
-public class ServiceTemplateApi extends BaseApi {
+public class ServiceTemplateApi extends BaseCrudApi<ServiceTemplate, ServiceTemplateDto> {
 
     @Inject
     private ServiceTemplateService serviceTemplateService;
@@ -226,7 +226,7 @@ public class ServiceTemplateApi extends BaseApi {
         }
     }
 
-    public void create(ServiceTemplateDto postData, User currentUser) throws MeveoApiException, BusinessException {
+    public ServiceTemplate create(ServiceTemplateDto postData, User currentUser) throws MeveoApiException, BusinessException {
 
         if (StringUtils.isBlank(postData.getCode())) {
             missingParameters.add("code");
@@ -285,9 +285,11 @@ public class ServiceTemplateApi extends BaseApi {
 
         // check for usage charges
         createServiceChargeTemplateUsage(postData, currentUser, serviceTemplate);
+        
+        return serviceTemplate;
     }
 
-    public void update(ServiceTemplateDto postData, User currentUser) throws MeveoApiException, BusinessException {
+    public ServiceTemplate update(ServiceTemplateDto postData, User currentUser) throws MeveoApiException, BusinessException {
 
         if (StringUtils.isBlank(postData.getCode())) {
             missingParameters.add("code");
@@ -349,16 +351,18 @@ public class ServiceTemplateApi extends BaseApi {
 
         // check for usage charges
         createServiceChargeTemplateUsage(postData, currentUser, serviceTemplate);
+        
+        return serviceTemplate;
     }
 
-    public ServiceTemplateDto find(String serviceTemplateCode, Provider provider) throws MeveoApiException {
+    public ServiceTemplateDto find(String serviceTemplateCode, User currentUser) throws MeveoApiException {
 
         if (StringUtils.isBlank(serviceTemplateCode)) {
             missingParameters.add("serviceTemplateCode");
             handleMissingParameters();
         }
 
-        ServiceTemplate serviceTemplate = serviceTemplateService.findByCode(serviceTemplateCode, provider);
+        ServiceTemplate serviceTemplate = serviceTemplateService.findByCode(serviceTemplateCode, currentUser.getProvider());
         if (serviceTemplate == null) {
             throw new EntityDoesNotExistsException(ServiceTemplate.class, serviceTemplateCode);
         }
@@ -396,14 +400,14 @@ public class ServiceTemplateApi extends BaseApi {
         serviceTemplate.setServiceUsageCharges(listUsages);
     }
 
-    public void remove(String serviceTemplateCode, Provider provider) throws MeveoApiException {
+    public void remove(String serviceTemplateCode, User currentUser) throws MeveoApiException, BusinessException {
 
         if (StringUtils.isBlank(serviceTemplateCode)) {
             missingParameters.add("serviceTemplateCode");
             handleMissingParameters();
         }
 
-        ServiceTemplate serviceTemplate = serviceTemplateService.findByCode(serviceTemplateCode, provider);
+        ServiceTemplate serviceTemplate = serviceTemplateService.findByCode(serviceTemplateCode, currentUser.getProvider());
         if (serviceTemplate == null) {
             throw new EntityDoesNotExistsException(ServiceTemplate.class, serviceTemplateCode);
         }
@@ -411,26 +415,26 @@ public class ServiceTemplateApi extends BaseApi {
         setAllWalletTemplatesToNull(serviceTemplate);
 
         // remove serviceChargeTemplateRecurring
-        serviceChargeTemplateRecurringService.removeByServiceTemplate(serviceTemplate, provider);
+        serviceChargeTemplateRecurringService.removeByServiceTemplate(serviceTemplate, currentUser.getProvider());
 
         // remove serviceChargeTemplateSubscription
-        serviceChargeTemplateSubscriptionService.removeByServiceTemplate(serviceTemplate, provider);
+        serviceChargeTemplateSubscriptionService.removeByServiceTemplate(serviceTemplate, currentUser.getProvider());
 
         // remove serviceChargeTemplateTermination
-        serviceChargeTemplateTerminationService.removeByServiceTemplate(serviceTemplate, provider);
+        serviceChargeTemplateTerminationService.removeByServiceTemplate(serviceTemplate, currentUser.getProvider());
 
         // remove serviceUsageChargeTemplate
-        serviceUsageChargeTemplateService.removeByServiceTemplate(serviceTemplate, provider);
+        serviceUsageChargeTemplateService.removeByServiceTemplate(serviceTemplate, currentUser.getProvider());
 
-        serviceTemplateService.remove(serviceTemplate);
+        serviceTemplateService.remove(serviceTemplate, currentUser);
 
     }
 
-    public void createOrUpdate(ServiceTemplateDto postData, User currentUser) throws MeveoApiException, BusinessException {
+    public ServiceTemplate createOrUpdate(ServiceTemplateDto postData, User currentUser) throws MeveoApiException, BusinessException {
         if (serviceTemplateService.findByCode(postData.getCode(), currentUser.getProvider()) == null) {
-            create(postData, currentUser);
+            return create(postData, currentUser);
         } else {
-            update(postData, currentUser);
+            return update(postData, currentUser);
         }
     }
 }

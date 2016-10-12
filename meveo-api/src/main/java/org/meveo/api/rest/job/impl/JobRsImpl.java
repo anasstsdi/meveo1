@@ -138,7 +138,7 @@ public class JobRsImpl extends BaseRs implements JobRs {
         JobInstanceResponseDto result = new JobInstanceResponseDto();
 
         try {
-            result.setJobInstanceDto(jobInstanceApi.find(jobInstanceCode, getCurrentUser().getProvider()));
+            result.setJobInstanceDto(jobInstanceApi.find(jobInstanceCode, getCurrentUser()));
         } catch (MeveoApiException e) {
             result.getActionStatus().setErrorCode(e.getErrorCode());
             result.getActionStatus().setStatus(ActionStatusEnum.FAIL);
@@ -158,7 +158,7 @@ public class JobRsImpl extends BaseRs implements JobRs {
         ActionStatus result = new ActionStatus(ActionStatusEnum.SUCCESS, "");
 
         try {
-            jobInstanceApi.remove(jobInstanceCode, getCurrentUser().getProvider());
+            jobInstanceApi.remove(jobInstanceCode, getCurrentUser());
         } catch (MeveoApiException e) {
             result.setErrorCode(e.getErrorCode());
             result.setStatus(ActionStatusEnum.FAIL);

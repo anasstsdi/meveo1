@@ -98,7 +98,7 @@ public class OneShotChargeTemplateRsImpl extends BaseRs implements OneShotCharge
         GetOneShotChargeTemplateResponseDto result = new GetOneShotChargeTemplateResponseDto();
 
         try {
-            result.setOneShotChargeTemplate(oneShotChargeTemplateApi.find(oneShotChargeTemplateCode, getCurrentUser().getProvider()));
+            result.setOneShotChargeTemplate(oneShotChargeTemplateApi.find(oneShotChargeTemplateCode, getCurrentUser()));
         } catch (MeveoApiException e) {
             result.getActionStatus().setErrorCode(e.getErrorCode());
             result.getActionStatus().setStatus(ActionStatusEnum.FAIL);
@@ -118,7 +118,7 @@ public class OneShotChargeTemplateRsImpl extends BaseRs implements OneShotCharge
         ActionStatus result = new ActionStatus(ActionStatusEnum.SUCCESS, "");
 
         try {
-            oneShotChargeTemplateApi.remove(oneShotChargeTemplateCode, getCurrentUser().getProvider());
+            oneShotChargeTemplateApi.remove(oneShotChargeTemplateCode, getCurrentUser());
         } catch (MeveoApiException e) {
             result.setErrorCode(e.getErrorCode());
             result.setStatus(ActionStatusEnum.FAIL);
