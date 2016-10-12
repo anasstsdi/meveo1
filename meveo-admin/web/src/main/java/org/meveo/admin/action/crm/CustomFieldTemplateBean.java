@@ -182,7 +182,6 @@ public class CustomFieldTemplateBean extends UpdateMapTypeFieldBean<CustomFieldT
         }
         if (entity.getFieldType() == CustomFieldTypeEnum.PRICE) {
         	entity.setStorageType(CustomFieldStorageTypeEnum.MATRIX);
-			entity.setMapKeyType(CustomFieldMapKeyEnum.STRING);			
 			
 			CustomFieldMatrixColumn cfMatrixColumn = new CustomFieldMatrixColumn();
 			cfMatrixColumn.setCode(CustomFieldMatrixColumn.PRICE_CURRENCY_FIELD);

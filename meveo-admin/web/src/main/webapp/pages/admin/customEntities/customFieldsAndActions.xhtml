@@ -304,7 +304,7 @@
                 <!--                 <hftl:formField label="#{messages['customFieldTemplate.guipos']}" field="guiPosition" componentWidth="20" edit="false" /> -->
                 <hftl:formField label="#{messages['customFieldTemplate.storageType']}" field="storageType" required="true" componentWidth="10"
                     listenerUpdate="@this defaultValueField mapKeyTypeField matrixColumns" actionListenerBean="#{customFieldTemplateBean}" allowEdit="false"
-                    actionListenerMethod="updateDefaultValues" disabled="#{customFieldTemplateBean.entity.fieldType eq 'PRICE'}" />
+                    actionListenerMethod="updateDefaultValues" disabled="#{customFieldTemplateBean.entity.fieldType eq 'PRICE' or customFieldTemplateBean.entity.fieldType eq 'CHILD_ENTITY'}" />
 
                 <h:panelGroup id="mapKeyTypeField">
                     <hftl:formField label="#{messages['customFieldTemplate.mapKeyType']}" field="mapKeyType" required="true" componentWidth="10"
@@ -415,7 +415,7 @@
                         rendered="#{customFieldTemplateBean.entity.fieldType == CustomFieldTypeEnum.STRING}" size="29" componentWidth="19" />
                 </p:fieldset>
                 <p:fieldset legend="#{messages['customFieldTemplate.versioningAndCaching']}" styleClass="clearfix versioning-and-caching">
-                    <hftl:formField label="#{messages['customFieldTemplate.cacheValue']}" field="cacheValue" isMessage="true" componentWidth="15" />
+                    <hftl:formField label="#{messages['customFieldTemplate.cacheValue']}" field="cacheValue" isMessage="true" componentWidth="15" listenerUpdate=":cftForm:versionableFields"/>
                     <hftl:formField label="#{messages['customFieldTemplate.indexType']}" field="indexType" required="false"
                         allowEdit="#{customFieldTemplateBean.entity.indexType==null}" componentWidth="10" />
                     <h:panelGroup id="versioning">
@@ -425,7 +425,7 @@
                             <hftl:formField label="#{messages['customFieldTemplate.calendar']}" field="calendar" valueLabelField="code" listBean="#{calendarBean}"
                                 rendered="#{customFieldTemplateBean.entity.versionable}" />
                             <hftl:formField label="#{messages['customFieldTemplate.cacheTimeperiod']}" field="cacheValueTimeperiod"
-                                rendered="#{customFieldTemplateBean.entity.versionable}" componentWidth="30" />
+                                rendered="#{customFieldTemplateBean.entity.cacheValue}" componentWidth="30" />
                             <hftl:formField label="#{messages['customFieldTemplate.triggerEndPeriodEvent']}" field="triggerEndPeriodEvent"
                                 rendered="#{customFieldTemplateBean.entity.versionable}" componentWidth="15" />
                         </h:panelGroup>

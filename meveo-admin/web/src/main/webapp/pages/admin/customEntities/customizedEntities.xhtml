@@ -10,7 +10,14 @@
 
     <ui:define name="body">
 
-        <hftl:decorateFormPanel formId="searchPanel" label="#{messages['customizedEntities.search']}">
+        <h:form id="crumbmenuForm">
+            <p:breadCrumb homeDisplay="text" id="crumbmenu">
+                <p:menuitem value="#{messages['menu.admin']}" disabled="true" />
+                <p:menuitem outcome="customizedEntities" value="#{messages['menu.customizedEntities']}" />
+            </p:breadCrumb>
+        </h:form>
+
+        <hftl:decorateFormPanel formId="searchPanel">
             <ui:define name="fields">
                 <hftl:decorateFormField fieldId="entityName" label="#{messages['customizedEntities.entityName']}">
                     <p:inputText id="entityName" value="#{customEntityTemplateListBean.filters['entityName']}" />

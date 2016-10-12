@@ -12,22 +12,22 @@
 
     <ui:define name="body">
 
-        <p:panel>
-            <h:form id="crumbmenuForm">
-                <p:breadCrumb homeDisplay="text" id="crumbmenu">
-                    <p:menuitem value="#{messages['menu.admin']}" disabled="true" />
-                    <p:menuitem outcome="customizedEntities" value="#{messages['menu.customizedEntities']}" />
-                </p:breadCrumb>
-            </h:form>
-        </p:panel>
+        <h:form id="crumbmenuForm">
+            <p:breadCrumb homeDisplay="text" id="crumbmenu">
+                <p:menuitem value="#{messages['menu.admin']}" disabled="true" />
+                <p:menuitem outcome="customizedEntities" value="#{messages['menu.customizedEntities']}" />
+                <p:menuitem
+                    value="#{customEntityTemplateBean.customEntityTemplate?customEntityTemplateBean.entity.descriptionOrCode:customEntityTemplateBean.customizedEntity.classnameToDisplayHuman}"
+                    disabled="true"
+                    rendered="#{!customEntityTemplateBean.customEntityTemplate or (customEntityTemplateBean.customEntityTemplate and customEntityTemplateBean.entity.code!=null)}" />
+            </p:breadCrumb>
+        </h:form>
 
         <o:importConstants type="org.meveo.model.crm.custom.CustomFieldMapKeyEnum" />
         <o:importConstants type="org.meveo.model.crm.custom.CustomFieldTypeEnum" />
 
         <h:panelGroup rendered="#{customEntityTemplateBean.customEntityTemplate}">
-            <hftl:formPanel formId="cetForm"
-                label="#{messages['customizedEntities.detail'].concat(customEntityTemplateBean.entity.code!=null?(' - '.concat(customEntityTemplateBean.entity.getCode)):'')}"
-                backingBean="#{customEntityTemplateBean}">
+            <hftl:formPanel formId="cetForm" backingBean="#{customEntityTemplateBean}">
                 <hftl:formField label="#{messages['BusinessEntity.code']}" field="code" showOnlyOnNew="true" required="true" />
                 <hftl:formField label="#{messages['customizedEntities.name']}" field="name" required="true" />
                 <hftl:formField label="#{messages['BusinessEntity.description']}" field="description" />
@@ -35,10 +35,6 @@
                     <h:outputText value="#{customEntityTemplateBean.getPartOfModules()}" />
                 </hftl:decorateFormField>
             </hftl:formPanel>
-        </h:panelGroup>
-        <h:panelGroup rendered="#{! customEntityTemplateBean.customEntityTemplate}">
-            <hftl:decorateFormPanel label="#{messages['customizedEntities.detail']} - #{customEntityTemplateBean.customizedEntity.classnameToDisplayHuman}">
-            </hftl:decorateFormPanel>
         </h:panelGroup>
 
 
