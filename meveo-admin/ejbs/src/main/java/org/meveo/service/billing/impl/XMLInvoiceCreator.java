@@ -135,6 +135,8 @@ public class XMLInvoiceCreator extends PersistenceService<Invoice> {
     private InvoiceTypeService invoiceTypeService;
 
 	TransformerFactory transfac = TransformerFactory.newInstance();
+	
+	private Map<String,String> littleCache = new HashMap<String, String>();
 
 	List<Long> serviceIds = null,  offerIds =null , priceplanIds = null;
 
@@ -468,13 +470,11 @@ public class XMLInvoiceCreator extends PersistenceService<Invoice> {
 		} catch (ParserConfigurationException e) {
 			log.error("Error occured when creating xml for invoiceID={}. {}", invoiceId, e);
 		}
-
 	}
 
 	public void addUserAccounts(Invoice invoice, Document doc, Element parent, boolean enterprise, Element invoiceTag,
 			boolean displayDetail) throws BusinessException {
-		// log.debug("add user account");
-
+		
 		Element userAccountsTag = null;
 		if (displayDetail) {
 			userAccountsTag = doc.createElement("userAccounts");
@@ -996,7 +996,7 @@ public class XMLInvoiceCreator extends PersistenceService<Invoice> {
 								}
 
 								if(walletOperation.getProvider().getInvoiceConfiguration().getDisplayChargesPeriods()){
-									ChargeInstance chargeInstance=(ChargeInstance) chargeInstanceService.findById(walletOperation.getChargeInstance().getId(),true); 
+									ChargeInstance chargeInstance=(ChargeInstance) chargeInstanceService.findById(walletOperation.getChargeInstance().getId(),false); 
 									ChargeTemplate chargeTemplate = chargeInstance.getChargeTemplate();
 
 									// get periodStartDate and periodEndDate for recurrents
@@ -1037,8 +1037,11 @@ public class XMLInvoiceCreator extends PersistenceService<Invoice> {
 						if (ratedTransaction.getPriceplan() != null) {
 							Element pricePlan = doc.createElement("pricePlan");
 							pricePlan.setAttribute("code", ratedTransaction.getPriceplan().getCode());
-							pricePlan.setAttribute("description", catMessagesService.getMessageDescription(
-									ratedTransaction.getPriceplan(), languageCode));
+							if( ! littleCache.containsKey(ratedTransaction.getPriceplan().getCode()+"_"+languageCode)){
+								littleCache.put(ratedTransaction.getPriceplan().getCode()+"_"+languageCode, catMessagesService.getMessageDescription(ratedTransaction.getPriceplan(), languageCode));
+							}							
+							pricePlan.setAttribute("description", littleCache.get(ratedTransaction.getPriceplan().getCode()+"_"+languageCode));
+							
 							line.appendChild(pricePlan);
 							if (!priceplanIds.contains(ratedTransaction.getPriceplan().getId())) {
 							    addPricePlans(ratedTransaction.getPriceplan(),invoice,doc,invoiceTag);
@@ -1155,15 +1158,14 @@ public class XMLInvoiceCreator extends PersistenceService<Invoice> {
 							line.appendChild(edrInfo);
 						}
 
-						subCategory.appendChild(line);
-						
+						subCategory.appendChild(line);						
 					}
 					addCustomFields(invoiceSubCat, invoice, doc, subCategory);				
 				}
 			}
 		}
 
-		log.info("addCategorries time: " + (System.currentTimeMillis() - startDate));
+		log.debug("addCategorries time: " + (System.currentTimeMillis() - startDate));
 	}
 
 	private void addTaxes(Invoice invoice, Document doc, Element parent) throws BusinessException {
@@ -1304,9 +1306,7 @@ public class XMLInvoiceCreator extends PersistenceService<Invoice> {
 			LinkedHashMap<String, XMLInvoiceHeaderCategoryDTO> headerCategories, Document doc, Element parent,
 			boolean entreprise, Provider provider) {
 
-		int rounding = provider.getRounding() == null ? 2 : provider.getRounding();
-		String languageCode = invoice.getBillingAccount().getTradingLanguage().getLanguage().getLanguageCode();
-
+		int rounding = provider.getRounding() == null ? 2 : provider.getRounding();	
 		// log.debug("add header categories");
 
 		Element categories = doc.createElement("categories");
