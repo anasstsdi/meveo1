@@ -3,7 +3,6 @@ package org.meveo.api.catalog;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -195,7 +194,7 @@ public class CatalogApi extends BaseApi {
 
 	private List<ProductOfferingPrice> getProductOfferingPricesFromOfferProducts(OfferTemplate offerTemplate, User currentUser, ServiceTemplate serviceTemplate) {
 		List<ProductOfferingPrice> productOfferingPrices = new ArrayList<>();
-		Set<OfferProductTemplate> offerProductTemplates = offerTemplate.getOfferProductTemplates();
+		List<OfferProductTemplate> offerProductTemplates = offerTemplate.getOfferProductTemplates();
 
 		if (offerProductTemplates == null || offerProductTemplates.isEmpty()) {
 			return productOfferingPrices;
@@ -209,7 +208,7 @@ public class CatalogApi extends BaseApi {
 			
 			// load the prices form the product template
 			ProductTemplate productTemplate = offerProductTemplate.getProductTemplate();
-			Set<ProductChargeTemplate> productChargeTemplates = productTemplate.getProductChargeTemplates();
+			List<ProductChargeTemplate> productChargeTemplates = productTemplate.getProductChargeTemplates();
 			
 			Price price = new Price();
 			price.setDutyFreeAmount(new BigDecimal(0));
