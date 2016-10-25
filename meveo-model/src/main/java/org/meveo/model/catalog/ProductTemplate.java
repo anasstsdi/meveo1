@@ -1,9 +1,7 @@
 package org.meveo.model.catalog;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.DiscriminatorValue;
@@ -21,15 +19,11 @@ import javax.persistence.Transient;
 
 import org.meveo.model.CustomFieldEntity;
 import org.meveo.model.ICustomFieldEntity;
-import org.meveo.model.MultilanguageEntity;
-import org.meveo.model.ObservableEntity;
 
 /**
  * @author Edward P. Legaspi
  */
 @Entity
-@ObservableEntity
-@MultilanguageEntity
 @CustomFieldEntity(cftCodePrefix = "PRODUCT")
 @DiscriminatorValue("PRODUCT")
 @NamedQueries({
@@ -44,7 +38,7 @@ public class ProductTemplate extends ProductOffering {
 	public static final String CF_CATALOG_PRICE = "CATALOG_PRICE";
 
 	@OneToMany(mappedBy = "productTemplate", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-	private Set<ProductChargeTemplate> productChargeTemplates = new HashSet<>();
+	private List<ProductChargeTemplate> productChargeTemplates = new ArrayList<>();
 
 	@ManyToOne
 	@JoinColumn(name = "BUSINESS_PRODUCT_MODEL_ID")
@@ -59,14 +53,14 @@ public class ProductTemplate extends ProductOffering {
 	@OrderColumn(name = "INDX")
 	private List<WalletTemplate> walletTemplates = new ArrayList<WalletTemplate>();
 
-	public Set<ProductChargeTemplate> getProductChargeTemplates() {
-		if(productChargeTemplates == null){
-			productChargeTemplates = new HashSet<>();
+	public List<ProductChargeTemplate> getProductChargeTemplates() {
+		if (productChargeTemplates == null) {
+			productChargeTemplates = new ArrayList<>();
 		}
 		return productChargeTemplates;
 	}
 
-	public void setProductChargeTemplates(Set<ProductChargeTemplate> productChargeTemplates) {
+	public void setProductChargeTemplates(List<ProductChargeTemplate> productChargeTemplates) {
 		this.productChargeTemplates = productChargeTemplates;
 	}
 	

@@ -50,6 +50,7 @@ import org.meveo.model.billing.SubscriptionTerminationReason;
 import org.meveo.model.billing.UsageChargeInstance;
 import org.meveo.model.billing.UserAccount;
 import org.meveo.model.billing.WalletOperation;
+import org.meveo.model.catalog.OfferProductTemplate;
 import org.meveo.model.catalog.OfferServiceTemplate;
 import org.meveo.model.catalog.OneShotChargeTemplate;
 import org.meveo.model.catalog.ProductTemplate;
@@ -68,7 +69,7 @@ import org.meveo.service.billing.impl.ServiceInstanceService;
 import org.meveo.service.billing.impl.SubscriptionService;
 import org.meveo.service.billing.impl.UsageChargeInstanceService;
 import org.meveo.service.billing.impl.UserAccountService;
-import org.meveo.service.catalog.impl.OfferProductTemplateService;
+import org.meveo.service.catalog.impl.OfferTemplateService;
 import org.meveo.service.catalog.impl.OneShotChargeTemplateService;
 import org.meveo.service.catalog.impl.ProductTemplateService;
 import org.meveo.service.catalog.impl.ServiceChargeTemplateSubscriptionService;
@@ -141,7 +142,7 @@ public class SubscriptionBean extends CustomFieldBean<Subscription> {
 	private ProductTemplateService productTemplateService;
 
 	@Inject
-	private OfferProductTemplateService offerProductTemplateService;
+	private OfferTemplateService offerTemplateService;
 
 	private ServiceInstance selectedServiceInstance;
 
@@ -284,7 +285,7 @@ public class SubscriptionBean extends CustomFieldBean<Subscription> {
 		selectedWalletTemplate = new WalletTemplate();
 		selectedWalletTemplateCode=null;
 	}
-
+	
     public void saveOneShotChargeIns() {
         log.debug("saveOneShotChargeIns getObjectId={}, wallet {}", getObjectId(), selectedWalletTemplate);
         try {
@@ -320,6 +321,9 @@ public class SubscriptionBean extends CustomFieldBean<Subscription> {
 
             messages.info(new BundleKey("messages", "save.successful"));
 
+        } catch (BusinessException e1) {
+        	log.error("exception when applying one shot charge!", e1);
+			messages.error(e1.getMessage());
         } catch (Exception e) {
             log.error("exception when applying one shot charge!", e);
             messages.error(e.getMessage());
@@ -925,11 +929,12 @@ public class SubscriptionBean extends CustomFieldBean<Subscription> {
 	public List<ProductTemplate> getOfferProductTemplates() {
 		List<ProductTemplate> result = new ArrayList<>();
 
-		if (entity != null) {
-			result = offerProductTemplateService.listByOfferTemplate(entity.getOffer());
-		}
+		if (entity != null && entity.getOffer() != null) {
+			for (OfferProductTemplate offerProductTemplate : offerTemplateService.refreshOrRetrieve(entity.getOffer()).getOfferProductTemplates()) {
+                result.add(offerProductTemplate.getProductTemplate());
+            }
+         }
 
 		return result;
 	}
-
 }

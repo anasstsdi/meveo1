@@ -35,8 +35,10 @@ import javax.validation.constraints.Size;
 
 import org.meveo.model.BusinessEntity;
 import org.meveo.model.ExportIdentifier;
+import org.meveo.model.ModuleItem;
 
 @Entity
+@ModuleItem
 @ExportIdentifier({ "code", "provider" })
 @Table(name = "WF_WORKFLOW", uniqueConstraints = @UniqueConstraint(columnNames = {"PROVIDER_ID", "CODE" }))
 @SequenceGenerator(name = "ID_GENERATOR", sequenceName = "WF_WORKFLOW_SEQ")
@@ -49,7 +51,7 @@ public class Workflow extends BusinessEntity {
     @Size(max = 255)
 	String wfType = null;
 	
-	@OneToMany(mappedBy = "workflow", fetch = FetchType.LAZY,cascade=CascadeType.REMOVE)
+	@OneToMany(mappedBy = "workflow", fetch = FetchType.LAZY, cascade = { CascadeType.REMOVE })
     @OrderBy("priority ASC")
 	private List<WFTransition> transitions = new ArrayList<WFTransition>();
 	

@@ -2,13 +2,12 @@ package org.meveo.api.catalog;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 import org.meveo.admin.exception.BusinessException;
-import org.meveo.api.BaseApi;
+import org.meveo.api.BaseCrudApi;
 import org.meveo.api.dto.catalog.OfferProductTemplateDto;
 import org.meveo.api.dto.catalog.OfferServiceTemplateDto;
 import org.meveo.api.dto.catalog.OfferTemplateDto;
@@ -28,7 +27,6 @@ import org.meveo.model.catalog.ProductTemplate;
 import org.meveo.model.catalog.ServiceTemplate;
 import org.meveo.model.crm.Provider;
 import org.meveo.service.catalog.impl.BusinessOfferModelService;
-import org.meveo.service.catalog.impl.OfferServiceTemplateService;
 import org.meveo.service.catalog.impl.OfferTemplateCategoryService;
 import org.meveo.service.catalog.impl.OfferTemplateService;
 import org.meveo.service.catalog.impl.ProductTemplateService;
@@ -38,16 +36,13 @@ import org.meveo.service.catalog.impl.ServiceTemplateService;
  * @author Edward P. Legaspi
  **/
 @Stateless
-public class OfferTemplateApi extends BaseApi {
+public class OfferTemplateApi extends BaseCrudApi<OfferTemplate, OfferTemplateDto> {
 
 	@Inject
 	private OfferTemplateService offerTemplateService;
 
 	@Inject
 	private ServiceTemplateService serviceTemplateService;
-
-	@Inject
-	private OfferServiceTemplateService offerServiceTemplateService;
 
 	@Inject
 	private BusinessOfferModelService businessOfferModelService;
@@ -57,8 +52,8 @@ public class OfferTemplateApi extends BaseApi {
 
 	@Inject
 	private ProductTemplateService productTemplateService;
-
-	public void create(OfferTemplateDto postData, User currentUser) throws MeveoApiException, BusinessException {
+	
+	public OfferTemplate create(OfferTemplateDto postData, User currentUser) throws MeveoApiException, BusinessException {
 
 		if (StringUtils.isBlank(postData.getCode())) {
 			missingParameters.add("code");
@@ -140,7 +135,6 @@ public class OfferTemplateApi extends BaseApi {
 					offerServiceTemplate.setIncompatibleServices(incompatibleServices);
 				}
 
-				offerServiceTemplateService.create(offerServiceTemplate, currentUser);
 				offerServiceTemplates.add(offerServiceTemplate);
 			}
 			if (offerServiceTemplates.size() > 0) {
@@ -160,9 +154,10 @@ public class OfferTemplateApi extends BaseApi {
             log.error("Failed to associate custom field instance to an entity", e);
             throw e;
         }
+		return offerTemplate;
 	}
 
-	public void update(OfferTemplateDto postData, User currentUser) throws MeveoApiException, BusinessException {
+	public OfferTemplate update(OfferTemplateDto postData, User currentUser) throws MeveoApiException, BusinessException {
 
 		if (StringUtils.isBlank(postData.getCode())) {
 			missingParameters.add("code");
@@ -270,12 +265,11 @@ public class OfferTemplateApi extends BaseApi {
 
 				if (toBeDeleted.size() > 0) {
 					for (OfferServiceTemplate offerServiceTemplate : toBeDeleted) {
-						offerServiceTemplateService.remove(offerServiceTemplate, currentUser);
+						offerTemplate.getOfferServiceTemplates().remove(offerServiceTemplate);
 					}
 				}
 
 				if (toBeAdded.size() > 0) {
-					List<OfferServiceTemplate> offerServiceTemplates = new ArrayList<OfferServiceTemplate>();
 					for (OfferServiceTemplateDto offerServiceTemplateDto : toBeAdded) {
 						ServiceTemplateDto serviceTemplateDto = offerServiceTemplateDto.getServiceTemplate();
 						ServiceTemplate serviceTemplate = serviceTemplateService.findByCode(serviceTemplateDto.getCode(), provider);
@@ -305,13 +299,9 @@ public class OfferTemplateApi extends BaseApi {
 							offerServiceTemplate.setIncompatibleServices(incompatibleServices);
 						}
 
-						offerServiceTemplateService.create(offerServiceTemplate, currentUser);
-						offerServiceTemplates.add(offerServiceTemplate);
+						offerTemplate.getOfferServiceTemplates().add(offerServiceTemplate);
 					}
 
-					if (offerServiceTemplates.size() > 0) {
-						offerTemplate.setOfferServiceTemplates(offerServiceTemplates);
-					}
 				}
 			} else {
 				List<OfferServiceTemplate> offerServiceTemplates = new ArrayList<OfferServiceTemplate>();
@@ -344,7 +334,6 @@ public class OfferTemplateApi extends BaseApi {
 						offerServiceTemplate.setIncompatibleServices(incompatibleServices);
 					}
 
-					offerServiceTemplateService.create(offerServiceTemplate, currentUser);
 					offerServiceTemplates.add(offerServiceTemplate);
 				}
 
@@ -368,12 +357,14 @@ public class OfferTemplateApi extends BaseApi {
             log.error("Failed to associate custom field instance to an entity", e);
             throw e;
         }
+		
+		return offerTemplate;
 	}
 
 	private void processOfferProductTemplates(OfferTemplateDto postData, OfferTemplate offerTemplate, User currentUser) throws MeveoApiException, BusinessException {
 		List<OfferProductTemplateDto> offerProductTemplateDtos = postData.getOfferProductTemplates();
 		boolean hasOfferProductTemplateDtos = offerProductTemplateDtos != null && !offerProductTemplateDtos.isEmpty();
-		Set<OfferProductTemplate> existingProductTemplates = offerTemplate.getOfferProductTemplates();
+		List<OfferProductTemplate> existingProductTemplates = offerTemplate.getOfferProductTemplates();
 		boolean hasExistingProductTemplates = existingProductTemplates != null && !existingProductTemplates.isEmpty();
 		if (hasOfferProductTemplateDtos) {
 			List<OfferProductTemplate> newOfferProductTemplates = new ArrayList<>();
@@ -386,12 +377,12 @@ public class OfferTemplateApi extends BaseApi {
 			if (hasExistingProductTemplates) {
 				List<OfferProductTemplate> offerProductTemplatesForRemoval = new ArrayList<>(existingProductTemplates);
 				offerProductTemplatesForRemoval.removeAll(newOfferProductTemplates);
-				newOfferProductTemplates.removeAll(existingProductTemplates);
+				newOfferProductTemplates.removeAll(new ArrayList<>(existingProductTemplates));
 				// for (OfferProductTemplate offerProductTemplateForRemoval :
 				// offerProductTemplatesForRemoval) {
 				// offerProductTemplateService.remove(offerProductTemplateForRemoval);
 				// }
-				offerTemplate.getOfferProductTemplates().removeAll(offerProductTemplatesForRemoval);
+				offerTemplate.getOfferProductTemplates().removeAll(new ArrayList<>(offerProductTemplatesForRemoval));
 			}
 			// for (OfferProductTemplate newOfferProductTemplate :
 			// newOfferProductTemplates) {
@@ -430,21 +421,21 @@ public class OfferTemplateApi extends BaseApi {
 		return offerProductTemplate;
 	}
 
-	public OfferTemplateDto find(String code, Provider provider) throws MeveoApiException {
+	public OfferTemplateDto find(String code, User currentUser) throws MeveoApiException {
 
 		if (StringUtils.isBlank(code)) {
 			missingParameters.add("offerTemplateCode");
 			handleMissingParameters();
 		}
 
-		OfferTemplate offerTemplate = offerTemplateService.findByCode(code, provider);
+		OfferTemplate offerTemplate = offerTemplateService.findByCode(code, currentUser.getProvider());
 		if (offerTemplate == null) {
 			throw new EntityDoesNotExistsException(OfferTemplate.class, code);
 		}
 
 		OfferTemplateDto offerTemplateDto = new OfferTemplateDto(offerTemplate, entityToDtoConverter.getCustomFieldsDTO(offerTemplate));
 
-		Set<OfferProductTemplate> childOfferProductTemplates = offerTemplate.getOfferProductTemplates();
+		List<OfferProductTemplate> childOfferProductTemplates = offerTemplate.getOfferProductTemplates();
 		if (childOfferProductTemplates != null && !childOfferProductTemplates.isEmpty()) {
 			List<OfferProductTemplateDto> offerProductTemplates = new ArrayList<>();
 			OfferProductTemplateDto offerProductTemplateDto = null;
@@ -490,13 +481,13 @@ public class OfferTemplateApi extends BaseApi {
 	 * @throws MeveoApiException
 	 * @throws BusinessException
 	 */
-	public void createOrUpdate(OfferTemplateDto postData, User currentUser) throws MeveoApiException, BusinessException {
+	public OfferTemplate createOrUpdate(OfferTemplateDto postData, User currentUser) throws MeveoApiException, BusinessException {
 		OfferTemplate offerTemplate = offerTemplateService.findByCode(postData.getCode(), currentUser.getProvider());
 
 		if (offerTemplate == null) {
-			create(postData, currentUser);
+			return create(postData, currentUser);
 		} else {
-			update(postData, currentUser);
+			return update(postData, currentUser);
 		}
 	}
 }

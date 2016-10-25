@@ -7,6 +7,7 @@ import javax.jws.WebService;
 import org.meveo.api.dto.ActionStatus;
 import org.meveo.api.dto.ActionStatusEnum;
 import org.meveo.api.dto.payment.WorkflowDto;
+import org.meveo.api.dto.wf.WorkflowHistoryResponseDto;
 import org.meveo.api.dto.wf.WorkflowResponseDto;
 import org.meveo.api.dto.wf.WorkflowsResponseDto;
 import org.meveo.api.logging.WsRestApiInterceptor;
@@ -70,7 +71,7 @@ public class WorkflowWsImpl extends BaseWs implements WorkflowWs {
 		public WorkflowResponseDto find(String workflowCode) {
 			WorkflowResponseDto workflowResponseDto = new WorkflowResponseDto();
 			try {
-				workflowResponseDto.setWorkflowDto(workflowApi.find(workflowCode, getCurrentUser()));
+            workflowResponseDto.setWorkflow(workflowApi.find(workflowCode, getCurrentUser()));
 			} catch (Exception e) {
 	        	super.processException(e, workflowResponseDto.getActionStatus());
 	        }				
@@ -81,7 +82,7 @@ public class WorkflowWsImpl extends BaseWs implements WorkflowWs {
 		public WorkflowsResponseDto list() {
 			WorkflowsResponseDto workflowsResponseDto = new WorkflowsResponseDto();
 			try {
-				workflowsResponseDto.setListWorkflowDto(workflowApi.list(getCurrentUser()));
+            workflowsResponseDto.setWorkflows(workflowApi.list(getCurrentUser()));
 			} catch (Exception e) {
 	        	super.processException(e, workflowsResponseDto.getActionStatus());
 	        }
@@ -90,10 +91,10 @@ public class WorkflowWsImpl extends BaseWs implements WorkflowWs {
 		}
 		
 		@Override
-		public ActionStatus execute(String baseEntityName, Long baseEntityInstanceId, String workflowCode) {
+		public ActionStatus execute(String baseEntityName, String entityInstanceCode, String workflowCode) {
 			ActionStatus result = new ActionStatus(ActionStatusEnum.SUCCESS, "");
 			try {
-				workflowApi.execute( baseEntityName,  baseEntityInstanceId,  workflowCode,getCurrentUser() );
+				workflowApi.execute( baseEntityName,  entityInstanceCode,  workflowCode,getCurrentUser() );
 			} catch (Exception e) {
 	        	super.processException(e, result);
 	        }			
@@ -104,10 +105,21 @@ public class WorkflowWsImpl extends BaseWs implements WorkflowWs {
 		public WorkflowsResponseDto findByEntity(String baseEntityName) {
 			WorkflowsResponseDto workflowsResponseDto = new WorkflowsResponseDto();
 			try {
-				workflowsResponseDto.setListWorkflowDto(workflowApi.findByEntity(baseEntityName,getCurrentUser()));
+            workflowsResponseDto.setWorkflows(workflowApi.findByEntity(baseEntityName, getCurrentUser()));
 			} catch (Exception e) {
 	        	super.processException(e, workflowsResponseDto.getActionStatus());
 	        }			
 			return workflowsResponseDto;
+		}
+
+		@Override
+		public WorkflowHistoryResponseDto findHistory( String entityInstanceCode, String workflowCode, String fromStatus, String toStatus) {
+			WorkflowHistoryResponseDto workflowHistoryResponseDto = new WorkflowHistoryResponseDto();
+			try {
+				workflowHistoryResponseDto.setWorkflowHistories(workflowApi.findHistory(entityInstanceCode,  workflowCode,  fromStatus,  toStatus,getCurrentUser()));
+			} catch (Exception e) {
+	        	super.processException(e, workflowHistoryResponseDto.getActionStatus());
+	        }			
+			return workflowHistoryResponseDto;
 		}
 }
