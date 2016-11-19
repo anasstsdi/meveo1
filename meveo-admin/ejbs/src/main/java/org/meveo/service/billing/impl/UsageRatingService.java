@@ -102,9 +102,6 @@ public class UsageRatingService {
     private MeveoInstanceService meveoInstanceService;
 
     @Inject
-    private CounterPeriodService counterPeriodService;
-
-    @Inject
     private Event<CounterPeriodEvent> counterPeriodEvent;
 
 	@Inject
@@ -277,7 +274,11 @@ public class UsageRatingService {
                         deducedQuantityInEDRUnit = edr.getQuantity();
                     }
                     if (reservation != null && deducedQuantity.compareTo(BigDecimal.ZERO) > 0) {
-                        reservation.getCounterPeriodValues().put(cachedCounterPeriod.getCounterPeriodId(), deducedQuantity);
+                    	BigDecimal counterValueDelta =  deducedQuantity;
+                    	if(reservation.getCounterPeriodValues().containsKey(cachedCounterPeriod.getCounterPeriodId())){
+                    		counterValueDelta=reservation.getCounterPeriodValues().get(cachedCounterPeriod.getCounterPeriodId()).add(deducedQuantity);
+                    	}
+                        reservation.getCounterPeriodValues().put(cachedCounterPeriod.getCounterPeriodId(), counterValueDelta);
                     }
 
                     // Save period value changes to DB unless it is a virtual operation
@@ -294,7 +295,8 @@ public class UsageRatingService {
                 log.debug("in original EDR units, we deduced {}", deducedQuantityInEDRUnit);
             }
             if (cachedCounterPeriod.getValue().compareTo(BigDecimal.ZERO) == 0 || cachedCounterPeriod.getValue() == null) {
-                CounterPeriod counterPeriod = counterPeriodService.findById(cachedCounterPeriod.getCounterPeriodId());
+                CounterPeriod counterPeriod = new CounterPeriod();
+                counterPeriod.setId(cachedCounterPeriod.getCounterPeriodId());
                 triggerCounterPeriodEvent(counterPeriod);
             }
         }

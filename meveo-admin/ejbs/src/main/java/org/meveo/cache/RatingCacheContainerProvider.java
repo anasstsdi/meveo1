@@ -9,15 +9,23 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
+import javax.ejb.Timeout;
+import javax.ejb.TimerConfig;
+import javax.ejb.TimerService;
 import javax.inject.Inject;
 
+import org.hibernate.Session;
+import org.hibernate.StatelessSession;
+import org.hibernate.ejb.HibernateEntityManager;
 import org.infinispan.api.BasicCache;
 import org.meveo.admin.exception.BusinessException;
+import org.meveo.commons.utils.ParamBean;
 import org.meveo.model.billing.CounterInstance;
 import org.meveo.model.billing.CounterPeriod;
 import org.meveo.model.billing.InstanceStatusEnum;
@@ -40,15 +48,21 @@ import org.slf4j.Logger;
 /**
  * Provides cache related services (loading, update) for rating related operations
  * 
- * @author Andrius Karpavicius
- * 
  */
 @Startup
 @Singleton
 public class RatingCacheContainerProvider {
 
     public static String COUNTER_CACHE = "counterCache";
+    
+	private ParamBean paramBean = ParamBean.getInstance();
+    
+	private boolean isScheduledForPersistence=false;
 
+	private long counterPeriodPersistenceDelay;
+	
+	private long counterPeriodPersistenceBatchSize;
+	
     @Inject
     protected Logger log;
 
@@ -66,7 +80,11 @@ public class RatingCacheContainerProvider {
     
     @Inject
     private CalendarService calendarService;
-
+   
+    @Resource
+    private TimerService timerService;
+    
+    
     /**
      * Contains association between charge code and price plans. Key format: <provider id>_<charge template code, which is pricePlanMatrix.eventCode>
      */
@@ -91,6 +109,8 @@ public class RatingCacheContainerProvider {
     @Resource(lookup = "java:jboss/infinispan/cache/meveo/meveo-counter-cache")
     private BasicCache<Long, CachedCounterInstance> counterCache;
 
+	
+
     // @Resource(name = "java:jboss/infinispan/container/meveo")
     // private CacheContainer meveoContainer;
 
@@ -106,6 +126,8 @@ public class RatingCacheContainerProvider {
             populatePricePlanCache();
             populateUsageChargeCache();
 
+            counterPeriodPersistenceDelay=Long.parseLong(paramBean.getProperty("counter.persistence.delayInMs", "60000"));
+            counterPeriodPersistenceBatchSize=Long.parseLong(paramBean.getProperty("counter.persistence.batchSize", "1000"));
             log.info("RatingCacheContainerProvider initialized");
 
         } catch (Exception e) {
@@ -412,17 +434,23 @@ public class RatingCacheContainerProvider {
             BigDecimal value = counterPeriodValues.get(cId);
             Long counterInstanceId = counterPeriod.getCounterInstance().getId();
             CachedCounterInstance counterCacheValue = counterCache.get(counterInstanceId);
+            BigDecimal newValue =counterPeriod.getValue().add(value);
             if (counterCacheValue != null) {
                 for (CachedCounterPeriod cpc : counterCacheValue.getCounterPeriods()) {
                     if (cpc.getCounterPeriodId() == cId) {
-                        cpc.getValue().add(value);
+                    	newValue = cpc.getValue().add(value);
+                    	cpc.setValue(newValue);
                         log.debug("Added {} to counter period in cache (new value {}, period id {})", value, cpc.getValue(), cId);
                         break;
                     }
                 }
             }
 
-            counterPeriod.setValue(counterPeriod.getValue().add(value));
+            if(newValue==null){
+            	log.warn("Cannot find counterPeriod in cache, set it from db to");
+            }
+
+            counterPeriod.setValue(newValue);
             log.debug("Added {}  (new value {}) to counterPeriod {}, counter {}", value, counterPeriod.getValue(), counterPeriod.getId(), counterInstanceId);
         }
     }
@@ -463,8 +491,41 @@ public class RatingCacheContainerProvider {
     }
 
     public CachedCounterInstance getCounterInstance(Long counterId) {
+    	if(!isScheduledForPersistence){
+    		isScheduledForPersistence=true;
+    		TimerConfig timerConfig = new TimerConfig(null, false);
+    		timerService.createSingleActionTimer(counterPeriodPersistenceDelay, timerConfig);
+    	}
+    	
         return counterCache.get(counterId);
     }
+    
+    @Timeout
+    private void persistDirtyCounterPeriod(){
+    	List<CachedCounterPeriod> cpcToPersist=null;
+		for(long cachedCounterInstanceId:counterCache.keySet()){
+    		CachedCounterInstance cachedCounterInstance=counterCache.get(cachedCounterInstanceId);
+    		if(cachedCounterInstance.isDbDirty()){
+    			for(CachedCounterPeriod cpc:cachedCounterInstance.getCounterPeriods()){
+    				if(cpc.isDbDirty()){
+    					if(cpcToPersist==null){
+    	    				cpcToPersist=new ArrayList<>();
+    	    			}
+    	    			cpcToPersist.add(cpc);
+    	    			if (cpcToPersist.size()>=counterPeriodPersistenceBatchSize){
+    	    				counterPeriodService.bulkUpdate(cpcToPersist);
+    	    				cpcToPersist=null;
+    	    			}
+    				}
+    			}
+    		}
+    	}
+    	if(cpcToPersist!=null){
+			counterPeriodService.bulkUpdate(cpcToPersist);
+    	}
+    }
+    
+    
 
     /**
      * Are usage charge instances cached for a given subscription
@@ -517,5 +578,10 @@ public class RatingCacheContainerProvider {
                 || cacheName.equals(counterCache.getName()) || cacheName.equals(COUNTER_CACHE)) {
             populateUsageChargeCache();
         }
+    }
+    
+    @PreDestroy
+    public void shutDown(){
+    	persistDirtyCounterPeriod();
     }
 }

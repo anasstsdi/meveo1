@@ -173,7 +173,6 @@ public class CounterInstanceService extends PersistenceService<CounterInstance> 
 
         CounterPeriod counterPeriod = instantiateCounterPeriod(counterInstance.getCounterTemplate(), chargeDate, initDate, usageChargeInstance);                                
         counterPeriod.setCounterInstance(counterInstance);
-        counterPeriod.setProvider(counterInstance.getProvider());
         counterPeriodService.create(counterPeriod, counterInstance.getAuditable().getCreator()); // AKK was with counterInstance.getProvider()
 
         counterInstance.getCounterPeriods().add(counterPeriod);

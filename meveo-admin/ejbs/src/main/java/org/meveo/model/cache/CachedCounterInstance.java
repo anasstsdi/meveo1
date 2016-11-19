@@ -24,6 +24,7 @@ public class CachedCounterInstance implements Serializable {
     private List<CachedCounterPeriod> counterPeriods;
 
     private CounterTypeEnum counterType;
+    private boolean isDbDirty;
 
     public CachedCounterInstance() {
 
@@ -111,4 +112,24 @@ public class CachedCounterInstance implements Serializable {
         }
         return null;
     }
+
+	public boolean isDbDirty() {
+		return isDbDirty;
+	}
+
+	public void setDbDirty(boolean isDbDirty) {
+		this.isDbDirty = isDbDirty;
+	}
+
+	public void checkDbDirty() {
+		this.isDbDirty=false;
+		for (CachedCounterPeriod period : counterPeriods) {
+			if(period.isDbDirty()){
+				this.isDbDirty=true;
+				break;
+			}
+		}	
+	}
+    
+    
 }

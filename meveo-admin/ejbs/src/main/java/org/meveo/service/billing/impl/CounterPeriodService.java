@@ -19,19 +19,29 @@
 package org.meveo.service.billing.impl;
 
 import java.util.Date;
+import java.util.List;
 
+import javax.ejb.Asynchronous;
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TemporalType;
 
+import org.hibernate.Session;
+import org.hibernate.StatelessSession;
+import org.hibernate.ejb.HibernateEntityManager;
 import org.meveo.admin.exception.BusinessException;
 import org.meveo.model.billing.CounterInstance;
 import org.meveo.model.billing.CounterPeriod;
+import org.meveo.model.cache.CachedCounterPeriod;
 import org.meveo.service.base.PersistenceService;
 
 @Stateless
 public class CounterPeriodService extends PersistenceService<CounterPeriod> {
+	
+	
 	
 	public CounterPeriod getCounterPeriod(CounterInstance counterInstance, Date date) throws BusinessException {
 		Query query = getEntityManager().createNamedQuery("CounterPeriod.findByPeriodDate");
@@ -42,6 +52,16 @@ public class CounterPeriodService extends PersistenceService<CounterPeriod> {
 		} catch (NoResultException e) {
 			return null;
 		}
+	}
+	
+
+	@Asynchronous
+	public void bulkUpdate(List<CachedCounterPeriod> cpcs){    	
+		StringBuffer sqlQuery= new StringBuffer();
+		for(CachedCounterPeriod cpc:cpcs){
+			sqlQuery.append("UPDATE BILLING_COUNTER_PERIOD SET value="+cpc.getValue()+" WHERE id="+cpc.getCounterPeriodId()+",");		
+		}
+		getEntityManager().createNativeQuery(sqlQuery.toString());
 	}
  
 }

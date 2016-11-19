@@ -39,6 +39,15 @@ public class CachedCounterPeriod {
         return level;
     }
 
+    public void setDbDirty(boolean dbDirty){
+    	this.dbDirty=dbDirty;
+    	if(dbDirty){
+    		counterInstance.setDbDirty(true);
+    	} else {
+    		counterInstance.checkDbDirty();
+    	}
+    }
+    
     public boolean isDbDirty() {
         return dbDirty;
     }

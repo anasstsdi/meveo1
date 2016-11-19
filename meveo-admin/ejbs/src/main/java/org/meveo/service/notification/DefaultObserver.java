@@ -39,6 +39,7 @@ import org.meveo.model.BaseEntity;
 import org.meveo.model.IEntity;
 import org.meveo.model.IProvider;
 import org.meveo.model.admin.User;
+import org.meveo.model.billing.CounterPeriod;
 import org.meveo.model.billing.WalletInstance;
 import org.meveo.model.mediation.MeveoFtpFile;
 import org.meveo.model.notification.EmailNotification;
@@ -54,6 +55,7 @@ import org.meveo.model.notification.WebHook;
 import org.meveo.model.scripts.ScriptInstance;
 import org.meveo.service.base.ValueExpressionWrapper;
 import org.meveo.service.billing.impl.CounterInstanceService;
+import org.meveo.service.billing.impl.CounterPeriodService;
 import org.meveo.service.billing.impl.CounterValueInsufficientException;
 import org.meveo.service.script.ScriptInstanceService;
 import org.meveo.service.script.ScriptInterface;
@@ -87,6 +89,9 @@ public class DefaultObserver {
 
     @Inject
     private CounterInstanceService counterInstanceService;
+    
+    @Inject
+    private CounterPeriodService counterPeriodService;
 
     @Inject
     private NotificationCacheContainerProvider notificationCacheContainerProvider;
@@ -143,7 +148,8 @@ public class DefaultObserver {
             return;
         }
 
-        log.debug("Fire Notification for notif with {} and entity with id={}", notif, e.getId());
+        log.debug("Fire Notification for notif with {} and entity {} with id={}", notif,e.getClass().getName(), e.getId());
+        
         try {
             if (!matchExpression(notif.getElFilter(), e)) {
                 log.debug("Expression {} does not match", notif.getElFilter());
@@ -224,11 +230,12 @@ public class DefaultObserver {
     }
 
     private void checkEvent(NotificationEventTypeEnum type, BaseEntity entity) {
-        for (Notification notif : notificationCacheContainerProvider.getApplicableNotifications(type, entity)) {
+    	for (Notification notif : notificationCacheContainerProvider.getApplicableNotifications(type, entity)) {
             notif = genericNotificationService.findById(notif.getId());
             fireNotification(notif, entity);
         }
     }
+    
 
     public void entityCreated(@Observes @Created BaseEntity e) {
         log.debug("Defaut observer : Entity {} with id {} created", e.getClass().getName(), e.getId());
@@ -351,9 +358,19 @@ public class DefaultObserver {
         checkEvent(NotificationEventTypeEnum.FILE_RENAME, importedFile);
     }
     
-    public void counterUpdated(@Observes CounterPeriodEvent event) {
+    public void counterUpdated(@Observes CounterPeriodEvent event) throws BusinessException {
         log.debug("DefaultObserver.counterUpdated " +event);
-        checkEvent(NotificationEventTypeEnum.ZERO_COUNTER, event.getCounterPeriod());
+        if(notificationCacheContainerProvider.getApplicableNotifications(NotificationEventTypeEnum.ZERO_COUNTER, event.getCounterPeriod()).size()>0){
+        	CounterPeriod entity=null;
+        	log.debug("reload counterPeriod from DB");{
+        		entity=counterPeriodService.findById(event.getCounterPeriod().getId());
+        	}
+        	if(entity!=null){
+        		checkEvent(NotificationEventTypeEnum.ZERO_COUNTER, event.getCounterPeriod());
+        	} else {
+        		throw new BusinessException("Cached counterPeriod "+event.getCounterPeriod().getId()+" doesnt exist in database.");
+        	}
+        }
     }
 
 }
