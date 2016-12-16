@@ -1194,7 +1194,7 @@ public class AccountHierarchyApi extends BaseApi {
 			}
 
 			SellerDto sellerDto = new SellerDto();
-			sellerDto.setCode(postData.getSeller());
+			sellerDto.setCode(postData.getCode());
 			sellerDto.setDescription(postData.getDescription());
 			sellerDto.setCountryCode(postData.getCountry());
 			sellerDto.setCurrencyCode(postData.getCurrency());
