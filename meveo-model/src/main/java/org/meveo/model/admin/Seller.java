@@ -83,7 +83,7 @@ public class Seller extends BusinessCFEntity {
 	@MapKeyJoinColumn(name="INVOICETYPE_ID")
 	Map<InvoiceType,Sequence> invoiceTypeSequence = new HashMap<InvoiceType,Sequence>();
 
-	@ManyToOne(fetch = FetchType.EAGER)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "BAM_ID")
 	private BusinessAccountModel businessAccountModel;
 	

@@ -915,7 +915,7 @@ public class AccountHierarchyApi extends BaseApi {
 			}
 
 			SellerDto sellerDto = new SellerDto();
-			sellerDto.setCode(postData.getSeller());
+			sellerDto.setCode(postData.getCode());
 			sellerDto.setDescription(postData.getDescription());
 			sellerDto.setCountryCode(postData.getCountry());
 			sellerDto.setCurrencyCode(postData.getCurrency());
@@ -1891,17 +1891,20 @@ public class AccountHierarchyApi extends BaseApi {
 		}
 
 		PaginationConfiguration paginationConfiguration = new PaginationConfiguration(postData.getOffset(), postData.getLimit(), null, null, null, postData.getSortField(), null);
-		List<BusinessEntity> parentList = businessAccountModelService.listParents(postData.getSearchTerm(), hierarchyType.parentClass(), paginationConfiguration, currentUser.getProvider());
 
 		ParentEntityDto parentDto = null;
 		ParentEntitiesDto parentsDto = new ParentEntitiesDto();
 
-		if(parentList != null) {
-			for(BusinessEntity parent : parentList){
-				parentDto = new ParentEntityDto(parent.getCode(), parent.getDescription());
-				parentsDto.getParent().add(parentDto);
+		for(Class<? extends BusinessEntity> parentClass : hierarchyType.crmParentClasses()){
+			List<BusinessEntity> parentList = businessAccountModelService.listParents(postData.getSearchTerm(), parentClass, paginationConfiguration, currentUser.getProvider());
+			if(parentList != null) {
+				for(BusinessEntity parent : parentList){
+					parentDto = new ParentEntityDto(parent.getCode(), parent.getDescription());
+					parentsDto.getParent().add(parentDto);
+				}
 			}
 		}
+
 		return parentsDto;
 	}
 

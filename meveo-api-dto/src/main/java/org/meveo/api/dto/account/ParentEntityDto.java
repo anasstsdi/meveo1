@@ -47,6 +47,36 @@ public class ParentEntityDto implements Serializable {
 	}
 
 	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = prime * ((code == null) ? 0 : code.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+
+		if (this == obj) {
+			return true;
+		} else if (obj == null) {
+			return false;
+		} else if (!(obj instanceof ParentEntityDto)) {
+			return false;
+		}
+
+		ParentEntityDto other = (ParentEntityDto) obj;
+
+		if (code == null) {
+			if (other.getCode() != null) {
+				return false;
+			}
+		} else if (!code.equals(other.getCode())) {
+			return false;
+		}
+		return true;
+	}
+
+	@Override
 	public String toString() {
 		return "ParentEntityDto [code=" + code + ", description=" + description + "]";
 	}

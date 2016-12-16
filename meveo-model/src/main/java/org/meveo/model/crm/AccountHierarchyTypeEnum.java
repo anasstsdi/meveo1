@@ -1,5 +1,7 @@
 package org.meveo.model.crm;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.meveo.model.BusinessEntity;
 import org.meveo.model.admin.Seller;
 import org.meveo.model.billing.BillingAccount;
@@ -159,6 +161,36 @@ public enum AccountHierarchyTypeEnum {
 			return Seller.class;
 		default:
 			return null;
+		}
+	}
+
+	/**
+	 * This will return the class that corresponds to the parent of the top
+	 * entity of a CRM Account.
+	 *
+	 * @return
+	 */
+	public List<Class<? extends BusinessEntity>> crmParentClasses() {
+		List<Class<? extends BusinessEntity>> result = new ArrayList<>();
+		switch (highLevel) {
+			case 0:
+				result.add(BillingAccount.class);
+				return result;
+			case 1:
+				result.add(CustomerAccount.class);
+				return result;
+			case 2:
+				result.add(Customer.class);
+				return result;
+			case 3:
+				result.add(Customer.class);
+				result.add(Seller.class);
+				return result;
+			case 4:
+				result.add(Seller.class);
+				return result;
+			default:
+				return null;
 		}
 	}
 
