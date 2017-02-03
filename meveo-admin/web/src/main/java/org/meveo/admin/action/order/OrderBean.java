@@ -40,7 +40,6 @@ import org.meveo.admin.exception.BusinessException;
 import org.meveo.admin.web.interceptor.ActionMethod;
 import org.meveo.api.billing.OrderApi;
 import org.meveo.api.order.OrderProductCharacteristicEnum;
-import org.meveo.commons.utils.ParamBean;
 import org.meveo.model.BusinessCFEntity;
 import org.meveo.model.billing.ProductInstance;
 import org.meveo.model.billing.ServiceInstance;
@@ -111,8 +110,6 @@ public class OrderBean extends CustomFieldBean<Order> {
 
     @Inject
     private UserHierarchyLevelService userHierarchyLevelService;
-
-    private ParamBean paramBean = ParamBean.getInstance();
 
     private OrderItem selectedOrderItem;
 
@@ -418,6 +415,17 @@ public class OrderBean extends CustomFieldBean<Order> {
             }
         }
 
+        // Default subscription date field to order date
+        if (!mainOfferCharacteristics.containsKey(OrderProductCharacteristicEnum.SUBSCRIPTION_DATE)) {
+            mainOfferCharacteristics.put(OrderProductCharacteristicEnum.SUBSCRIPTION_DATE, entity.getOrderDate());
+        }
+        Date mainOfferSubscriptionDate = (Date) mainOfferCharacteristics.get(OrderProductCharacteristicEnum.SUBSCRIPTION_DATE);
+
+        // Default quantity to 1 for product and bundle templates
+        if (!(mainOffering instanceof OfferTemplate) && !mainOfferCharacteristics.containsKey(OrderProductCharacteristicEnum.SERVICE_PRODUCT_QUANTITY)) {
+            mainOfferCharacteristics.put(OrderProductCharacteristicEnum.SERVICE_PRODUCT_QUANTITY, 1);
+        }
+
         OfferItemInfo offerItemInfo = new OfferItemInfo(mainOffering, mainOfferCharacteristics, true, true, true, subscriptionEntity);
         TreeNode mainOfferingNode = new DefaultTreeNode(mainOffering.getClass().getSimpleName(), offerItemInfo, root);
         mainOfferingNode.setExpanded(true);
@@ -466,6 +474,15 @@ public class OrderBean extends CustomFieldBean<Order> {
                                 serviceInstanceEntity = (ServiceInstance) existingOfferEntities.get(offerServiceTemplate.getServiceTemplate().getCode());
                             }
                         }
+
+                        // Default service subscription date field to subscription's subscription date and quantity to 1
+                        if (!serviceCharacteristics.containsKey(OrderProductCharacteristicEnum.SUBSCRIPTION_DATE)) {
+                            serviceCharacteristics.put(OrderProductCharacteristicEnum.SUBSCRIPTION_DATE, mainOfferSubscriptionDate);
+                        }
+                        if (!serviceCharacteristics.containsKey(OrderProductCharacteristicEnum.SERVICE_PRODUCT_QUANTITY)) {
+                            serviceCharacteristics.put(OrderProductCharacteristicEnum.SERVICE_PRODUCT_QUANTITY, 1);
+                        }
+
                         boolean isMandatory = offerServiceTemplate.isMandatory()
                                 || (subscriptionConfiguration != null && subscriptionConfiguration.containsKey(offerServiceTemplate.getServiceTemplate().getCode()));
                         boolean isSelected = serviceProductMatched != null || isMandatory;
@@ -522,6 +539,15 @@ public class OrderBean extends CustomFieldBean<Order> {
                             if (existingOfferEntities != null) {
                                 productInstanceEntity = (ProductInstance) existingOfferEntities.get(offerProductTemplate.getProductTemplate());
                             }
+                        }
+
+                        // Default service subscription date field to subscription's subscription date or quote date if product is not part of offer template and quantity to 1
+                        if (!productCharacteristics.containsKey(OrderProductCharacteristicEnum.SUBSCRIPTION_DATE)) {
+                            productCharacteristics.put(OrderProductCharacteristicEnum.SUBSCRIPTION_DATE,
+                                mainOfferSubscriptionDate != null ? mainOfferSubscriptionDate : entity.getOrderDate());
+                        }
+                        if (!productCharacteristics.containsKey(OrderProductCharacteristicEnum.SERVICE_PRODUCT_QUANTITY)) {
+                            productCharacteristics.put(OrderProductCharacteristicEnum.SERVICE_PRODUCT_QUANTITY, 1);
                         }
 
                         offerItemInfo = new OfferItemInfo(offerProductTemplate.getProductTemplate(), productCharacteristics, false, productProductMatched != null
@@ -794,5 +820,15 @@ public class OrderBean extends CustomFieldBean<Order> {
         }
 
         return editable;
+    }
+
+    /**
+     * Update entity used for CF field association with entered code. Applies to subscriptions and product instances
+     * 
+     * @param itemInfo Configuration item info (tree item)
+     * @param characteristicName Characteristic's name corresponding to code value
+     */
+    public void updateCFEntityCode(OfferItemInfo itemInfo, OrderProductCharacteristicEnum characteristicName) {
+        itemInfo.getEntityForCFValues().setCode((String) itemInfo.getCharacteristics().get(characteristicName));
     }
 }

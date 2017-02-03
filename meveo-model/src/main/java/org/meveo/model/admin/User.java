@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
@@ -38,15 +39,20 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.meveo.model.AuditableEntity;
+import org.meveo.model.CustomFieldEntity;
 import org.meveo.model.ExportIdentifier;
+import org.meveo.model.ICustomFieldEntity;
 import org.meveo.model.ObservableEntity;
 import org.meveo.model.crm.Provider;
 import org.meveo.model.hierarchy.UserHierarchyLevel;
@@ -58,10 +64,20 @@ import org.meveo.model.shared.Name;
  */
 @Entity
 @ObservableEntity
+@CustomFieldEntity(cftCodePrefix = "USER")
 @ExportIdentifier({ "userName", "provider" })
 @Table(name = "ADM_USER")
 @SequenceGenerator(name = "ID_GENERATOR", sequenceName = "ADM_USER_SEQ")
-public class User extends AuditableEntity {
+@NamedQueries({ @NamedQuery(name = "User.listByPermissionResource", query = ""
+		+ "SELECT u FROM User u"
+		+ " LEFT JOIN u.roles as role"
+		+ " LEFT JOIN role.permissions as permission"
+		+ " WHERE permission.resource IN (:permissionResources) AND u.provider=:provider"),
+		@NamedQuery(name = "User.listUsersInMM", query = ""
+				+ "SELECT u FROM User u"
+				+ " LEFT JOIN u.roles as role"
+				+ " WHERE role.name IN (:roleNames) AND u.provider=:provider") })
+public class User extends AuditableEntity implements ICustomFieldEntity {
 
     private static final long serialVersionUID = 1L;
 
@@ -102,6 +118,11 @@ public class User extends AuditableEntity {
     @Temporal(TemporalType.DATE)
     @Column(name = "LAST_PASSWORD_MODIFICATION")
     private Date lastPasswordModification;
+    
+	@Column(name = "UUID", nullable = false, updatable = false, length = 60)
+	@Size(max = 60)
+	@NotNull
+	private String uuid = UUID.randomUUID().toString();
 
     @Transient
     private String newPassword;
@@ -367,5 +388,26 @@ public class User extends AuditableEntity {
 
         return userName;
     }
+
+	@Override
+	public String getUuid() {
+		return uuid;
+	}
+	
+	public void setUuid(String uuid) {
+		this.uuid = uuid;
+	}
+
+	@Override
+	public String clearUuid() {
+		String oldUuid = uuid;
+		uuid = UUID.randomUUID().toString();
+		return oldUuid;
+	}
+
+	@Override
+	public ICustomFieldEntity[] getParentCFEntities() {		
+		return null;
+	}
 
 }

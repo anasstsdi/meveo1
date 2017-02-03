@@ -9,15 +9,17 @@
     </ui:define>
 
     <ui:define name="body">
-    	<p:panel>
-			<h:form id="crumbmenuForm">
-				<p:breadCrumb homeDisplay="text" id="crumbmenu">
-					<p:menuitem value="#{messages['menu.rating']}" disabled="true" />
-					<p:menuitem outcome="walletOperations"
-						value="#{messages['menu.walletOperations']}" />
-				</p:breadCrumb>
-			</h:form>
-		</p:panel>
+		<h:form id="crumbmenuForm">
+			<p:breadCrumb homeDisplay="text" id="crumbmenu">
+				<p:menuitem value="#{messages['menu.invoicing']}" disabled="true" />
+				<p:menuitem outcome="walletOperations" value="#{messages['menu.walletOperations']}" />
+				<p:menuitem value="#{messages['commons.new']} #{messages['ratedTransaction.walletOperation']}"
+					disabled="true" rendered="#{walletOperationBean.entity.transient}" />
+				<p:menuitem
+					value="#{messages['ratedTransaction.walletOperation']} - #{walletOperationBean.entity.code}"
+					disabled="true" rendered="#{!walletOperationBean.entity.transient}" />
+			</p:breadCrumb>
+		</h:form>
 
         <hftl:formPanel edit="false" label="#{messages['walletOperation.panel']}" backingBean="#{walletOperationBean}" renderNewButton="false" showFormButtons="false">
 
@@ -28,6 +30,9 @@
             <hftl:formField label="#{messages['counterTemplate.title']}" field="counter" valueLabelField="code" />
             <hftl:formField label="#{messages['pricePlan.title']}" id="priceplanSelectId" field="priceplan" valueLabelField="code" />
             <hftl:formField label="#{messages['walletOperation.offer']}" field="offerCode" />
+            <hftl:decorateFormField label="#{messages['userAccount']}" fieldId="userAccount">
+            	<h:outputText id="userAccount" value="#{walletOperationBean.entity.wallet.userAccount.code}" styleClass="field-value" />
+            </hftl:decorateFormField>
             <hftl:formField label="#{messages['operation.wallet']}" field="wallet" valueLabelField="code" />
             <hftl:formField label="#{messages['walletOperation.operationDate']}" field="operationDate" />
             <hftl:formField label="#{messages['walletOperation.unitAmountWithoutTax']}" field="unitAmountWithoutTax" converter="bigDecimal4DigitsConverter" />

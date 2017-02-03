@@ -627,7 +627,27 @@ public class ProviderApi extends BaseApi {
             if(invoiceConfigurationDto.getDisplayBillingCycle()!=null){
                 provider.getInvoiceConfiguration().setDisplayBillingCycle(invoiceConfigurationDto.getDisplayBillingCycle());
             }
+            if(invoiceConfigurationDto.getDisplayOrders()!=null){
+                provider.getInvoiceConfiguration().setDisplayOrders(invoiceConfigurationDto.getDisplayOrders());
+            }
         }
         return provider;
     }
+    
+	public boolean isOwnProvider(String providerCode, User currentUser) throws MeveoApiException {
+
+		if (StringUtils.isBlank(providerCode)) {
+			missingParameters.add("code");
+		}
+
+		handleMissingParameters();
+
+		// search for provider
+		Provider provider = providerService.findByCodeWithFetch(providerCode, Arrays.asList("currency", "country", "language"));
+		if (provider == null) {
+			throw new EntityDoesNotExistsException(Provider.class, providerCode);
+		}
+
+		return currentUser.getProvider().equals(provider) ? true : false;
+	}
 }

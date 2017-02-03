@@ -52,26 +52,26 @@
                     <hf:namingContainer id="quoteInfo">
                         <hftl:formField label="#{messages['businessEntity.code']}" field="code" validateUnique="true" required="true" allowEdit="false" />
                         <hftl:formField label="#{messages['businessEntity.description']}" field="description" />
-                        <hftl:formField label="#{messages['quote.quoteDate']}" field="quoteDate" showOnNew="false" allowEdit="false" />
+                        <hftl:formField label="#{messages['quote.quoteDate']}" field="quoteDate" doNotShowOnNew="true" allowEdit="false" />
                         <hftl:formField label="#{messages['quote.validFrom']}" field="validFrom" newLine="true" />
                         <hftl:formField label="#{messages['quote.validTo']}" field="validTo" />
                         <hftl:formField label="#{messages['quote.category']}" field="category" />
 
                         <hftl:formField id="userAccountQuote" label="#{messages['quote.userAccount']}" field="userAccount" valueLabelField="code" popup="true"
-                            popupId="userAccountPopupQuote" />
+                            popupId="userAccountPopupQuote" showResetButton="true" />
 
                         <hftl:formField label="#{messages['quote.receivedFromApp']}" field="receivedFromApp" edit="false" rendered="#{quoteBean.entity.receivedFromApp!=null}" />
                         <hftl:formField label="#{messages['quote.externalId']}" field="externalId" edit="false"
                             rendered="#{quoteBean.entity.receivedFromApp!=null and quoteBean.entity.externalId!=null}" />
 
                         <hftl:decorateFormField label="#{messages['quote.invoices']}" rendered="#{quoteBean.entity.invoices!=null}">
-                         <c:forEach var="invoice" items="#{quoteBean.entity.invoices}">
-                            <p:link outcome="invoiceDetail" value="#{invoice.invoiceNumberOrTemporaryNumber}">
-                                <f:param name="objectId" value="#{invoice.id}" />
-                                <f:param name="cid" value="#{javax.enterprise.context.conversation.id}" />
-                                <f:param name="backView" value="quoteDetail?objectId=#{quoteBean.entity.id}" />
-                            </p:link>
-                            <h:outputText value="&lt;br/&gt;" escape="false" />
+                            <c:forEach var="invoice" items="#{quoteBean.entity.invoices}">
+                                <p:link outcome="invoiceDetail" value="#{invoice.invoiceNumberOrTemporaryNumber}">
+                                    <f:param name="objectId" value="#{invoice.id}" />
+                                    <f:param name="cid" value="#{javax.enterprise.context.conversation.id}" />
+                                    <f:param name="backView" value="quoteDetail?objectId=#{quoteBean.entity.id}" />
+                                </p:link>
+                                <h:outputText value="&lt;br/&gt;" escape="false" />
                             </c:forEach>
                         </hftl:decorateFormField>
 
@@ -146,7 +146,7 @@
                                 <hftl:formField entity="#{quoteBean.selectedQuoteItem}" label="#{messages['quote.itemId']}" field="itemId" edit="false" componentWidth="10" />
                                 <hftl:formField id="userAccount" entity="#{quoteBean.selectedQuoteItem}" label="#{messages['quote.userAccount']}" field="userAccount"
                                     valueLabelField="code" required="#{quoteBean.entity.userAccount==null}" popup="true" popupId="userAccountPopup" />
-                                <hftl:formField id="offer" entity="#{quoteBean.selectedQuoteItem}" label="#{messages['quote.mainOffering']}" field="mainOffering"
+                                <hftl:formField id="offer" entity="#{quoteBean.selectedQuoteItem}" label="#{messages['productTemplate.product']}" field="mainOffering"
                                     valueLabelField="code" popup="true" popupId="offerPopup" required="true" edit="#{quoteBean.quoteEditable}" />
 
 
@@ -236,7 +236,11 @@
                                                         rendered="#{itemConfiguration.isOffer()}">
                                                         <p:inputText id="subscriptionCode_#{itemStatus.index}"
                                                             value="#{itemConfiguration.characteristics[CharacteristicsEnum.SUBSCRIPTION_CODE]}"
-                                                            rendered="#{quoteBean.quoteEditable}" />
+                                                            rendered="#{quoteBean.quoteEditable}" >
+                                                            <p:ajax update=":quoteForm:tabView:configTab:cf_#{itemStatus.index}_panel"
+                                                                listener="#{quoteBean.updateCFEntityCode(itemConfiguration, CharacteristicsEnum.SUBSCRIPTION_CODE)}" event="change"
+                                                                partialSubmit="true" process="@this" />
+                                                        </p:inputText>
                                                         <h:outputText value="#{itemConfiguration.characteristics[CharacteristicsEnum.SUBSCRIPTION_CODE]}" styleClass="field-value"
                                                             rendered="#{!quoteBean.quoteEditable}" />
                                                     </hftl:decorateFormField>
@@ -246,7 +250,11 @@
                                                         rendered="#{itemConfiguration.isProduct()}">
                                                         <p:inputText id="productInstanceCode_#{itemStatus.index}"
                                                             value="#{itemConfiguration.characteristics[CharacteristicsEnum.PRODUCT_INSTANCE_CODE]}"
-                                                            rendered="#{quoteBean.quoteEditable}" />
+                                                            rendered="#{quoteBean.quoteEditable}">
+                                                            <p:ajax update=":quoteForm:tabView:configTab:cf_#{itemStatus.index}_panel"
+                                                                listener="#{quoteBean.updateCFEntityCode(itemConfiguration, CharacteristicsEnum.PRODUCT_INSTANCE_CODE)}"
+                                                                event="change" partialSubmit="true" process="@this" />
+                                                        </p:inputText>
                                                         <h:outputText value="#{itemConfiguration.characteristics[CharacteristicsEnum.PRODUCT_INSTANCE_CODE]}"
                                                             styleClass="field-value" rendered="#{!(quoteBean.quoteEditable)}" />
                                                     </hftl:decorateFormField>
@@ -261,11 +269,12 @@
                                                             converter="javax.faces.BigDecimal" styleClass="field-value" rendered="#{!(quoteBean.quoteEditable)}" />
                                                     </hftl:decorateFormField>
 
-
                                                     <div class="clearLeft"></div>
-                                                    <hftl:customFields prefix="cf_#{itemStatus.index}" backingBean="#{quoteBean}" entity="#{itemConfiguration.entityForCFValues}"
-                                                        messagesId=":quoteForm:tabView:quoteItemMessages" edit="#{quoteBean.quoteEditable}" cfFormId="offerCFForm_#{itemStatus.index}" />
-
+                                                    <h:panelGroup id="cf_#{itemStatus.index}_panel">
+                                                        <hftl:customFields prefix="cf_#{itemStatus.index}" backingBean="#{productTemplateBean}"
+                                                            entity="#{itemConfiguration.entityForCFValues}" messagesId=":quoteForm:tabView:quoteItemMessages"
+                                                            edit="#{quoteBean.quoteEditable}" />
+                                                    </h:panelGroup>
                                                 </p:tab>
                                             </c:forEach>
                                         </p:tabView>

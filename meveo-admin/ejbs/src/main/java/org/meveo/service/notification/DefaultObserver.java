@@ -20,6 +20,7 @@ import org.meveo.cache.NotificationCacheContainerProvider;
 import org.meveo.commons.utils.StringUtils;
 import org.meveo.event.CFEndPeriodEvent;
 import org.meveo.event.CounterPeriodEvent;
+import org.meveo.event.IEvent;
 import org.meveo.event.communication.InboundCommunicationEvent;
 import org.meveo.event.logging.LoggedEvent;
 import org.meveo.event.monitoring.BusinessExceptionEvent;
@@ -91,8 +92,8 @@ public class DefaultObserver {
     @Inject
     private NotificationCacheContainerProvider notificationCacheContainerProvider;
 
-    @Inject
-    private RemoteInstanceNotifier remoteInstanceNotifier;
+    // @Inject
+    // private RemoteInstanceNotifier remoteInstanceNotifier;
 
     @Inject
     private ScriptInstanceService scriptInstanceService;
@@ -100,13 +101,13 @@ public class DefaultObserver {
     @Inject
     private JobTriggerLauncher jobTriggerLauncher;
 
-    private boolean matchExpression(String expression, Object o) throws BusinessException {
+    private boolean matchExpression(String expression, Object entityOrEvent) throws BusinessException {
         Boolean result = true;
         if (StringUtils.isBlank(expression)) {
             return result;
         }
         Map<Object, Object> userMap = new HashMap<Object, Object>();
-        userMap.put("event", o);
+        userMap.put("event", entityOrEvent);
 
         Object res = ValueExpressionWrapper.evaluateExpression(expression, userMap, Boolean.class);
         try {
@@ -117,37 +118,47 @@ public class DefaultObserver {
         return result;
     }
 
-    private void executeScript(ScriptInstance scriptInstance, Object o, Map<String, String> params, Map<String, Object> context) throws BusinessException {
+    private void executeScript(ScriptInstance scriptInstance, Object entityOrEvent, Map<String, String> params, Map<String, Object> context) throws BusinessException {
         log.debug("execute notification script: {}", scriptInstance.getCode());
 
         try {
             ScriptInterface scriptInterface = scriptInstanceService.getScriptInstance(scriptInstance.getProvider(), scriptInstance.getCode());
-            Map<Object, Object> userMap = new HashMap<Object, Object>();
-            userMap.put("event", o);
+            Map<Object, Object> userMap = new HashMap<>();
+            userMap.put("event", entityOrEvent);
             userMap.put("manager", manager);
-            for (@SuppressWarnings("rawtypes")
-            Map.Entry entry : params.entrySet()) {
-                context.put((String) entry.getKey(), ValueExpressionWrapper.evaluateExpression((String) entry.getValue(), userMap, Object.class));
+            for (Map.Entry<String, String> entry : params.entrySet()) {
+                context.put(entry.getKey(), ValueExpressionWrapper.evaluateExpression(entry.getValue(), userMap, Object.class));
             }
             scriptInterface.init(context, scriptInstance.getAuditable().getCreator());
             scriptInterface.execute(context, scriptInstance.getAuditable().getCreator());
             scriptInterface.finalize(context, scriptInstance.getAuditable().getCreator());
-
         } catch (Exception e) {
             log.error("failed script execution", e);
+            if(e instanceof BusinessException) {
+                throw e;
+            } else {
+                throw new BusinessException(e);
+            }
         }
     }
 
-    private void fireNotification(Notification notif, IEntity e) {
+    private boolean fireNotification(Notification notif, Object entityOrEvent) {
         if (notif == null) {
-            return;
+            return false;
         }
 
-        log.debug("Fire Notification for notif with {} and entity with id={}", notif, e.getId());
+        IEntity entity = null;
+        if (entityOrEvent instanceof IEntity) {
+            entity = (IEntity) entityOrEvent;
+        } else if (entityOrEvent instanceof IEvent) {
+            entity = ((IEvent) entityOrEvent).getEntity();
+        }
+
+        log.debug("Fire Notification for notif with {} and entity with id={}", notif, entity.getId());
         try {
-            if (!matchExpression(notif.getElFilter(), e)) {
+            if (!matchExpression(notif.getElFilter(), entityOrEvent)) {
                 log.debug("Expression {} does not match", notif.getElFilter());
-                return;
+                return false;
             }
 
             boolean sendNotify = true;
@@ -162,7 +173,7 @@ public class DefaultObserver {
             }
 
             if (!sendNotify) {
-                return;
+                return false;
             }
 
             Map<String, Object> context = new HashMap<String, Object>();
@@ -170,45 +181,48 @@ public class DefaultObserver {
             if (!(notif instanceof WebHook)) {
                 if (notif.getScriptInstance() != null) {
                     ScriptInstance script = (ScriptInstance) scriptInstanceService.attach(notif.getScriptInstance());
-                    executeScript(script, e, notif.getParams(), context);
+                    executeScript(script, entityOrEvent, notif.getParams(), context);
                 }
             }
 
             // Execute notification
-            
-            // ONLY ScriptNotifications will produce notification history in synchronous mode. Other type notifications will produce notification history in asynchronous mode and thus
+
+            // ONLY ScriptNotifications will produce notification history in synchronous mode. Other type notifications will produce notification history in asynchronous mode and
+            // thus
             // will not be related to inbound request.
             if (notif instanceof ScriptNotification) {
-                NotificationHistory histo = notificationHistoryService.create(notif, e, "", NotificationHistoryStatusEnum.SENT);
+                NotificationHistory histo = notificationHistoryService.create(notif, entityOrEvent, "", NotificationHistoryStatusEnum.SENT);
 
                 if (notif.getEventTypeFilter() == NotificationEventTypeEnum.INBOUND_REQ && histo != null) {
-                    ((InboundRequest) e).add(histo);
+                    ((InboundRequest) entityOrEvent).add(histo);
                 }
 
             } else if (notif instanceof EmailNotification) {
-                emailNotifier.sendEmail((EmailNotification) notif, e, context);
+                emailNotifier.sendEmail((EmailNotification) notif, entityOrEvent, context);
 
             } else if (notif instanceof WebHook) {
-                webHookNotifier.sendRequest((WebHook) notif, e, context);
+                webHookNotifier.sendRequest((WebHook) notif, entityOrEvent, context);
 
             } else if (notif instanceof InstantMessagingNotification) {
-                imNotifier.sendInstantMessage((InstantMessagingNotification) notif, e);
+                imNotifier.sendInstantMessage((InstantMessagingNotification) notif, entityOrEvent);
 
             } else if (notif instanceof JobTrigger) {
-                jobTriggerLauncher.launch((JobTrigger) notif, e);
+                jobTriggerLauncher.launch((JobTrigger) notif, entityOrEvent);
             }
 
         } catch (Exception e1) {
             log.error("Error while firing notification {} for provider {}: {} ", notif.getCode(), notif.getProvider().getCode(), e1);
             try {
-                NotificationHistory notificationHistory = notificationHistoryService.create(notif, e, e1.getMessage(), NotificationHistoryStatusEnum.FAILED);
-                if (e instanceof InboundRequest) {
-                    ((InboundRequest) e).add(notificationHistory);
+                NotificationHistory notificationHistory = notificationHistoryService.create(notif, entityOrEvent, e1.getMessage(), NotificationHistoryStatusEnum.FAILED);
+                if (entityOrEvent instanceof InboundRequest) {
+                    ((InboundRequest) entityOrEvent).add(notificationHistory);
                 }
             } catch (Exception e2) {
-                log.error("Failed to create notification history", e);
+                log.error("Failed to create notification history", e2);
             }
         }
+        
+        return true;
     }
 
     private void fireCdrNotification(Notification notif, IProvider cdr) {
@@ -223,11 +237,19 @@ public class DefaultObserver {
 
     }
 
-    private void checkEvent(NotificationEventTypeEnum type, BaseEntity entity) {
-        for (Notification notif : notificationCacheContainerProvider.getApplicableNotifications(type, entity)) {
+   /**
+    * 
+    * @param type
+    * @param entityOrEvent
+    * @return return true if one notification has been trigerred
+    */
+    private boolean checkEvent(NotificationEventTypeEnum type, Object entityOrEvent) {
+    	boolean result=false;
+        for (Notification notif : notificationCacheContainerProvider.getApplicableNotifications(type, entityOrEvent)) {
             notif = genericNotificationService.findById(notif.getId());
-            fireNotification(notif, entity);
+            result = result || fireNotification(notif, entityOrEvent);
         }
+        return result;
     }
 
     public void entityCreated(@Observes @Created BaseEntity e) {
@@ -284,7 +306,8 @@ public class DefaultObserver {
 
     public void inboundRequest(@Observes @InboundRequestReceived InboundRequest e) {
         log.debug("Defaut observer : inbound request {} ", e.getCode());
-        checkEvent(NotificationEventTypeEnum.INBOUND_REQ, e);
+        boolean fired = checkEvent(NotificationEventTypeEnum.INBOUND_REQ, e);
+        e.getHeaders().put("fired", fired?"true":"false");
     }
 
     public void LowBalance(@Observes @LowBalance WalletInstance e) {
@@ -350,10 +373,10 @@ public class DefaultObserver {
         log.debug("observe a file rename event ");
         checkEvent(NotificationEventTypeEnum.FILE_RENAME, importedFile);
     }
-    
+
     public void counterUpdated(@Observes CounterPeriodEvent event) {
-        log.debug("DefaultObserver.counterUpdated " +event);
-        checkEvent(NotificationEventTypeEnum.ZERO_COUNTER, event.getCounterPeriod());
+        log.debug("DefaultObserver.counterUpdated " + event);
+        checkEvent(NotificationEventTypeEnum.COUNTER_DEDUCED, event);
     }
 
 }

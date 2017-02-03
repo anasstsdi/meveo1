@@ -82,7 +82,6 @@ import org.meveo.admin.job.PDFParametersConstruction;
 import org.meveo.admin.job.PdfGeneratorConstants;
 import org.meveo.admin.util.PdfWaterMark;
 import org.meveo.admin.util.ResourceBundle;
-
 import org.meveo.commons.exceptions.ConfigurationException;
 import org.meveo.commons.utils.ParamBean;
 import org.meveo.commons.utils.QueryBuilder;
@@ -343,11 +342,11 @@ public class InvoiceService extends PersistenceService<Invoice> {
 		InvoiceType invoiceType = invoice.getInvoiceType();
 		invoiceType = invoiceTypeService.refreshOrRetrieve(invoiceType);
 		Sequence sequence = null;			
-		if(invoiceType.getSellerSequence() != null && invoiceType.getSellerSequence().containsKey(seller)){			
-			sequence =  invoiceType.getSellerSequence().get(seller);
+		if(invoiceType.getSellerSequence() != null && invoiceType.isContainsSellerSequence(seller)){			
+			sequence =  invoiceType.getSellerSequenceByType(seller).getSequence();
 			if(increment && currentNbFromCF == null){				
 				sequence.setCurrentInvoiceNb((sequence.getCurrentInvoiceNb() == null?0L:sequence.getCurrentInvoiceNb()) +step);
-				invoiceType.getSellerSequence().put(seller,sequence);
+				invoiceType.getSellerSequenceByType(seller).setSequence(sequence);
 				invoiceTypeService.update(invoiceType,currentUser);
 			}
 		}else{			
@@ -530,20 +529,25 @@ public class InvoiceService extends PersistenceService<Invoice> {
 
 			invoice.setTemporaryInvoiceNumber(invoiceNumber + "-" + key % 10);
 			// getEntityManager().merge(invoice);
-				
-			List<String> orderNums = new ArrayList<String>();
+			
+			List<String> orderNums = null;
 			if(!StringUtils.isBlank(orderNumber)){
+				orderNums = new ArrayList<String>();
 				orderNums.add(orderNumber);
 			}else{
 				ratedTransactionService.commit();				
 				orderNums = (List<String>) getEntityManager().createNamedQuery("RatedTransaction.getDistinctOrderNumsByInvoice", String.class).setParameter("invoice", invoice).getResultList();
+				if(orderNums != null && orderNums.size() == 1 && orderNums.get(0) == null ){
+					orderNums = null;
+				}
+			}		
+			if(orderNums != null && !orderNums.isEmpty()){							
+				List<Order> orders = new ArrayList<Order>();
+				for(String orderNum : orderNums){
+					orders.add(orderService.findByCodeOrExternalId(orderNum, invoice.getProvider()));
+				}
+				invoice.setOrders(orders);
 			}			
-			List<Order> orders = new ArrayList<Order>();
-			for(String orderNum : orderNums){
-				orders.add(orderService.findByCode(orderNum, invoice.getProvider()));
-			}
-			invoice.setOrders(orders);
-			
 			Long endDate = System.currentTimeMillis();
 
 			log.info("createAgregatesAndInvoice BR_ID=" +( billingRun==null?"null":billingRun.getId() )+ ", BA_ID=" + billingAccount.getId()
@@ -1089,7 +1093,7 @@ public class InvoiceService extends PersistenceService<Invoice> {
 		if(currentValObj != null){		
 			return seller;
 		}
-		if(invoiceType.getSellerSequence() != null && invoiceType.getSellerSequence().containsKey(seller)){
+		if(invoiceType.getSellerSequence() != null && invoiceType.isContainsSellerSequence(seller)){
 			return  seller;
 		}
 		
@@ -1100,7 +1104,12 @@ public class InvoiceService extends PersistenceService<Invoice> {
 	
 	public String getXMLInvoice(Invoice invoice, String invoiceNumber, User currentUser, boolean refreshInvoice) throws BusinessException, FileNotFoundException {
 
-        File xmlFile = xmlInvoiceCreator.createXMLInvoice(invoice.getId());
+        File xmlFile = null;
+        if(refreshInvoice){
+        	xmlFile = xmlInvoiceCreator.createXMLInvoice(invoice.getId(),currentUser);
+        } else {
+        	xmlFile = xmlInvoiceCreator.createXMLInvoice(invoice, false,currentUser);
+        }
 
         Scanner scanner = new Scanner(xmlFile);
         String xmlContent = scanner.useDelimiter("\\Z").next();
@@ -1202,7 +1211,8 @@ public class InvoiceService extends PersistenceService<Invoice> {
 		return invoice;
 	}
 	
-	public void cancelInvoice(Invoice invoice) throws BusinessException {		
+	@SuppressWarnings("unchecked")
+    public void cancelInvoice(Invoice invoice) throws BusinessException {		
 		if(invoice.getInvoiceNumber() != null){
 			throw new BusinessException("Can't cancel an invoice validated");
 		}
@@ -1220,7 +1230,8 @@ public class InvoiceService extends PersistenceService<Invoice> {
 			if(invoiceAgregate instanceof SubCategoryInvoiceAgregate){
 				((SubCategoryInvoiceAgregate)invoiceAgregate).setSubCategoryTaxes(null);
 			}
-		}
+		}		
+		invoice.setOrders(null);		
 		Query dropAgregats = getEntityManager().createQuery("delete from " + InvoiceAgregate.class.getName() + " where invoice=:invoice");
 		dropAgregats.setParameter("invoice",invoice);
 		dropAgregats.executeUpdate();		

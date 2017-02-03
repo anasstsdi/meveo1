@@ -306,7 +306,7 @@
 		<sql>
 			<!-- update adm_title -->
 			<![CDATA[
-			DELETE FROM adm_title WHERE code NOT IN ('ASSOC', 'CIE', 'MR', 'MRS', 'MS', 'DR', 'PROF');
+			DELETE FROM adm_title WHERE code NOT IN ('ASSOC', 'CIE', 'MR', 'MRS', 'MS', 'DR', 'PROF') and id not in (select distinct title_id from account_entity where title_id is not null) and id not in (select distinct title_id from adm_user where title_id is not null);
 			]]>
 		</sql>
 	</changeSet>
@@ -455,4 +455,16 @@
             <column name="MATCHING_AUTO" valueNumeric="0" />        
         </insert>
     </changeSet>
+    
+    <changeSet id="#2119_20161219-2" author="AndriusKarpavicius">
+        <sql>
+            delete from adm_messages where entity_class='Title' and entity_code not in (select code from adm_title); 
+        </sql>    
+    </changeSet>
+    
+    <changeSet id="#20170201_majExistingData" author="anasseh">
+        <sql>
+            UPDATE billing_charge_instance AS chg SET user_account_id = s.user_account_id FROM billing_subscription AS s WHERE chg.subscription_id = s.id ; 
+        </sql>    
+    </changeSet>    
 </databaseChangeLog>

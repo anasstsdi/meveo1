@@ -272,7 +272,7 @@ public class RatingService extends BusinessService<WalletOperation>{
 		}
 
 		rateBareWalletOperation(walletOperation, unitPriceWithoutTax, unitPriceWithTax, countryId, tCurrency, currentUser);
-        log.debug(" wo amountWithoutTax =",walletOperation.getAmountWithoutTax());
+		log.debug(" wo amountWithoutTax={}", walletOperation.getAmountWithoutTax());
 		return walletOperation;
 
 	}
@@ -381,7 +381,7 @@ public class RatingService extends BusinessService<WalletOperation>{
 		if (unitPriceWithoutTax == null) {
             List<PricePlanMatrix> chargePricePlans = ratingCacheContainerProvider.getPricePlansByChargeCode(currentUser.getProvider().getId(), bareWalletOperation.getCode());            
             if (chargePricePlans == null || chargePricePlans.isEmpty()) {
-                throw new RuntimeException("No price plan for provider " + providerCode + " and charge code " + bareWalletOperation.getCode());
+                throw new BusinessException("No price plan for provider " + providerCode + " and charge code " + bareWalletOperation.getCode());
             }
 			ratePrice = ratePrice(chargePricePlans,bareWalletOperation, countryId, tcurrency,
 					bareWalletOperation.getSeller() != null ? bareWalletOperation.getSeller().getId() : null);
@@ -392,11 +392,13 @@ public class RatingService extends BusinessService<WalletOperation>{
 			log.debug("found ratePrice:" + ratePrice.getId());
 			unitPriceWithoutTax = ratePrice.getAmountWithoutTax();
 			unitPriceWithTax = ratePrice.getAmountWithTax();
-			if(ratePrice.getAmountWithoutTaxEL()!=null){
-				unitPriceWithoutTax = getExpressionValue(ratePrice.getAmountWithoutTaxEL(),ratePrice, bareWalletOperation, bareWalletOperation.getWallet().getUserAccount(),unitPriceWithoutTax);
+			if (ratePrice.getAmountWithoutTaxEL() != null) {
+				unitPriceWithoutTax = getExpressionValue(ratePrice.getAmountWithoutTaxEL(), ratePrice, bareWalletOperation, bareWalletOperation.getWallet().getUserAccount(),
+						unitPriceWithoutTax);
 			}
-			if(ratePrice.getAmountWithTaxEL()!=null){
-				unitPriceWithTax = getExpressionValue(ratePrice.getAmountWithTaxEL(),ratePrice, bareWalletOperation, bareWalletOperation.getWallet().getUserAccount(),unitPriceWithoutTax);
+			if (ratePrice.getAmountWithTaxEL() != null) {
+				unitPriceWithTax = getExpressionValue(ratePrice.getAmountWithTaxEL(), ratePrice, bareWalletOperation, bareWalletOperation.getWallet().getUserAccount(),
+						unitPriceWithoutTax);
 			}
 		}
 		// if the wallet operation correspond to a recurring charge that is
@@ -840,20 +842,20 @@ public class RatingService extends BusinessService<WalletOperation>{
 			ChargeTemplate charge=bareOperation.getChargeInstance().getChargeTemplate();
             userMap.put("charge", charge);
 		}
-		if(expression.indexOf("serviceInstance") >= 0){
+		if (expression.indexOf("serviceInstance") >= 0) {
 			ServiceInstance service = null;
-			if(bareOperation.getChargeInstance() instanceof RecurringChargeInstance){
-				service=((RecurringChargeInstance)bareOperation.getChargeInstance()).getServiceInstance();
-			}else if (bareOperation.getChargeInstance() instanceof UsageChargeInstance){
-				service=((UsageChargeInstance)bareOperation.getChargeInstance()).getServiceInstance();
-			}else if (bareOperation.getChargeInstance() instanceof OneShotChargeInstance){
-				service=((OneShotChargeInstance)bareOperation.getChargeInstance()).getSubscriptionServiceInstance();
-				if(service==null){
-					((OneShotChargeInstance)bareOperation.getChargeInstance()).getTerminationServiceInstance();
+			if (bareOperation.getChargeInstance() instanceof RecurringChargeInstance) {
+				service = ((RecurringChargeInstance) bareOperation.getChargeInstance()).getServiceInstance();
+			} else if (bareOperation.getChargeInstance() instanceof UsageChargeInstance) {
+				service = ((UsageChargeInstance) bareOperation.getChargeInstance()).getServiceInstance();
+			} else if (bareOperation.getChargeInstance() instanceof OneShotChargeInstance) {
+				service = ((OneShotChargeInstance) bareOperation.getChargeInstance()).getSubscriptionServiceInstance();
+				if (service == null) {
+					((OneShotChargeInstance) bareOperation.getChargeInstance()).getTerminationServiceInstance();
 				}
 			}
-			if(service !=null){
-				userMap.put("serviceIntance", service);
+			if (service != null) {
+				userMap.put("serviceInstance", service);
 			}
 		}
 		if(expression.indexOf("productInstance") >= 0){
@@ -910,19 +912,19 @@ public class RatingService extends BusinessService<WalletOperation>{
 			ChargeTemplate charge=walletOperation.getChargeInstance().getChargeTemplate();
             userMap.put("charge", charge);
 		}
-		if(expression.indexOf("serviceInstance") >= 0){
+		if (expression.indexOf("serviceInstance") >= 0) {
 			ServiceInstance service = null;
-			if(walletOperation.getChargeInstance() instanceof RecurringChargeInstance){
-				service=((RecurringChargeInstance)walletOperation.getChargeInstance()).getServiceInstance();
-			}else if (walletOperation.getChargeInstance() instanceof UsageChargeInstance){
-				service=((UsageChargeInstance)walletOperation.getChargeInstance()).getServiceInstance();
-			}else if (walletOperation.getChargeInstance() instanceof OneShotChargeInstance){
-				service=((OneShotChargeInstance)walletOperation.getChargeInstance()).getSubscriptionServiceInstance();
-				if(service==null){
-					((OneShotChargeInstance)walletOperation.getChargeInstance()).getTerminationServiceInstance();
+			if (walletOperation.getChargeInstance() instanceof RecurringChargeInstance) {
+				service = ((RecurringChargeInstance) walletOperation.getChargeInstance()).getServiceInstance();
+			} else if (walletOperation.getChargeInstance() instanceof UsageChargeInstance) {
+				service = ((UsageChargeInstance) walletOperation.getChargeInstance()).getServiceInstance();
+			} else if (walletOperation.getChargeInstance() instanceof OneShotChargeInstance) {
+				service = ((OneShotChargeInstance) walletOperation.getChargeInstance()).getSubscriptionServiceInstance();
+				if (service == null) {
+					service = ((OneShotChargeInstance) walletOperation.getChargeInstance()).getTerminationServiceInstance();
 				}
 			}
-			if(service !=null){
+			if (service != null) {
 				userMap.put("serviceInstance", service);
 			}
 		}

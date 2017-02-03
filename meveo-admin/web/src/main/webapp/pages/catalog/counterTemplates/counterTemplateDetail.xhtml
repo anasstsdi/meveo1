@@ -8,16 +8,20 @@
     </ui:define>
 
     <ui:define name="body">
-        <p:panel>
-            <h:form id="crumbmenuForm">
-                <p:breadCrumb homeDisplay="text" id="crumbmenu">
-                    <p:menuitem value="#{messages['menu.catalog']}" disabled="true" />
-                    <p:menuitem outcome="counterTemplates" value="#{messages['menu.counterTemplates']}" />
-                </p:breadCrumb>
-            </h:form>
-        </p:panel>
+		<h:form id="crumbmenuForm">
+			<p:breadCrumb homeDisplay="text" id="crumbmenu">
+				<p:menuitem value="#{messages['menu.catalog']}" disabled="true" />
+				<p:menuitem outcome="counterTemplates"
+					value="#{messages['menu.counterTemplates']}" />
+				<p:menuitem value="#{messages['commons.new']} #{messages['counterTemplate']}"
+					disabled="true" rendered="#{counterTemplateBean.entity.transient}" />
+				<p:menuitem
+					value="#{messages['counterTemplate']} #{messages['commons.configuration']} - #{counterTemplateBean.entity.code}"
+					disabled="true" rendered="#{!counterTemplateBean.entity.transient}" />
+			</p:breadCrumb>
+		</h:form>
 
-        <hftl:formPanel id="formPanel" formId="counterTemplatId" label="#{messages['menu.counterTemplates']}" backingBean="#{counterTemplateBean}" showEnableDisableButton="true">
+		<hftl:formPanel id="formPanel" formId="counterTemplatId" label="#{messages['menu.counterTemplates']}" backingBean="#{counterTemplateBean}" showEnableDisableButton="true">
 
             <h:panelGrid columns="3" cellpadding="5">
                 <h:outputLink id="exprEl" value="#">
@@ -33,8 +37,9 @@
             <hftl:formField label="#{messages['counterTemplate.counterLevel']}" field="counterLevel" required="true" />
             <hftl:formField label="#{messages['counterTemplate.level']}" field="ceiling" converter="bigDecimal4DigitsConverter" />
             <hftl:formField label="#{messages['billingCycle.calendar']}" field="calendar" valueLabelField="code" required="true" listBean="#{calendarBean}" />
-            <hftl:formField label="#{messages['counterTemplate.ceilingExpressionEl']}" field="ceilingExpressionEl" textArea="true" rows="1" maxlength="2000" />            
-            <hftl:formField label="#{messages['enableEntity.disabled']}" doNotShowOnNew="true" allowEdit="false" field="disabled" isMessage="true" newLine="true"/>
+            <hftl:formField label="#{messages['counterTemplate.ceilingExpressionEl']}" field="ceilingExpressionEl" textArea="true" rows="1" maxlength="2000" />
+            <hftl:formField label="#{messages['counterTemplate.notificationLevels']}" field="notificationLevels" />
+            <hftl:formField label="#{messages['enableEntity.disabled']}" doNotShowOnNew="true" allowEdit="false" field="disabled" isMessage="true" newLine="true" />
 
         </hftl:formPanel>
 

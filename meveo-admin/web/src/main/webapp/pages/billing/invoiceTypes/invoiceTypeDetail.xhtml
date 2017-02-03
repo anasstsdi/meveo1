@@ -33,15 +33,20 @@
 			column2Label="#{messages['businessEntity.description']}"
 			column2="description">
 		</hftl:entityPopup>
-		<p:panel>
-			<h:form id="crumbmenuForm">
-				<p:breadCrumb homeDisplay="text" id="crumbmenu">
-					<p:menuitem value="#{messages['menu.admin']}" disabled="true" />
-					<p:menuitem outcome="invoiceTypes"
-						value="#{messages['menu.invoiceTypes']}" />
-				</p:breadCrumb>
-			</h:form>
-		</p:panel>
+
+		<h:form id="crumbmenuForm">
+			<p:breadCrumb homeDisplay="text" id="crumbmenu">
+				<p:menuitem value="#{messages['menu.configuration']}" disabled="true" />
+				<p:menuitem outcome="invoiceTypes"
+					value="#{messages['menu.invoiceTypes']}" />
+				<p:menuitem value="#{messages['commons.new']} #{messages['invoiceType']}"
+					disabled="true" rendered="#{invoiceTypeBean.entity.transient}" />
+				<p:menuitem
+					value="#{messages['invoiceType']} - #{invoiceTypeBean.entity.code}"
+					disabled="true" rendered="#{!invoiceTypeBean.entity.transient}" />
+			</p:breadCrumb>
+		</h:form>
+
 		<hftl:formPanel formId="formInvoiceType" edit="#{invoiceTypeBean.edit}" label="#{messages['invoiceType.panel']}" backingBean="#{invoiceTypeBean}">
 			<hftl:formField label="#{messages['businessEntity.code']}" field="code" validateUnique="true" required="true"  size="60" maxlength="60" />
 			<hftl:formField label="#{messages['businessEntity.description']}" id="description" field="description" useConverter="false" size="100" maxlength="100" />
@@ -56,35 +61,23 @@
             newLine="true"  id="appliesTo"/> 
         <h:panelGroup rendered="#{not empty invoiceTypeBean.entity.id}">		 
 		  <p:dataTable id="sellerSequenceTable" width="80px;" label="#{messages['inboundRequest.responseHeaders']}" style="width:70%;"
-			value="#{invoiceTypeBean.getSellerSequencesList}" 
+			value="#{invoiceTypeBean.entity.sellerSequence}" 
 			var="sellerSeq" paginator="false"  resizableColumns="true" >
 	       <f:facet name="header">
             #{messages['invoiceType.sellerSequences']}
            </f:facet>
-		   <p:column>
-		   <f:facet name="header">
-				<h:outputText value="#{messages['seller.title']}" />
-			</f:facet>
-			  <h:outputText value="#{sellerSeq.key.code}" />
+		   <p:column headerText="#{messages['seller.title']}">
+			  <h:outputText value="#{sellerSeq.seller.code}" />
 		   </p:column>
-		   <p:column>
-			<f:facet name="header">
-				<h:outputText value="#{messages['invoiceType.sequence.prefixEl']}" />
-			</f:facet>
-			 <h:outputText value="#{sellerSeq.value.prefixEL}" />  
-		  </p:column>
-		    <p:column>
-			<f:facet name="header">
-				<h:outputText value="#{messages['seller.currentInvoiceNb']}" />
-			</f:facet>
-			 <h:outputText value="#{sellerSeq.value.currentInvoiceNb}" />  
-		  </p:column>
-           <p:column>
-			<f:facet name="header">
-				<h:outputText value="#{messages['seller.invoiceSequenceSize']}" />
-			</f:facet>
-			 <h:outputText value="#{sellerSeq.value.sequenceSize}" />  
-		  </p:column> 		  
+		   <p:column headerText="#{messages['invoiceType.sequence.prefixEl']}">
+		      <h:outputText value="#{sellerSeq.sequence.prefixEL}" />  
+           </p:column>
+		   <p:column headerText="#{messages['seller.currentInvoiceNb']}">
+			 <h:outputText value="#{sellerSeq.sequence.currentInvoiceNb}" />  
+		   </p:column>
+           <p:column headerText="#{messages['seller.invoiceSequenceSize']}">
+			 <h:outputText value="#{sellerSeq.sequence.sequenceSize}" />  
+		   </p:column> 		  
 		</p:dataTable> 
 		</h:panelGroup>
 		</hftl:formPanel>
