@@ -963,9 +963,17 @@ public class AccountHierarchyApi extends BaseApi {
 			customerDto.setCustomerCategory(postData.getCustomerCategory());
 			customerDto.setCustomerBrand(postData.getCustomerBrand());
 			if (accountHierarchyTypeEnum.getHighLevel() == 3) {
-				customerDto.setSeller(postData.getCrmParentCode());
+				Seller parentSeller = sellerService.findByCode(postData.getCrmParentCode(), currentUser.getProvider());
+				Customer parentCustomer = customerService.findByCode(postData.getCrmParentCode(), currentUser.getProvider());
+				if(parentCustomer != null){
+					customerDto.setSeller(parentCustomer.getSeller().getCode());
+				} else if(parentSeller != null){
+					customerDto.setSeller(parentSeller.getCode());
+				} else {
+					customerDto.setSeller(postData.getSeller());
+				}
 			} else {
-				customerDto.setSeller(postData.getCode());
+				customerDto.setSeller(postData.getSeller());
 			}
 			customerDto.setMandateDate(postData.getMandateDate());
 			customerDto.setMandateIdentification(postData.getMandateIdentification());
@@ -1242,9 +1250,17 @@ public class AccountHierarchyApi extends BaseApi {
 			customerDto.setCustomerCategory(postData.getCustomerCategory());
 			customerDto.setCustomerBrand(postData.getCustomerBrand());
 			if (accountHierarchyTypeEnum.getHighLevel() == 3) {
-				customerDto.setSeller(postData.getCrmParentCode());
+				Seller parentSeller = sellerService.findByCode(postData.getCrmParentCode(), currentUser.getProvider());
+				Customer parentCustomer = customerService.findByCode(postData.getCrmParentCode(), currentUser.getProvider());
+				if(parentCustomer != null){
+					customerDto.setSeller(parentCustomer.getSeller().getCode());
+				} else if(parentSeller != null){
+					customerDto.setSeller(parentSeller.getCode());
+				} else {
+					customerDto.setSeller(postData.getSeller());
+				}
 			} else {
-				customerDto.setSeller(postData.getCode());
+				customerDto.setSeller(postData.getSeller());
 			}
 			customerDto.setMandateDate(postData.getMandateDate());
 			customerDto.setMandateIdentification(postData.getMandateIdentification());
