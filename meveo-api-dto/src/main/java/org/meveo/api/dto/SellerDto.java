@@ -41,7 +41,7 @@ import org.meveo.model.billing.Sequence;
 @XmlRootElement(name = "Seller")
 @XmlType(name = "Seller")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class SellerDto extends BaseDto {
+public class SellerDto extends BusinessDto {
 
 	private static final long serialVersionUID = 4763606402719751014L;
 

@@ -7,7 +7,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
-
+import org.meveo.api.dto.BusinessDto;
 import org.meveo.api.dto.CustomFieldsDto;
 import org.meveo.model.AccountEntity;
 
@@ -16,7 +16,7 @@ import org.meveo.model.AccountEntity;
  **/
 @XmlRootElement(name = "Account")
 @XmlAccessorType(XmlAccessType.FIELD)
-public abstract class AccountDto implements Serializable {
+public abstract class AccountDto extends BusinessDto {
 
 	private static final long serialVersionUID = -8818317499795113026L;
 
@@ -25,7 +25,7 @@ public abstract class AccountDto implements Serializable {
 
 	@XmlAttribute()
 	private String description;
-
+	
 	private String externalRef1;
 	private String externalRef2;
 	private NameDto name = new NameDto();
@@ -120,7 +120,7 @@ public abstract class AccountDto implements Serializable {
 	public void setLoaded(boolean loaded) {
 		this.loaded = loaded;
 	}
-
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
