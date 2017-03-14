@@ -75,7 +75,7 @@ public class MeveoInstanceApi extends BaseApi{
         }
     }
 
-    public void update(MeveoInstanceDto meveoInstanceDto, User currentUser) throws MeveoApiException, BusinessException {
+    public void update(MeveoInstanceDto meveoInstanceDto, User currentUser) throws MeveoApiException, BusinessException {    	
         if (meveoInstanceDto.getCode() != null) {
             Provider provider = currentUser.getProvider();
 
@@ -84,7 +84,7 @@ public class MeveoInstanceApi extends BaseApi{
             if (meveoInstance == null) {
                 throw new EntityDoesNotExistsException(Access.class, meveoInstanceDto.getCode());
             }
-
+            meveoInstance.setCode(StringUtils.isBlank(meveoInstanceDto.getUpdatedCode()) ? meveoInstanceDto.getCode() : meveoInstanceDto.getUpdatedCode());
             meveoInstance.setDescription(meveoInstanceDto.getDescription());
     		meveoInstance.setProductName(meveoInstanceDto.getProductName());
     		meveoInstance.setProductVersion(meveoInstanceDto.getProductVersion());
@@ -121,7 +121,7 @@ public class MeveoInstanceApi extends BaseApi{
             handleMissingParameters();
         }
     }
-
+    
     public MeveoInstanceDto find(String code,Provider provider) throws MeveoApiException {
         if (StringUtils.isEmpty(code)) {
             missingParameters.add("code");
