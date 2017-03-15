@@ -79,7 +79,8 @@ public class FilterApi extends BaseApi {
         	filter.setCode(dto.getCode());
         	filter.clearUuid();
         }
-    	filter.setDescription(dto.getDescription());
+    	filter.setCode(StringUtils.isBlank(dto.getUpdatedCode()) ? dto.getCode() : dto.getUpdatedCode());
+    	filter.setDescription(dto.getDescription());        
         filter.setInputXml(dto.getInputXml());
         filter.setShared(dto.getShared());
     }

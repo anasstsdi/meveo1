@@ -32,7 +32,6 @@ public class EmailNotificationApi extends BaseApi {
     @Inject
     private EmailNotificationService emailNotificationService;
 
-    @SuppressWarnings("rawtypes")
     @Inject
     private CounterTemplateService counterTemplateService;
 
@@ -174,7 +173,7 @@ public class EmailNotificationApi extends BaseApi {
                 throw new EntityDoesNotExistsException(CounterTemplate.class, postData.getCounterTemplate());
             }
         }
-
+        notif.setCode(StringUtils.isBlank(postData.getUpdatedCode()) ? postData.getCode() : postData.getUpdatedCode());
         notif.setClassNameFilter(postData.getClassNameFilter());
         notif.setEventTypeFilter(postData.getEventTypeFilter());
         notif.setScriptInstance(scriptInstance);

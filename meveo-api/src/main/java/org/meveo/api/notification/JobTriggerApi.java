@@ -31,7 +31,6 @@ public class JobTriggerApi extends BaseApi {
     @Inject
     private JobTriggerService jobTriggerService;
 
-    @SuppressWarnings("rawtypes")
     @Inject
     private CounterTemplateService counterTemplateService;
 
@@ -167,6 +166,7 @@ public class JobTriggerApi extends BaseApi {
             }
         }
 
+        notif.setCode(StringUtils.isBlank(postData.getUpdatedCode()) ? postData.getCode() : postData.getUpdatedCode());
         notif.setClassNameFilter(postData.getClassNameFilter());
         notif.setEventTypeFilter(postData.getEventTypeFilter());
         notif.setScriptInstance(scriptInstance);
