@@ -21,8 +21,6 @@ import org.meveo.admin.exception.BusinessException;
 import org.meveo.admin.exception.IncorrectChargeTemplateException;
 import org.meveo.admin.exception.UnrolledbackBusinessException;
 import org.meveo.admin.parse.csv.CDR;
-import org.meveo.admin.parse.csv.CdrParserProducer;
-import org.meveo.admin.parse.csv.MEVEOCdrParser;
 import org.meveo.admin.util.NumberUtil;
 import org.meveo.api.dto.ActionStatus;
 import org.meveo.api.dto.ActionStatusEnum;
@@ -61,7 +59,6 @@ import org.meveo.service.base.ValueExpressionWrapper;
 import org.meveo.service.catalog.impl.CatMessagesService;
 import org.meveo.service.communication.impl.MeveoInstanceService;
 import org.meveo.service.medina.impl.AccessService;
-import org.meveo.service.medina.impl.CSVCDRParser;
 import org.meveo.service.script.Script;
 import org.meveo.service.script.ScriptInstanceService;
 import org.meveo.service.script.ScriptInterface;
@@ -489,7 +486,7 @@ public class RatingService extends BusinessService<WalletOperation>{
 			boolean sellerAreEqual = pricePlan.getSeller() == null || pricePlan.getSeller().getId().equals(sellerId);
 			if (!sellerAreEqual) {
 				log.debug("The seller of the customer " + sellerId + " is not the same as pricePlan seller "
-						+ pricePlan.getSeller().getId() + " (" + pricePlan.getSeller().getCode() + ")");
+						+ pricePlan.getSeller().getId() );
 				continue;
 			}
 
@@ -497,18 +494,16 @@ public class RatingService extends BusinessService<WalletOperation>{
 					|| pricePlan.getTradingCountry().getId().equals(countryId);
 			if (!countryAreEqual) {
 				log.debug(
-						"The countryId={} of the billing account is not the same as pricePlan with countryId={} and code={}",
-						countryId, pricePlan.getTradingCountry().getId(),
-								pricePlan.getTradingCountry().getCountry().getCountryCode() );
+						"The countryId={} of the billing account is not the same as pricePlan with countryId={}",
+						countryId, pricePlan.getTradingCountry().getId());
 				continue;
 			}
 			boolean currencyAreEqual = pricePlan.getTradingCurrency() == null
 					|| (tcurrency != null && tcurrency.getId().equals(pricePlan.getTradingCurrency().getId()));
 			if (!currencyAreEqual) {
 				log.debug("The currency of the customer account "
-						+ (tcurrency != null ? tcurrency.getCurrencyCode() : "null")
-						+ " is not the same as pricePlan currency" + pricePlan.getTradingCurrency().getId() + " ("
-						+ pricePlan.getTradingCurrency().getCurrencyCode() + ")");
+						+ (tcurrency != null ? tcurrency.getId() : "null")
+						+ " is not the same as pricePlan currency" + pricePlan.getTradingCurrency().getId());
 				continue;
 			}
 			boolean subscriptionDateInPricePlanPeriod = bareOperation.getSubscriptionDate() == null
@@ -606,8 +601,8 @@ public class RatingService extends BusinessService<WalletOperation>{
 					|| pricePlan.getOfferTemplate().getCode().equals(bareOperation.getOfferCode());
 			if (!offerCodeSameInPricePlan) {
 				log.debug("The operation offerCode " + bareOperation.getOfferCode()
-						+ " is not compatible with price plan offerCode: "
-						+ ((pricePlan.getOfferTemplate() == null) ? "null" : pricePlan.getOfferTemplate().getCode()));
+						+ " is not compatible with price plan offerID: "
+						+ ((pricePlan.getOfferTemplate() == null) ? "null" : pricePlan.getOfferTemplate().getId()));
 				continue;
 			}
 			log.debug("offerCodeSameInPricePlan");
