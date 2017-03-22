@@ -8,7 +8,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang3.StringUtils;
-import org.meveo.api.dto.BaseDto;
+import org.meveo.api.dto.BusinessDto;
 import org.meveocrm.model.dwh.MeasurableQuantity;
 import org.meveocrm.model.dwh.MeasurementPeriodEnum;
 
@@ -17,7 +17,7 @@ import org.meveocrm.model.dwh.MeasurementPeriodEnum;
  **/
 @XmlRootElement(name = "MeasurableQuantity")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class MeasurableQuantityDto extends BaseDto {
+public class MeasurableQuantityDto extends BusinessDto {
 
     private static final long serialVersionUID = 2678416518718451635L;
 
