@@ -164,6 +164,7 @@ public class OfferTemplateApi extends BaseApi {
 
         offerTemplate.setBusinessOfferModel(businessOffer);
         offerTemplate.setDescription(postData.getDescription());
+        offerTemplate.setCode(StringUtils.isBlank(postData.getUpdatedCode()) ? postData.getCode() : postData.getUpdatedCode() );
         offerTemplate.setDisabled(postData.isDisabled());
 
         OfferTemplateCategory offerTemplateCategory = null;

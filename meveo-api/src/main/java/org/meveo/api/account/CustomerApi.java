@@ -153,7 +153,7 @@ public class CustomerApi extends AccountApi {
         if (customer == null) {
             throw new EntityDoesNotExistsException(Customer.class, postData.getCode());
         }
-
+        customer.setCode(StringUtils.isBlank(postData.getUpdatedCode()) ? postData.getCode() : postData.getUpdatedCode());
         if (!StringUtils.isBlank(postData.getCustomerCategory())) {
             CustomerCategory customerCategory = customerCategoryService.findByCode(postData.getCustomerCategory(), currentUser.getProvider());
             if (customerCategory == null) {

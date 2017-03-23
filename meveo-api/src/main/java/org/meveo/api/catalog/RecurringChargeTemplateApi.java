@@ -203,7 +203,7 @@ public class RecurringChargeTemplateApi extends BaseApi {
         if (calendar == null) {
             throw new EntityDoesNotExistsException(Calendar.class, postData.getCalendar());
         }
-
+        chargeTemplate.setCode(StringUtils.isBlank(postData.getUpdatedCode()) ? postData.getCode() : postData.getUpdatedCode() );
         chargeTemplate.setDescription(postData.getDescription());
         chargeTemplate.setDisabled(postData.isDisabled());
         chargeTemplate.setAmountEditable(postData.getAmountEditable());

@@ -82,6 +82,7 @@ public class TriggeredEdrApi extends BaseApi {
                 }
             	edrTemplate.setMeveoInstance(meveoInstance);
             }
+            edrTemplate.setCode(StringUtils.isBlank(postData.getUpdatedCode())?postData.getCode():postData.getUpdatedCode());
             edrTemplate.setConditionEl(postData.getConditionEl());
             edrTemplate.setQuantityEl(postData.getQuantityEl());
             edrTemplate.setParam1El(postData.getParam1El());

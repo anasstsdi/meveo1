@@ -75,7 +75,7 @@ public class DiscountPlanApi extends BaseApi {
             throw new EntityDoesNotExistsException(DiscountPlan.class, postData.getCode());
         }
         discountPlan.setDescription(postData.getDescription());
-
+        discountPlan.setCode(StringUtils.isBlank(postData.getUpdatedCode())?postData.getCode():postData.getUpdatedCode());
         discountPlanService.update(discountPlan, currentUser);
     }
 

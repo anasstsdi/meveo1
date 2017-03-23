@@ -299,6 +299,7 @@ public class ServiceTemplateApi extends BaseApi {
         if (serviceTemplate == null) {
             throw new EntityDoesNotExistsException(ServiceTemplateService.class, postData.getCode());
         }
+        serviceTemplate.setCode(StringUtils.isBlank(postData.getUpdatedCode())?postData.getCode():postData.getUpdatedCode());
         serviceTemplate.setDescription(postData.getDescription());
 
         Calendar invoicingCalendar = null;

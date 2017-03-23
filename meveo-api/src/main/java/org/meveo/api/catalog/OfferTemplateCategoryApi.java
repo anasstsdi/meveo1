@@ -116,7 +116,7 @@ public class OfferTemplateCategoryApi extends BaseApi {
         if (offerTemplateCategory == null) {
             throw new EntityAlreadyExistsException(OfferTemplateCategory.class, postData.getCode());
         } else {
-
+        	offerTemplateCategory.setCode(StringUtils.isBlank(postData.getUpdatedCode())?postData.getCode():postData.getUpdatedCode());
             offerTemplateCategory.setDescription(postData.getDescription());
             offerTemplateCategory.setName(postData.getName());
 

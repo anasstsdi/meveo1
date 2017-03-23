@@ -115,7 +115,7 @@ public class UserAccountApi extends AccountApi {
 		if (userAccount == null) {
 			throw new EntityDoesNotExistsException(UserAccount.class, postData.getCode());
 		}
-
+		userAccount.setCode(StringUtils.isBlank(postData.getUpdatedCode()) ? postData.getCode() : postData.getUpdatedCode());
 		if (!StringUtils.isBlank(postData.getBillingAccount())) {
 			BillingAccount billingAccount = billingAccountService.findByCode(postData.getBillingAccount(), provider);
 			if (billingAccount == null) {

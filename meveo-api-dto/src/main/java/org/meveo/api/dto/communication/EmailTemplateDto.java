@@ -8,7 +8,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-import org.meveo.api.dto.BaseDto;
+import org.meveo.api.dto.BusinessDto;
 import org.meveo.model.communication.MediaEnum;
 import org.meveo.model.communication.MessageTemplateTypeEnum;
 import org.meveo.model.communication.email.EmailTemplate;
@@ -22,7 +22,7 @@ import org.meveo.model.communication.email.EmailTemplate;
 @XmlType(name = "EmailTemplate")
 @XmlRootElement(name = "EmailTemplate")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class EmailTemplateDto extends BaseDto{
+public class EmailTemplateDto extends BusinessDto{
 
 	private static final long serialVersionUID = 7503268654503865318L;
 	@XmlElement(required=true)

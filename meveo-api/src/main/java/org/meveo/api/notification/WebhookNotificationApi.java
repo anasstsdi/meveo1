@@ -180,7 +180,7 @@ public class WebhookNotificationApi extends BaseApi {
                     throw new EntityDoesNotExistsException(CounterTemplate.class, postData.getCounterTemplate());
                 }
             }
-
+            webHook.setCode(StringUtils.isBlank(postData.getUpdatedCode()) ? postData.getCode() : postData.getUpdatedCode());
             webHook.setClassNameFilter(postData.getClassNameFilter());
             webHook.setEventTypeFilter(postData.getEventTypeFilter());
             webHook.setScriptInstance(scriptInstance);

@@ -90,7 +90,7 @@ public class CounterTemplateApi extends BaseApi {
         if (calendar == null) {
             throw new EntityDoesNotExistsException(Calendar.class, postData.getCalendar());
         }
-
+        counterTemplate.setCode(StringUtils.isBlank(postData.getUpdatedCode())?postData.getCode():postData.getUpdatedCode());
         counterTemplate.setDescription(postData.getDescription());
         counterTemplate.setUnityDescription(postData.getUnity());
         if (postData.getType() != null) {

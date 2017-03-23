@@ -193,6 +193,7 @@ public class PricePlanApi extends BaseApi {
         if (pricePlanMatrix == null) {
             throw new EntityDoesNotExistsException(PricePlanMatrix.class, postData.getCode());
         }
+        pricePlanMatrix.setCode(StringUtils.isBlank(postData.getUpdatedCode()) ? postData.getCode() : postData.getUpdatedCode() );
         pricePlanMatrix.setEventCode(postData.getEventCode());
 
         if (!StringUtils.isBlank(postData.getSeller())) {

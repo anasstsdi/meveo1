@@ -211,7 +211,7 @@ public class UsageChargeTemplateApi extends BaseApi {
                 }
             }
         }
-
+        chargeTemplate.setCode(StringUtils.isBlank(postData.getUpdatedCode()) ? postData.getCode() : postData.getUpdatedCode() );
         chargeTemplate.setDescription(postData.getDescription());
         chargeTemplate.setDisabled(postData.isDisabled());
         chargeTemplate.setAmountEditable(postData.getAmountEditable());
