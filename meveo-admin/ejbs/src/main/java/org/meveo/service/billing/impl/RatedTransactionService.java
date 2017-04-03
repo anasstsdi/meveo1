@@ -664,8 +664,12 @@ public class RatedTransactionService extends PersistenceService<RatedTransaction
 	private void createDiscountAggregate(User currentUser,UserAccount userAccount,WalletInstance wallet,Invoice invoice,InvoiceSubCategory invoiceSubCat,DiscountPlanItem discountPlanItem,Map<Long, TaxInvoiceAgregate> taxInvoiceAgregateMap) throws BusinessException{
 		BillingAccount billingAccount=userAccount.getBillingAccount();
 		BigDecimal amount=invoiceAgregateService.findTotalAmountByWalletSubCat(wallet, invoiceSubCat, wallet.getProvider(),invoice);
+		BigDecimal discountPercent = discountPlanItem.getPercent();
 		if (amount!=null && !BigDecimal.ZERO.equals(amount)){
-			BigDecimal discountAmountWithoutTax=amount.multiply(discountPlanItem.getPercent().divide(HUNDRED)).negate();
+			if(discountPlanItem.getDiscountPercentEl()!=null){
+				discountPercent=getDecimalExpression(discountPlanItem.getDiscountPercentEl(),userAccount,wallet,invoice,amount);
+			}
+			BigDecimal discountAmountWithoutTax=amount.multiply(discountPercent.divide(HUNDRED)).negate();
 			List<Tax> taxes = new ArrayList<Tax>();
 			for (InvoiceSubcategoryCountry invoicesubcatCountry : invoiceSubCat
 					.getInvoiceSubcategoryCountries()) {
@@ -710,7 +714,7 @@ public class RatedTransactionService extends PersistenceService<RatedTransaction
 			invoiceAgregateSubcat.setInvoiceSubCategory(invoiceSubCat);
 
 			invoiceAgregateSubcat.setDiscountAggregate(true);
-			invoiceAgregateSubcat.setDiscountPercent(discountPlanItem.getPercent());
+			invoiceAgregateSubcat.setDiscountPercent(discountPercent);
 			invoiceAgregateSubcat.setDiscountPlanCode(discountPlanItem.getDiscountPlan().getCode());
 			invoiceAgregateSubcat.setDiscountPlanItemCode(discountPlanItem.getCode());
 			invoiceAgregateService.create(invoiceAgregateSubcat,currentUser);
@@ -718,6 +722,40 @@ public class RatedTransactionService extends PersistenceService<RatedTransaction
 		}}
 	
 
+	private BigDecimal getDecimalExpression(String expression,UserAccount userAccount,WalletInstance wallet,Invoice invoice,BigDecimal subCatTotal) throws BusinessException {
+		BigDecimal result= null;
+
+		if (StringUtils.isBlank(expression) ) {
+			return result;
+		}
+		Map<Object, Object> userMap = new HashMap<Object, Object>();
+
+
+		if (expression.indexOf("ca") >= 0) {
+			userMap.put("ca",userAccount.getBillingAccount().getCustomerAccount());
+		}
+		if (expression.indexOf("ba") >= 0) {
+			userMap.put("ba", userAccount.getBillingAccount());
+		}
+		if (expression.indexOf("iv") >= 0) {
+			userMap.put("iv", invoice);
+		}
+		if (expression.indexOf("wa") >= 0) {
+			userMap.put("wa", wallet);
+		}
+		if (expression.indexOf("amount") >= 0) {
+			userMap.put("amount", subCatTotal);
+		}
+		Object res = ValueExpressionWrapper.evaluateExpression(expression, userMap,
+				BigDecimal.class);
+		try {
+			result = (BigDecimal) res;
+		} catch (Exception e) {
+			throw new BusinessException("Expression " + expression
+					+ " do not evaluate to bigDecimal but " + res);
+		}
+		return result;
+	}
 
 	private boolean matchDiscountPlanItemExpression(String expression,CustomerAccount customerAccount,BillingAccount billingAccount,Invoice invoice) throws BusinessException {
 		Boolean result = true;

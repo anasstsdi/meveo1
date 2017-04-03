@@ -191,6 +191,7 @@ public class UsageRatingService {
 		// we set here the wallet to the pricipal wallet but it will later be
 		// overriden by charging algo
 		walletOperation.setWallet(chargeInstance.getSubscription().getUserAccount().getWallet());
+		walletOperation.setBillingAccount(chargeInstance.getSubscription().getUserAccount().getBillingAccount());
 		walletOperation.setCode(chargeInstance.getCode());
 		walletOperation.setDescription(chargeInstance.getDescription());
 

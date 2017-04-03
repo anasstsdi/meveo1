@@ -2334,5 +2334,12 @@ $BODY$
       <changeSet id="#1890_#1889_UIID_20160801" author="Mbarek">
          <sql>update BILLING_TAX set UUID ='TAX-'|| id </sql>   
         <sql>update BILLING_CYCLE set UUID ='BillingCycle-'|| id </sql> 
-        </changeSet>    
+        </changeSet>
+            
+    <changeSet id="#20171123" author="smichea">
+        <addColumn tableName="CAT_DISCOUNT_PLAN_ITEM">
+            <column name="DISCOUNT_PERCENT_EL" type="VARCHAR(2000)"/>        
+        </addColumn>
+    </changeSet>
+        
 </databaseChangeLog>
