@@ -667,7 +667,8 @@ public class RatedTransactionService extends PersistenceService<RatedTransaction
 		BigDecimal discountPercent = discountPlanItem.getPercent();
 		if (amount!=null && !BigDecimal.ZERO.equals(amount)){
 			if(discountPlanItem.getDiscountPercentEl()!=null){
-				discountPercent=getDecimalExpression(discountPlanItem.getDiscountPercentEl(),userAccount,wallet,invoice,amount);
+				discountPercent=getDecimalExpression(discountPlanItem.getDiscountPercentEl(),userAccount,wallet,invoice,amount,currentUser);
+				log.debug("for discountPlan "+discountPlanItem.getCode()+" percentEL ->"+discountPercent+" on amount="+amount);
 			}
 			BigDecimal discountAmountWithoutTax=amount.multiply(discountPercent.divide(HUNDRED)).negate();
 			List<Tax> taxes = new ArrayList<Tax>();
@@ -722,30 +723,19 @@ public class RatedTransactionService extends PersistenceService<RatedTransaction
 		}}
 	
 
-	private BigDecimal getDecimalExpression(String expression,UserAccount userAccount,WalletInstance wallet,Invoice invoice,BigDecimal subCatTotal) throws BusinessException {
+	private BigDecimal getDecimalExpression(String expression,UserAccount userAccount,
+			WalletInstance wallet,Invoice invoice,BigDecimal subCatTotal,User currentUser) throws BusinessException {
 		BigDecimal result= null;
 
 		if (StringUtils.isBlank(expression) ) {
 			return result;
 		}
 		Map<Object, Object> userMap = new HashMap<Object, Object>();
-
-
-		if (expression.indexOf("ca") >= 0) {
-			userMap.put("ca",userAccount.getBillingAccount().getCustomerAccount());
-		}
-		if (expression.indexOf("ba") >= 0) {
-			userMap.put("ba", userAccount.getBillingAccount());
-		}
-		if (expression.indexOf("iv") >= 0) {
-			userMap.put("iv", invoice);
-		}
-		if (expression.indexOf("wa") >= 0) {
-			userMap.put("wa", wallet);
-		}
-		if (expression.indexOf("amount") >= 0) {
-			userMap.put("amount", subCatTotal);
-		}
+        userMap.put("ca",userAccount.getBillingAccount().getCustomerAccount());
+		userMap.put("ba", userAccount.getBillingAccount());
+		userMap.put("iv", invoice);
+		userMap.put("wa", wallet);
+		userMap.put("amount", subCatTotal);
 		Object res = ValueExpressionWrapper.evaluateExpression(expression, userMap,
 				BigDecimal.class);
 		try {
