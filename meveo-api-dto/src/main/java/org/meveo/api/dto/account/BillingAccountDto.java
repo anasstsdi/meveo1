@@ -18,6 +18,7 @@ import org.meveo.model.payments.PaymentTermEnum;
 /**
  * @author Edward P. Legaspi
  **/
+@SuppressWarnings("deprecation")
 @XmlType(name = "BillingAccount")
 @XmlRootElement(name = "BillingAccount")
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -49,6 +50,7 @@ public class BillingAccountDto extends AccountDto {
 	private String terminationReason;
 	private String email;
 	private BankCoordinatesDto bankCoordinates = new BankCoordinatesDto();
+	private String discountPlan;
 	private List<Invoice4_2Dto> invoices = new ArrayList<Invoice4_2Dto>();
 	/**
 	 * Use for GET / LIST only.
@@ -193,6 +195,14 @@ public class BillingAccountDto extends AccountDto {
 
 	public void setInvoices(List<Invoice4_2Dto> invoices) {
 		this.invoices = invoices;
+	}
+
+	public String getDiscountPlan() {
+		return discountPlan;
+	}
+
+	public void setDiscountPlan(String discountPlan) {
+		this.discountPlan = discountPlan;
 	}
 
 }

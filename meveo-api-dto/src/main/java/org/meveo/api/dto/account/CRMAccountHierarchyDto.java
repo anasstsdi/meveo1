@@ -77,6 +77,7 @@ public class CRMAccountHierarchyDto extends BaseDto {
 	private AccountStatusEnum baStatus;
 	private String email;
 	private BankCoordinatesDto bankCoordinates = new BankCoordinatesDto();
+	private String discountPlan;
 
 	// user account
 	private AccountStatusEnum uaStatus;
@@ -478,6 +479,14 @@ public class CRMAccountHierarchyDto extends BaseDto {
 			CustomFieldValueDto cfValue = new CustomFieldValueDto(cfMapToAdd.getDoubleValue());
 			customFieldDto.getMapValue().put(cfMapToAdd.getCode(), cfValue);
 		}
+	}
+
+	public String getDiscountPlan() {
+		return discountPlan;
+	}
+
+	public void setDiscountPlan(String discountPlan) {
+		this.discountPlan = discountPlan;
 	}
 
 }

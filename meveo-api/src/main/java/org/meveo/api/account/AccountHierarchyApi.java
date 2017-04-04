@@ -1882,6 +1882,7 @@ public class AccountHierarchyApi extends BaseApi {
 			billingAccountDto.setStatus(postData.getBaStatus());
 			billingAccountDto.setTerminationReason(postData.getTerminationReason());
 			billingAccountDto.setEmail(postData.getEmail());
+			billingAccountDto.setDiscountPlan(postData.getDiscountPlan());
 			if (postData.getBankCoordinates() != null) {
 				BankCoordinatesDto bankCoordinatesDto = new BankCoordinatesDto();
 				bankCoordinatesDto.setAccountNumber(postData.getBankCoordinates().getAccountNumber());
@@ -2156,6 +2157,7 @@ public class AccountHierarchyApi extends BaseApi {
 			billingAccountDto.setStatus(postData.getBaStatus());
 			billingAccountDto.setTerminationReason(postData.getTerminationReason());
 			billingAccountDto.setEmail(postData.getEmail());
+			billingAccountDto.setDiscountPlan(postData.getDiscountPlan());
 			if (postData.getBankCoordinates() != null) {
 				BankCoordinatesDto bankCoordinatesDto = new BankCoordinatesDto();
 				bankCoordinatesDto.setAccountNumber(postData.getBankCoordinates().getAccountNumber());
@@ -2571,6 +2573,9 @@ public class AccountHierarchyApi extends BaseApi {
 		}
 		if (ba.getTradingLanguage() != null) {
 			dto.setLanguage(ba.getTradingLanguage().getLanguageCode());
+		}
+		if (ba.getDiscountPlan() != null) {
+			dto.setDiscountPlan(ba.getDiscountPlan().getCode());
 		}
 		dto.setPaymentMethod(ba.getPaymentMethod());
 		dto.setNextInvoiceDate(ba.getNextInvoiceDate());
