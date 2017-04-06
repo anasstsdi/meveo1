@@ -773,6 +773,19 @@ public class CustomFieldDataEntryBean implements Serializable {
         String uuid = entity.getUuid();
         saveCustomFieldsToEntity(entity, uuid, false, isNewEntity);
     }
+    
+    /**
+     * Save custom fields for a given entity
+     * 
+     * @param entity Entity, the fields relate to
+     * @param uuid UUID of the entity where CF values are save
+     * @param duplicateCFI Duplicate the CFI
+     * @param isNewEntity If it is a new entity
+     * @throws BusinessException
+     */
+    public void saveCustomFieldsToEntity(ICustomFieldEntity entity, String uuid, boolean duplicateCFI, boolean isNewEntity) throws BusinessException {
+        saveCustomFieldsToEntity(entity, uuid, duplicateCFI, isNewEntity, false);
+    }
 
     /**
      * Save custom fields for a given entity
@@ -781,7 +794,7 @@ public class CustomFieldDataEntryBean implements Serializable {
      * @param isNewEntity Is it a new entity
      * @throws BusinessException
      */
-    public void saveCustomFieldsToEntity(ICustomFieldEntity entity, String uuid, boolean duplicateCFI, boolean isNewEntity) throws BusinessException {
+    public void saveCustomFieldsToEntity(ICustomFieldEntity entity, String uuid, boolean duplicateCFI, boolean isNewEntity, boolean removedOriginalCFI) throws BusinessException {
 
         CustomFieldValueHolder entityFieldsValues = getFieldValueHolderByUUID(uuid);
         GroupedCustomField groupedCustomFields = groupedFieldTemplates.get(uuid);
