@@ -802,6 +802,15 @@ public class CustomFieldDataEntryBean implements Serializable {
             for (CustomFieldTemplate cft : groupedCustomFields.getFields()) {
                 for (CustomFieldInstance cfi : entityFieldsValues.getValues(cft)) {
                     if (duplicateCFI) {
+                    	if (removedOriginalCFI) {
+                    		List<CustomFieldInstance> cfisToBeRemove = customFieldInstanceService.getCustomFieldInstances(entity, cfi.getCode());
+                    		 if (cfisToBeRemove != null) {
+                    			 for (CustomFieldInstance cfiToBeRemove : cfisToBeRemove) {
+                    				 customFieldInstanceService.remove(cfiToBeRemove, entity, currentUser);
+                    			 }
+                    		 }
+                    	}
+                    	
                         customFieldInstanceService.detach(cfi);
                         cfi.setId(null);
                         cfi.setAppliesToEntity(entity.getUuid());
