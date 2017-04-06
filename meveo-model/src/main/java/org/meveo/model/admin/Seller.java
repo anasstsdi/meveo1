@@ -76,7 +76,7 @@ public class Seller extends BusinessCFEntity {
 	private Seller seller;
 	
 	
-	@ElementCollection(fetch = FetchType.EAGER)
+	@ElementCollection(fetch = FetchType.LAZY)
 	@CollectionTable(name = "BILLING_SEQ_INVTYP_SELL") 
 	@MapKeyJoinColumn(name="INVOICETYPE_ID")
 	Map<InvoiceType,Sequence> invoiceTypeSequence = new HashMap<InvoiceType,Sequence>();
